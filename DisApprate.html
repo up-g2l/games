@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>(Dis)Apprate</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{background:#1b4332;font-family:'Segoe UI',Arial,sans-serif;color:#f0f0f0;display:flex;flex-direction:column}
+header{text-align:center;padding:8px 0;background:rgba(0,0,0,.35);font-size:1.6em;font-weight:900;letter-spacing:6px;color:#ffd700;text-shadow:0 2px 8px #000;flex-shrink:0}
+.game{display:flex;flex:1;gap:8px;padding:8px;min-height:0;overflow:hidden}
+
+/* ── BOARD ────────────────────────────────── */
+.board-wrap{flex:1;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.board{display:grid;grid-template-columns:repeat(16,1fr);gap:2px;background:#3b1f0e;border:3px solid #8d6e3f;border-radius:6px;padding:3px;width:min(calc(100vh * 16/9 - 120px), calc(100vw - 320px));aspect-ratio:16/9}
+
+.cell{position:relative;border-radius:3px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:1px;overflow:visible;aspect-ratio:1}
+.cell.norm{background:#f5e6c8}
+.cell.norm.alt{background:#e8d4b0}
+.cell.snake{background:#ffaaaa}
+.cell.ladder{background:#aae8aa}
+.cell.start{background:#fffacd;border:2px solid #e0b800}
+.cell.finish{background:#ffd700;border:2px solid #ff8c00}
+
+.cnum{font-size:.55em;font-weight:700;color:#2c1810;line-height:1;z-index:1}
+.cgfx{font-size:clamp(20px,calc((100vw - 320px)*0.038),58px);line-height:1;z-index:1;display:block;text-align:center}
+.cspec{font-size:.44em;font-weight:600;line-height:1;z-index:1}
+.snake .cspec{color:#8b0000}
+.ladder .cspec{color:#145214}
+
+/* Pieces: fixed corners so all 4 coexist cleanly */
+.cpieces{position:absolute;inset:0;z-index:3;pointer-events:none}
+.piece{
+  position:absolute;
+  width:clamp(20px,2.5vw,32px);
+  height:clamp(20px,2.5vw,32px);
+  border-radius:50%;
+  border:2.5px solid rgba(255,255,255,.92);
+  box-shadow:0 3px 8px rgba(0,0,0,.7);
+  display:flex;align-items:center;justify-content:center;
+  font-size:clamp(10px,1.2vw,16px);
+  font-weight:900;color:#fff;
+  text-shadow:0 1px 4px rgba(0,0,0,.9);
+}
+.piece.p1a{top:2px;left:2px}
+.piece.p1b{bottom:2px;left:2px}
+.piece.p2a{top:2px;right:2px}
+.piece.p2b{bottom:2px;right:2px}
+
+/* ── PORTAL / SPECIAL ANIMATIONS ─────────── */
+.portal-flash{position:absolute;inset:0;border-radius:3px;z-index:6;pointer-events:none}
+.portal-flash.snake-in {animation:snakeIn  .85s ease-out forwards}
+.portal-flash.ladder-in{animation:ladderIn .85s ease-out forwards}
+.portal-flash.arrive   {animation:arriveFlash .65s ease-out forwards}
+.portal-flash.capture  {animation:captureFlash .7s ease-out forwards}
+.portal-flash.vertical {animation:verticalFlash .6s ease-out forwards}
+
+@keyframes snakeIn{
+  0%  {background:rgba(255,60,60,0);transform:scale(1) rotate(0deg)}
+  20% {background:rgba(255,60,60,.85);transform:scale(1.1) rotate(6deg)}
+  50% {background:rgba(255,60,60,.6);transform:scale(.9) rotate(-8deg)}
+  80% {background:rgba(255,60,60,.3);transform:scale(1) rotate(4deg)}
+  100%{background:rgba(255,60,60,0);transform:scale(1) rotate(0deg)}
+}
+@keyframes ladderIn{
+  0%  {background:rgba(30,220,90,0);transform:scale(1)}
+  20% {background:rgba(30,220,90,.85);transform:scale(1.12)}
+  55% {background:rgba(30,220,90,.5);transform:scale(1.06)}
+  80% {background:rgba(30,220,90,.2);transform:scale(1.02)}
+  100%{background:rgba(30,220,90,0);transform:scale(1)}
+}
+@keyframes arriveFlash{
+  0%  {background:rgba(255,255,220,.9);transform:scale(1.12)}
+  50% {background:rgba(255,255,220,.4);transform:scale(1.03)}
+  100%{background:rgba(255,255,220,0);transform:scale(1)}
+}
+@keyframes captureFlash{
+  0%  {background:rgba(255,0,120,.0);transform:scale(1)}
+  25% {background:rgba(255,0,120,.9);transform:scale(1.15)}
+  60% {background:rgba(255,0,120,.5);transform:scale(.95)}
+  100%{background:rgba(255,0,120,.0);transform:scale(1)}
+}
+@keyframes verticalFlash{
+  0%  {background:rgba(130,80,255,.0);transform:scaleY(1)}
+  30% {background:rgba(130,80,255,.85);transform:scaleY(1.1)}
+  70% {background:rgba(130,80,255,.4);transform:scaleY(1.03)}
+  100%{background:rgba(130,80,255,.0);transform:scaleY(1)}
+}
+
+/* ── PANEL ────────────────────────────────── */
+.panel{width:270px;display:flex;flex-direction:column;gap:8px;flex-shrink:0;overflow:hidden;align-self:stretch}
+.panel-top{flex:0 0 auto;display:flex;flex-direction:column;gap:8px}
+.pcard{border-radius:8px;padding:9px 11px;border:2px solid transparent;transition:border-color .3s}
+.pcard h3{font-size:.9em;font-weight:700;margin-bottom:5px;letter-spacing:1px}
+.pcard.active{border-color:#ffd700;box-shadow:0 0 8px rgba(255,215,0,.4)}
+.pstatus{display:flex;gap:10px}
+.ppiece{display:flex;align-items:center;gap:4px;font-size:.78em}
+.pdot{width:15px;height:15px;border-radius:50%;border:1.5px solid rgba(255,255,255,.6);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.65em;font-weight:900;color:#fff}
+
+/* ── DICE ─────────────────────────────────── */
+.dice-wrap{display:flex;gap:10px;justify-content:center;align-items:center}
+.die{width:56px;height:56px;background:#fff;border-radius:9px;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);padding:7px;gap:4px;box-shadow:2px 3px 8px rgba(0,0,0,.5);flex-shrink:0}
+.dot{background:#1a1a1a;border-radius:50%;visibility:hidden}
+.dot.on{visibility:visible}
+.dice-eq{font-size:1.3em;font-weight:700;color:#ffd700;line-height:56px}
+
+/* ── BUTTONS ──────────────────────────────── */
+.btn{padding:7px 14px;border:none;border-radius:7px;cursor:pointer;font-size:.88em;font-weight:700;transition:background .2s,opacity .2s;width:100%}
+.btn-p1{background:#e74c3c;color:#fff}
+.btn-p1:hover:not(:disabled){background:#c0392b}
+.btn-p2{background:#3498db;color:#fff}
+.btn-p2:hover:not(:disabled){background:#2471a3}
+.btn-roll{margin-top:2px}
+.btn-move{margin:3px 0}
+/* Special bonus buttons get a golden border */
+.btn-bonus{border:2px solid #ffd700 !important;background:rgba(255,215,0,.15) !important;color:#ffd700 !important}
+.btn-bonus:hover:not(:disabled){background:rgba(255,215,0,.3) !important}
+.btn-new{background:#27ae60;color:#fff;font-size:1.1em;padding:12px 28px;border-radius:10px;width:auto;margin-top:12px}
+.btn-new:hover{background:#1e8449}
+.btn:disabled{opacity:.42;cursor:not-allowed}
+
+/* ── STATUS / LOG ─────────────────────────── */
+.status{text-align:center;font-size:1em;font-weight:700;padding:7px;background:rgba(255,255,255,.1);border-radius:6px;letter-spacing:1px}
+.log{flex:1 1 0;min-height:0;background:rgba(0,0,0,.35);border-radius:5px;padding:7px;font-size:.72em;overflow-y:auto;line-height:1.7}
+.log div{margin-bottom:1px}
+.le-snake  {color:#ff9999}
+.le-ladder {color:#7dff7d}
+.le-bounce {color:#ffb347}
+.le-capture{color:#ff69b4;font-weight:700}
+.le-special{color:#c39aff;font-weight:700}
+.le-win    {color:#ffd700;font-weight:700;font-size:1.15em}
+.le-roll   {color:#add8e6}
+
+/* ── LEGEND ───────────────────────────────── */
+.legend{display:flex;flex-wrap:wrap;gap:4px;font-size:.68em}
+.lg{display:flex;align-items:center;gap:3px}
+.lgsq{width:11px;height:11px;border-radius:2px;flex-shrink:0}
+
+/* ── DICE ROLL MODAL ──────────────────────── */
+.dice-modal{position:fixed;inset:0;background:rgba(0,0,0,.78);display:flex;align-items:center;justify-content:center;z-index:200}
+.dice-modal-box{background:#1a3d2b;border:3px solid #8d6e3f;border-radius:18px;padding:36px 52px;text-align:center;box-shadow:0 12px 48px rgba(0,0,0,.9)}
+.modal-title{font-size:1.5em;font-weight:900;color:#ffd700;letter-spacing:4px;margin-bottom:24px}
+.modal-dice-row{display:flex;gap:28px;justify-content:center}
+.modal-die{width:96px;height:96px;background:#fff;border-radius:14px;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);padding:13px;gap:7px;box-shadow:3px 5px 16px rgba(0,0,0,.6)}
+.modal-die .dot{background:#1a1a1a;border-radius:50%;visibility:hidden}
+.modal-die .dot.on{visibility:visible}
+.modal-result{margin-top:20px;font-size:1.1em;font-weight:700;color:#fff;min-height:28px;letter-spacing:1px}
+@keyframes dieShake{0%,100%{transform:rotate(0deg) scale(1)}25%{transform:rotate(-9deg) scale(1.06)}75%{transform:rotate(9deg) scale(1.06)}}
+.die-rolling{animation:dieShake .18s infinite}
+
+/* ── WIN MODAL ────────────────────────────── */
+.win-modal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:300}
+.win-canvas{position:absolute;inset:0;pointer-events:none}
+.win-box{position:relative;z-index:1;background:rgba(10,40,25,.9);border:3px solid #ffd700;border-radius:22px;padding:48px 64px;text-align:center;box-shadow:0 16px 64px rgba(0,0,0,.95)}
+.win-trophy{font-size:4em;display:block;margin-bottom:8px;animation:trophyBounce .7s ease-out}
+@keyframes trophyBounce{0%{transform:scale(0) rotate(-15deg)}70%{transform:scale(1.25) rotate(6deg)}100%{transform:scale(1) rotate(0deg)}}
+.win-title{font-size:2em;font-weight:900;color:#ffd700;letter-spacing:3px;margin-bottom:6px;text-shadow:0 0 20px rgba(255,215,0,.7)}
+.win-sub{font-size:1em;color:#aee8c8;margin-bottom:4px}
+</style>
+</head>
+<body>
+<header>(Dis)Apprate</header>
+
+<div class="game">
+  <div class="board-wrap">
+    <div class="board" id="board"></div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-top">
+
+      <div class="pcard active" id="c0" style="background:rgba(231,76,60,.18)">
+        <h3 style="color:#ff8080">Player 1</h3>
+        <div class="pstatus">
+          <div class="ppiece"><div class="pdot" style="background:#e74c3c">A</div><span id="s0a">Sq 1</span></div>
+          <div class="ppiece"><div class="pdot" style="background:#e74c3c">B</div><span id="s0b">Sq 1</span></div>
+        </div>
+      </div>
+
+      <div class="pcard" id="c1" style="background:rgba(52,152,219,.18)">
+        <h3 style="color:#85c1e9">Player 2</h3>
+        <div class="pstatus">
+          <div class="ppiece"><div class="pdot" style="background:#3498db">A</div><span id="s1a">Sq 1</span></div>
+          <div class="ppiece"><div class="pdot" style="background:#3498db">B</div><span id="s1b">Sq 1</span></div>
+        </div>
+      </div>
+
+      <div class="status" id="status">Player 1's Turn</div>
+
+      <div class="dice-wrap">
+        <div class="die" id="d0"></div>
+        <div class="dice-eq" id="deq">?</div>
+        <div class="die" id="d1"></div>
+      </div>
+
+      <button class="btn btn-roll btn-p1" id="rollBtn" onclick="doRoll()">🎲 Roll Dice</button>
+      <div id="moveOpts"></div>
+
+      <div class="legend">
+        <div class="lg"><div class="lgsq" style="background:#ffaaaa"></div>🛡 Prime (safe + fall)</div>
+        <div class="lg"><div class="lgsq" style="background:#aae8aa"></div>🛡 ÷5/6 (safe + jump)</div>
+        <div class="lg"><div class="lgsq" style="background:#fffacd;border:1px solid #c9a700"></div>Start 🏠</div>
+        <div class="lg"><div class="lgsq" style="background:#ffd700;border:1px solid #ff8c00"></div>Finish 🏰</div>
+        <div class="lg" style="color:#c39aff">✦ doubles on start → jump up a row</div>
+        <div class="lg" style="color:#c39aff">✦ doubles on safe house → move by d²</div>
+        <div class="lg" style="color:#ff69b4">⚔ land on foe → foe sent home</div>
+        <div class="lg" style="color:#ff69b4">🛡 land on safe + foe → you sent home</div>
+      </div>
+
+    </div>
+    <div class="log" id="log"></div>
+  </div>
+</div>
+
+<!-- DICE ROLL MODAL -->
+<div class="dice-modal" id="diceModal" style="display:none">
+  <div class="dice-modal-box">
+    <div class="modal-title" id="modalTitle">Rolling…</div>
+    <div class="modal-dice-row">
+      <div class="modal-die" id="md0"></div>
+      <div class="modal-die" id="md1"></div>
+    </div>
+    <div class="modal-result" id="modalResult"></div>
+  </div>
+</div>
+
+<!-- WIN MODAL -->
+<div class="win-modal" id="winModal" style="display:none">
+  <canvas class="win-canvas" id="confettiCanvas"></canvas>
+  <div class="win-box">
+    <span class="win-trophy">🏆</span>
+    <div class="win-title" id="winTitle">Player 1 Wins!</div>
+    <div class="win-sub">Both pieces made it home!</div>
+    <button class="btn btn-new" onclick="newGame()">🎮 New Game</button>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════
+   CONSTANTS
+═══════════════════════════════════════════ */
+const COLS=16, ROWS=9;
+
+const SNAKES={
+   7: 4,  13: 8,  23:14,  31:16,
+  43:26,  53:39,  61:44,  79:58,
+  89:69, 107:82, 113:86, 131:104,
+ 137:114,139:117
+};
+const LADDERS={
+   6:22,  12:28,  18:38,  24:46,
+  30:57,  36:68,  48:81,  60:92,
+  66:98,  78:111, 96:121,120:133
+};
+
+// Colored (special) squares are safe houses: resident is protected from capture;
+// an attacker landing there is instead sent back to start.
+const SAFE_HOUSES = new Set([
+  ...Object.keys(SNAKES).map(Number),
+  ...Object.keys(LADDERS).map(Number)
+]);
+
+const COLORS    = [['#e74c3c','#e74c3c'],['#3498db','#3498db']];
+const NAMES     = ['Player 1','Player 2'];
+const PIECE_CLS = [['p1a','p1b'],['p2a','p2b']];
+const DOTS      = {0:[],1:[4],2:[2,6],3:[2,4,6],4:[0,2,6,8],5:[0,2,4,6,8],6:[0,2,3,5,6,8]};
+
+/* ═══════════════════════════════════════════
+   BOARD NUMBERING
+═══════════════════════════════════════════ */
+function squareAt(vRow,col){
+  const bRow=ROWS-1-vRow;
+  return bRow%2===0 ? bRow*COLS+col+1 : bRow*COLS+(COLS-1-col)+1;
+}
+
+// Square directly above sq in the same visual column (one row up)
+function verticalUpOf(sq){
+  const bRow    = Math.floor((sq-1)/COLS);
+  const posInRow= (sq-1)%COLS;
+  const vRow    = ROWS-1-bRow;
+  const col     = bRow%2===0 ? posInRow : COLS-1-posInRow;
+  if(vRow===0) return null;           // already on top row
+  return squareAt(vRow-1, col);
+}
+
+/* ═══════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════ */
+let G={};
+let confettiRAF=null;
+
+function newGame(){
+  if(confettiRAF){cancelAnimationFrame(confettiRAF);confettiRAF=null;}
+  document.getElementById('winModal').style.display='none';
+  G={pieces:[[1,1],[1,1]],cur:0,dice:[0,0],phase:'roll'};
+  document.getElementById('log').innerHTML='';
+  document.getElementById('moveOpts').innerHTML='';
+  renderDie('d0',0); renderDie('d1',0);
+  document.getElementById('deq').textContent='?';
+  renderPieces(); syncUI();
+  log(`Game started! ${NAMES[0]}'s turn.`,'le-roll');
+}
+
+/* ═══════════════════════════════════════════
+   BUILD BOARD
+═══════════════════════════════════════════ */
+function buildBoard(){
+  const board=document.getElementById('board');
+  board.innerHTML='';
+  for(let r=0;r<ROWS;r++){
+    for(let c=0;c<COLS;c++){
+      const n=squareAt(r,c);
+      const cell=document.createElement('div');
+      cell.id=`sq${n}`;
+      if     (n===1)       cell.className='cell start';
+      else if(n===144)     cell.className='cell finish';
+      else if(SNAKES[n])   cell.className='cell snake';
+      else if(LADDERS[n])  cell.className='cell ladder';
+      else                 cell.className='cell norm'+((r+c)%2===0?'':' alt');
+
+      let gfx='', spec='';
+      if(n===1)    gfx =`<span class="cgfx">🏠</span>`;
+      if(n===144)  gfx =`<span class="cgfx">🏰</span>`;
+      if(SNAKES[n])  spec=`<span class="cspec">↓${SNAKES[n]}</span>`;
+      if(LADDERS[n]) spec=`<span class="cspec">↑${LADDERS[n]}</span>`;
+
+      cell.innerHTML=`<span class="cnum">${n}</span>${gfx}${spec}<div class="cpieces" id="p${n}"></div>`;
+      board.appendChild(cell);
+    }
+  }
+}
+
+/* ═══════════════════════════════════════════
+   RENDER PIECES
+═══════════════════════════════════════════ */
+function renderPieces(){
+  document.querySelectorAll('.cpieces').forEach(el=>el.innerHTML='');
+  for(let p=0;p<2;p++){
+    for(let pi=0;pi<2;pi++){
+      const sq=G.pieces[p][pi];
+      const cont=document.getElementById(`p${sq}`);
+      if(!cont) continue;
+      const el=document.createElement('div');
+      el.className=`piece ${PIECE_CLS[p][pi]}`;
+      el.style.background=COLORS[p][pi];
+      el.textContent=pi===0?'A':'B';
+      el.title=`${NAMES[p]} – Piece ${pi===0?'A':'B'}`;
+      cont.appendChild(el);
+    }
+  }
+}
+
+/* ═══════════════════════════════════════════
+   DICE
+═══════════════════════════════════════════ */
+function renderDieEl(el,val){
+  el.innerHTML='';
+  for(let i=0;i<9;i++){
+    const d=document.createElement('div');
+    d.className='dot'+(val>0&&DOTS[val].includes(i)?' on':'');
+    el.appendChild(d);
+  }
+}
+function renderDie(id,val){renderDieEl(document.getElementById(id),val);}
+
+/* ═══════════════════════════════════════════
+   ROLL MODAL
+═══════════════════════════════════════════ */
+function doRoll(){
+  if(G.phase!=='roll') return;
+  document.getElementById('rollBtn').disabled=true;
+  const modal=document.getElementById('diceModal');
+  const titleEl=document.getElementById('modalTitle');
+  const resultEl=document.getElementById('modalResult');
+  const md0=document.getElementById('md0'), md1=document.getElementById('md1');
+
+  titleEl.textContent=`${NAMES[G.cur]} is rolling…`;
+  resultEl.textContent='';
+  renderDieEl(md0,1); renderDieEl(md1,1);
+  md0.classList.add('die-rolling'); md1.classList.add('die-rolling');
+  modal.style.display='flex';
+
+  let ticks=0;
+  const iv=setInterval(()=>{
+    renderDieEl(md0,Math.ceil(Math.random()*6));
+    renderDieEl(md1,Math.ceil(Math.random()*6));
+    if(++ticks>=18){
+      clearInterval(iv);
+      md0.classList.remove('die-rolling'); md1.classList.remove('die-rolling');
+      const d1=Math.ceil(Math.random()*6), d2=Math.ceil(Math.random()*6);
+      G.dice=[d1,d2];
+      renderDieEl(md0,d1); renderDieEl(md1,d2);
+      renderDie('d0',d1);  renderDie('d1',d2);
+      document.getElementById('deq').textContent=d1===d2?'=':'≠';
+      titleEl.textContent =d1===d2?'🎯 Doubles!':'🎲 Rolled!';
+      resultEl.textContent=`${d1}  and  ${d2}${d1===d2?' — doubles!':''}`;
+      setTimeout(()=>{
+        modal.style.display='none';
+        log(`${NAMES[G.cur]} rolled ${d1} & ${d2}${d1===d2?' (doubles!)':''}`, 'le-roll');
+        G.phase='move';
+        buildMoveOptions();
+      },1100);
+    }
+  },80);
+}
+
+/* ═══════════════════════════════════════════
+   ANIMATION HELPERS
+═══════════════════════════════════════════ */
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+
+async function animateSteps(playerIdx,pieceIdx,from,to,msPerStep){
+  if(from===to) return;
+  const dir=from<to?1:-1;
+  let pos=from;
+  while(pos!==to){
+    pos+=dir;
+    G.pieces[playerIdx][pieceIdx]=pos;
+    renderPieces();
+    await sleep(msPerStep);
+  }
+}
+
+async function flashCell(sq,type){
+  const cell=document.getElementById(`sq${sq}`);
+  if(!cell) return;
+  const f=document.createElement('div');
+  f.className=`portal-flash ${type}`;
+  cell.appendChild(f);
+  const dur={
+    'snake-in':900,'ladder-in':900,'arrive':680,
+    'capture':720,'vertical':640
+  }[type]||700;
+  await sleep(dur);
+  f.remove();
+}
+
+/* ═══════════════════════════════════════════
+   CAPTURE RESOLUTION
+   Returns true if the MOVING piece was itself sent home (landed on
+   a safe house occupied by the opponent).
+═══════════════════════════════════════════ */
+async function resolveCapture(playerIdx, pieceIdx, sq){
+  // Square 1 and 144 are always exempt from capture
+  if(sq===1||sq===144) return false;
+
+  const opp=1-playerIdx;
+  const pName=['A','B'][pieceIdx];
+
+  for(let opi=0;opi<2;opi++){
+    if(G.pieces[opp][opi]!==sq) continue;
+
+    if(SAFE_HOUSES.has(sq)){
+      // Safe house: attacker is expelled
+      await flashCell(sq,'capture');
+      log(`🛡 Safe house ${sq}! ${NAMES[playerIdx]} Piece ${pName} is expelled back to start!`,'le-capture');
+      G.pieces[playerIdx][pieceIdx]=1;
+      renderPieces();
+      return true;   // attacker was captured — stop processing this piece
+    } else {
+      // Normal square: defender is expelled
+      const oName=['A','B'][opi];
+      await flashCell(sq,'capture');
+      log(`⚔ ${NAMES[playerIdx]} Piece ${pName} captures ${NAMES[opp]} Piece ${oName}! Sent to start.`,'le-capture');
+      G.pieces[opp][opi]=1;
+      renderPieces();
+      // continue: there could be a second opponent piece on the same square
+    }
+  }
+  return false;
+}
+
+/* ═══════════════════════════════════════════
+   WIN CHECK + TURN HANDOFF
+═══════════════════════════════════════════ */
+function checkWinAndNext(){
+  if(G.pieces[G.cur][0]===144 && G.pieces[G.cur][1]===144){
+    G.phase='over';
+    log(`🏆 ${NAMES[G.cur]} wins! Both pieces home!`,'le-win');
+    showWinScreen(G.cur);
+  } else {
+    nextTurn();
+  }
+}
+
+/* ═══════════════════════════════════════════
+   MOVE OPTIONS
+   Doubles give three kinds of bonus (in addition to normal sum):
+     1. If piece is on sq 1 (start): offer vertical-up jump
+     2. If piece is on a safe-house: offer d² movement
+   One piece at 144 → remaining piece uses lower die (or single-die for doubles)
+═══════════════════════════════════════════ */
+function buildMoveOptions(){
+  const[d1,d2]=G.dice;
+  const ps=G.pieces[G.cur];
+  const fin=[ps[0]===144, ps[1]===144];
+  const opts=document.getElementById('moveOpts');
+  opts.innerHTML='';
+  const big=Math.max(d1,d2), small=Math.min(d1,d2);
+
+  if(fin[0]&&fin[1]){nextTurn();return;}
+
+  // ── One piece finished: remaining piece uses lower/single die ──────
+  if(fin[0]||fin[1]){
+    const pi=fin[0]?1:0;
+    const pos=ps[pi];
+    const lbl=['A','B'][pi];
+    if(d1===d2){
+      const d=d1, sq=d*d;
+      mkBtn(`Move ${lbl} by ${d} (single die)`,()=>exec([{p:pi,s:d}]));
+      if(pos===1){
+        const up=verticalUpOf(pos);
+        if(up) mkBtn(`✦ Move ${lbl} ↑ to ${up} (doubles on start)`,()=>execVertical(pi,up),true);
+      }
+      if(SAFE_HOUSES.has(pos) && sq!==d){
+        mkBtn(`✦ Move ${lbl} by ${sq} (${d}² safe house)`,()=>exec([{p:pi,s:sq}]),true);
+      }
+    } else {
+      mkBtn(`Move ${lbl} by ${small} (lower die)`,()=>exec([{p:pi,s:small}]));
+    }
+    return;
+  }
+
+  // ── Both pieces active ─────────────────────────────────────────────
+  if(d1===d2){
+    const d=d1, sum=2*d, sq=d*d;
+    for(let pi=0;pi<2;pi++){
+      const pos=ps[pi];
+      const lbl=['A','B'][pi];
+      mkBtn(`Move ${lbl} by ${sum}`,()=>exec([{p:pi,s:sum}]));
+      if(pos===1){
+        const up=verticalUpOf(pos);
+        if(up) mkBtn(`✦ Move ${lbl} ↑ to ${up} (doubles on start)`,()=>execVertical(pi,up),true);
+      }
+      if(SAFE_HOUSES.has(pos) && pos!==1 && sq!==sum){
+        mkBtn(`✦ Move ${lbl} by ${sq} (${d}² safe house)`,()=>exec([{p:pi,s:sq}]),true);
+      }
+    }
+    return;
+  }
+
+  // Different dice — finishing constraint: piece near 144 is forced onto larger die
+  const posA=ps[0], posB=ps[1];
+  const forceBigA=posA+small<144 && posA+big>=144;
+  const forceBigB=posB+small<144 && posB+big>=144;
+  if(forceBigA&&!forceBigB){
+    mkBtn(`A +${big} (forced) · B +${small}`,()=>exec([{p:0,s:big},{p:1,s:small}]));
+  } else if(forceBigB&&!forceBigA){
+    mkBtn(`A +${small} · B +${big} (forced)`,()=>exec([{p:0,s:small},{p:1,s:big}]));
+  } else {
+    mkBtn(`A +${d1} · B +${d2}`,()=>exec([{p:0,s:d1},{p:1,s:d2}]));
+    mkBtn(`A +${d2} · B +${d1}`,()=>exec([{p:0,s:d2},{p:1,s:d1}]));
+  }
+}
+
+function mkBtn(label,handler,bonus=false){
+  const b=document.createElement('button');
+  b.className=`btn btn-move btn-p${G.cur+1}${bonus?' btn-bonus':''}`;
+  b.textContent=label;
+  b.onclick=()=>{document.getElementById('moveOpts').innerHTML=''; handler();};
+  document.getElementById('moveOpts').appendChild(b);
+}
+
+/* ═══════════════════════════════════════════
+   EXECUTE NORMAL MOVES  (async — animated)
+═══════════════════════════════════════════ */
+async function exec(moves){
+  for(const{p:pi,s:steps}of moves){
+    const from=G.pieces[G.cur][pi];
+    const name=['A','B'][pi];
+    if(from===144){log(`${NAMES[G.cur]} Piece ${name} already home.`);continue;}
+
+    let raw=from+steps;
+
+    if(raw>144){
+      // Bounce-back: walk to 144, pause, walk back
+      const excess=raw-144, to=144-excess;
+      log(`${NAMES[G.cur]} Piece ${name}: ${from} → 144 ↩ bounces to ${to}`,'le-bounce');
+      await animateSteps(G.cur,pi,from,144,110);
+      await sleep(340);
+      await animateSteps(G.cur,pi,144,to,110);
+    } else {
+      log(`${NAMES[G.cur]} Piece ${name}: ${from} → ${raw}`);
+      await animateSteps(G.cur,pi,from,raw,110);
+    }
+
+    const landed=G.pieces[G.cur][pi];
+    if(landed===144) continue;   // reached finish, no further effects
+
+    // ── Capture check ──────────────────────────────────────────────
+    const expelled=await resolveCapture(G.cur,pi,landed);
+    if(expelled) continue;       // piece was sent home, skip snake/ladder
+
+    // ── Snake / Ladder ─────────────────────────────────────────────
+    if(SNAKES[landed]){
+      const dest=SNAKES[landed];
+      log(`  ⚠ Square ${landed} is prime! Piece ${name} falls to ${dest}.`,'le-snake');
+      await flashCell(landed,'snake-in');
+      const ms=Math.max(35,Math.min(80,Math.floor(900/Math.abs(dest-landed))));
+      await animateSteps(G.cur,pi,landed,dest,ms);
+      await flashCell(dest,'arrive');
+    } else if(LADDERS[landed]){
+      const dest=LADDERS[landed];
+      log(`  ✦ Square ${landed} ÷5/6! Piece ${name} jumps to ${dest}.`,'le-ladder');
+      await flashCell(landed,'ladder-in');
+      const ms=Math.max(35,Math.min(80,Math.floor(900/Math.abs(dest-landed))));
+      await animateSteps(G.cur,pi,landed,dest,ms);
+      await flashCell(dest,'arrive');
+    }
+  }
+
+  syncUI();
+  checkWinAndNext();
+}
+
+/* ═══════════════════════════════════════════
+   EXECUTE VERTICAL JUMP  (doubles on start)
+   Teleports piece to the square directly above in the same column.
+   Capture rules apply; snake/ladder effects do NOT (it's a power move).
+═══════════════════════════════════════════ */
+async function execVertical(pieceIdx, destSq){
+  const from=G.pieces[G.cur][pieceIdx];
+  const name=['A','B'][pieceIdx];
+  log(`${NAMES[G.cur]} Piece ${name} ↑ jumps vertically: ${from} → ${destSq}`,'le-special');
+  await flashCell(from,'vertical');
+  await animateSteps(G.cur,pieceIdx,from,destSq,80);
+  await flashCell(destSq,'arrive');
+
+  const expelled=await resolveCapture(G.cur,pieceIdx,destSq);
+  if(expelled){ syncUI(); checkWinAndNext(); return; }
+
+  syncUI();
+  checkWinAndNext();
+}
+
+/* ═══════════════════════════════════════════
+   TURN & UI
+═══════════════════════════════════════════ */
+function nextTurn(){
+  G.cur=1-G.cur; G.phase='roll'; G.dice=[0,0];
+  renderDie('d0',0); renderDie('d1',0);
+  document.getElementById('deq').textContent='?';
+  document.getElementById('rollBtn').disabled=false;
+  syncUI();
+}
+
+function syncUI(){
+  const lbl=sq=>sq===144?'🏠 Home':`Sq ${sq}`;
+  document.getElementById('s0a').textContent=lbl(G.pieces[0][0]);
+  document.getElementById('s0b').textContent=lbl(G.pieces[0][1]);
+  document.getElementById('s1a').textContent=lbl(G.pieces[1][0]);
+  document.getElementById('s1b').textContent=lbl(G.pieces[1][1]);
+  document.getElementById('c0').classList.toggle('active',G.cur===0&&G.phase!=='over');
+  document.getElementById('c1').classList.toggle('active',G.cur===1&&G.phase!=='over');
+  if(G.phase!=='over')
+    document.getElementById('status').textContent=`${NAMES[G.cur]}'s Turn`;
+  const btn=document.getElementById('rollBtn');
+  btn.classList.toggle('btn-p1',G.cur===0);
+  btn.classList.toggle('btn-p2',G.cur===1);
+}
+
+function log(msg,cls=''){
+  const el=document.getElementById('log');
+  const d=document.createElement('div');
+  if(cls) d.className=cls;
+  d.textContent=msg;
+  el.appendChild(d);
+  el.scrollTop=el.scrollHeight;
+}
+
+/* ═══════════════════════════════════════════
+   WIN SCREEN
+═══════════════════════════════════════════ */
+function showWinScreen(playerIdx){
+  document.getElementById('winTitle').textContent=`${NAMES[playerIdx]} Wins!`;
+  document.getElementById('winModal').style.display='flex';
+  launchConfetti();
+}
+
+function launchConfetti(){
+  const canvas=document.getElementById('confettiCanvas');
+  canvas.width=window.innerWidth; canvas.height=window.innerHeight;
+  const ctx=canvas.getContext('2d');
+  const CC=['#e74c3c','#3498db','#2ecc71','#f1c40f','#9b59b6','#ffd700','#ff8c69','#00d2d3'];
+  const pts=[];
+  for(let i=0;i<220;i++){
+    const a=Math.random()*Math.PI*2, sp=Math.random()*7+2;
+    pts.push({x:canvas.width*(0.2+Math.random()*0.6),y:canvas.height*0.38+Math.random()*60-30,
+      vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-5,sz:Math.random()*9+4,
+      color:CC[Math.floor(Math.random()*CC.length)],
+      rot:Math.random()*360,rv:(Math.random()-.5)*14,
+      shape:Math.random()>.4?'rect':'circle'});
+  }
+  let frame=0;
+  function draw(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    pts.forEach(p=>{
+      p.vy+=0.2; p.x+=p.vx; p.y+=p.vy; p.rot+=p.rv;
+      ctx.save(); ctx.globalAlpha=Math.max(0,1-frame/240);
+      ctx.translate(p.x,p.y); ctx.rotate(p.rot*Math.PI/180);
+      ctx.fillStyle=p.color;
+      if(p.shape==='rect'){ctx.fillRect(-p.sz/2,-p.sz*.28,p.sz,p.sz*.55);}
+      else{ctx.beginPath();ctx.arc(0,0,p.sz/2,0,Math.PI*2);ctx.fill();}
+      ctx.restore();
+    });
+    if(++frame<280) confettiRAF=requestAnimationFrame(draw);
+  }
+  confettiRAF=requestAnimationFrame(draw);
+}
+
+/* ═══════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════ */
+buildBoard();
+newGame();
+</script>
+</body>
+</html>
