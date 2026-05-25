@@ -235,32 +235,6 @@ header{text-align:center;padding:8px 0;background:rgba(0,0,0,.35);font-size:1.6e
 /* ── PLAYER AVATAR IN CARD ─────────────────── */
 .player-av{font-size:1.6em;line-height:1;margin-right:5px;vertical-align:middle}
 
-/* ── ONLINE MODE UI ───────────────────────── */
-.online-section{margin-top:10px}
-.online-opt-row{display:flex;gap:8px;margin-bottom:10px}
-.online-opt-btn{flex:1;padding:9px 6px;border:2px solid rgba(255,255,255,.2);border-radius:8px;background:rgba(255,255,255,.07);color:#ccc;cursor:pointer;font-size:.84em;font-weight:700;transition:all .15s}
-.online-opt-btn:hover:not(:disabled){border-color:#4fc3f7;color:#fff}
-.online-opt-btn.active{border-color:#4fc3f7;background:rgba(79,195,247,.18);color:#4fc3f7}
-.online-opt-btn:disabled{opacity:.45;cursor:default}
-.room-code-wrap{text-align:center;margin:8px 0}
-.room-code-label{font-size:.72em;color:#aaa;letter-spacing:1px;margin-bottom:4px}
-.room-code-display{font-size:2.1em;font-weight:900;letter-spacing:.22em;color:#4fc3f7;background:rgba(79,195,247,.1);border:2px dashed rgba(79,195,247,.4);border-radius:10px;padding:6px 14px;display:inline-block;user-select:all;cursor:copy;text-shadow:0 0 14px rgba(79,195,247,.5)}
-.room-code-display:active{background:rgba(79,195,247,.25)}
-.online-status{font-size:.74em;color:#aaa;text-align:center;min-height:18px;margin-top:6px;font-style:italic}
-.online-status.ok{color:#27ae60;font-style:normal;font-weight:700}
-.online-status.err{color:#e74c3c;font-style:normal;font-weight:700}
-.join-row{display:flex;gap:6px;margin-top:6px}
-.join-input{flex:1;background:#22223a;border:2px solid rgba(255,255,255,.2);border-radius:7px;color:#f0f0f0;font-size:.92em;font-weight:700;padding:7px 10px;letter-spacing:.12em;text-transform:uppercase;outline:none}
-.join-input:focus{border-color:#4fc3f7}
-.join-go{background:#4fc3f7;color:#111;border:none;border-radius:7px;padding:7px 14px;font-weight:800;cursor:pointer;font-size:.86em;transition:background .15s}
-.join-go:hover{background:#81d4fa}
-/* Online banner shown above board during online game */
-.online-banner{display:none;align-items:center;justify-content:center;gap:16px;background:rgba(79,195,247,.1);border-bottom:1px solid rgba(79,195,247,.3);padding:3px 10px;font-size:.74em;color:#4fc3f7;flex-shrink:0}
-.online-banner-code{font-weight:900;letter-spacing:.1em}
-.online-banner-role{color:#aaa}
-.online-banner-dot{width:7px;height:7px;border-radius:50%;background:#27ae60;animation:onlinePulse 1.6s infinite}
-@keyframes onlinePulse{0%,100%{opacity:1}50%{opacity:.3}}
-
 /* ── EDUCATIONAL MODE TOGGLE ──────────────── */
 .edu-toggle-row{background:rgba(255,215,0,.07);border:1px solid rgba(255,215,0,.28);border-radius:8px;padding:11px 14px;margin-top:14px}
 .edu-toggle{display:flex;align-items:flex-start;gap:9px;cursor:pointer;color:#ddd;font-size:.82em;line-height:1.45;user-select:none}
@@ -311,12 +285,6 @@ header{text-align:center;padding:8px 0;background:rgba(0,0,0,.35);font-size:1.6e
       <div class="ppiece"><div class="pdot" style="background:#3498db">B</div><span id="s1b">Sq 1</span></div>
     </div>
   </div>
-</div>
-<!-- Online game status banner -->
-<div class="online-banner" id="onlineBanner">
-  <div class="online-banner-dot"></div>
-  <span class="online-banner-code" id="onlineBannerCode">🌐 Room: ------</span>
-  <span class="online-banner-role" id="onlineBannerRole"></span>
 </div>
 
 <div class="game">
@@ -459,7 +427,6 @@ header{text-align:center;padding:8px 0;background:rgba(0,0,0,.35);font-size:1.6e
       <div class="setup-p2-toggle">
         <button class="p2-mode-btn active" id="p2HumanBtn" onclick="setP2Mode('human')">👤 Human</button>
         <button class="p2-mode-btn" id="p2CpuBtn" onclick="setP2Mode('cpu')">🤖 Computer</button>
-        <button class="p2-mode-btn" id="p2OnlineBtn" onclick="setP2Mode('online')">🌐 Online</button>
       </div>
       <div id="p2HumanSec">
         <div class="setup-avatars" id="av1"></div>
@@ -481,27 +448,6 @@ header{text-align:center;padding:8px 0;background:rgba(0,0,0,.35);font-size:1.6e
             <div class="ai-name">Easy</div>
             <div class="ai-desc">Always picks the worst move</div>
           </div>
-        </div>
-      </div>
-      <!-- Online section -->
-      <div id="p2OnlineSec" style="display:none" class="online-section">
-        <div class="online-opt-row">
-          <button class="online-opt-btn" id="onlineCreateBtn" onclick="onlineCreate()">🏠 Create Room</button>
-          <button class="online-opt-btn" id="onlineJoinBtn" onclick="onlineShowJoin()">🔗 Join Room</button>
-        </div>
-        <div id="onlineRoomDisplay" style="display:none">
-          <div class="room-code-wrap">
-            <div class="room-code-label">Share this code with your opponent:</div>
-            <div class="room-code-display" id="roomCodeDisplay" title="Click to copy">------</div>
-          </div>
-          <div class="online-status" id="onlineStatus">⏳ Waiting for opponent…</div>
-        </div>
-        <div id="onlineJoinPanel" style="display:none">
-          <div class="join-row">
-            <input type="text" class="join-input" id="joinCodeInput" placeholder="ROOM CODE" maxlength="6" oninput="this.value=this.value.toUpperCase()">
-            <button class="join-go" onclick="onlineJoin()">Join →</button>
-          </div>
-          <div class="online-status" id="onlineJoinStatus"></div>
         </div>
       </div>
     </div>
@@ -683,12 +629,8 @@ function setP2Mode(mode){
   _p2Mode=mode;
   document.getElementById('p2HumanBtn').classList.toggle('active',mode==='human');
   document.getElementById('p2CpuBtn').classList.toggle('active',mode==='cpu');
-  document.getElementById('p2OnlineBtn').classList.toggle('active',mode==='online');
   document.getElementById('p2HumanSec').style.display=mode==='human'?'':'none';
   document.getElementById('p2CpuSec').style.display=mode==='cpu'?'':'none';
-  document.getElementById('p2OnlineSec').style.display=mode==='online'?'':'none';
-  // Reset online state if switching away
-  if(mode!=='online'){isOnlineMode=false;roomCode='';}
 }
 
 function setAI(level){
@@ -703,27 +645,6 @@ function openSetup(){
 }
 
 function setupGame(){
-  // Online mode: only P1 (creator) calls setupGame — P2 joined independently
-  if(_p2Mode==='online'){
-    if(!isOnlineMode||!roomCode){
-      alert('Please click "Create Room" first to get a room code, then share it with your opponent.');
-      return;
-    }
-    playerAvatars[0]=AVATAR_LIST[_setupAv[0]];
-    playerAvatars[1]='🌐';
-    computerPlayer=-1;
-    NAMES[0]='Player 1'; NAMES[1]='Player 2';
-    eduMode=false; // edu mode not supported in online play
-    document.getElementById('av0disp').textContent=playerAvatars[0];
-    document.getElementById('av1disp').textContent='🌐';
-    document.getElementById('pname0').textContent=NAMES[0];
-    document.getElementById('pname1').textContent=NAMES[1];
-    document.getElementById('setupModal').classList.remove('open');
-    showOnlineBanner();
-    newGame();
-    return;
-  }
-
   // Read avatar choices
   playerAvatars[0]=AVATAR_LIST[_setupAv[0]];
   if(_p2Mode==='cpu'){
@@ -755,13 +676,6 @@ function setupGame(){
    MOVE QUEUE  (for AI evaluation)
 ═══════════════════════════════════════════ */
 let moveQueue=[];
-
-/* ── Online multiplayer globals (declared here so syncUI() can reference them safely) ── */
-let isOnlineMode   = false;
-let myPlayerIdx    = 0;
-let roomCode       = '';
-let _lastAppliedSeq = -1;
-let _fbUnsubscribe  = null;
 
 /* ═══════════════════════════════════════════
    AI LOGIC
@@ -906,8 +820,7 @@ function closeQuizModal(){
 function newGame(){
   if(confettiRAF){cancelAnimationFrame(confettiRAF);confettiRAF=null;}
   document.getElementById('winModal').style.display='none';
-  G={pieces:[[1,1],[1,1]],cur:0,dice:[0,0],phase:'roll',seq:0};
-  _lastAppliedSeq=0;
+  G={pieces:[[1,1],[1,1]],cur:0,dice:[0,0],phase:'roll'};
   usedQIdx.clear(); moveQueue=[];
   document.getElementById('log').innerHTML='';
   document.getElementById('moveOpts').innerHTML='';
@@ -915,8 +828,6 @@ function newGame(){
   document.getElementById('deq').textContent='?';
   renderPieces(); syncUI();
   log(`Game started! ${NAMES[0]}'s turn.`,'le-roll');
-  // Push initial state to Firebase if P1 in online mode
-  if(isOnlineMode && myPlayerIdx===0) pushGameState();
   // If P1 is computer, kick off its turn
   if(computerPlayer===0) setTimeout(()=>doRoll(),1000);
 }
@@ -1038,8 +949,6 @@ function doRoll(){
         log(`${NAMES[G.cur]} rolled ${d1} & ${d2}${d1===d2?' (doubles!)':''}`, 'le-roll');
         G.phase='move';
         buildMoveOptions();
-        // Push dice result to Firebase so opponent can see the roll
-        if(isOnlineMode && G.cur===myPlayerIdx) pushGameState();
       },1100);
     }
   },80);
@@ -1303,8 +1212,6 @@ async function exec(moves,isPairMove=false){
 
   syncUI();
   checkWinAndNext();
-  // Push final state to Firebase so opponent sees new positions and knows it's their turn
-  if(isOnlineMode) pushGameState();
 }
 
 /* ═══════════════════════════════════════════
@@ -1321,11 +1228,10 @@ async function execVertical(pieceIdx, destSq){
   await flashCell(destSq,'arrive');
 
   const expelled=await resolveCapture(G.cur,pieceIdx,destSq);
-  if(expelled){ syncUI(); checkWinAndNext(); if(isOnlineMode) pushGameState(); return; }
+  if(expelled){ syncUI(); checkWinAndNext(); return; }
 
   syncUI();
   checkWinAndNext();
-  if(isOnlineMode) pushGameState();
 }
 
 /* ═══════════════════════════════════════════
@@ -1357,12 +1263,8 @@ function syncUI(){
   const btn=document.getElementById('rollBtn');
   btn.classList.toggle('btn-p1',G.cur===0);
   btn.classList.toggle('btn-p2',G.cur===1);
-  // Disable roll when: computer's turn OR online opponent's turn OR game over
-  const onlineOpponentTurn = isOnlineMode && G.cur!==myPlayerIdx;
-  btn.disabled = G.phase==='over' ||
-                 (G.cur===computerPlayer && G.phase==='roll') ||
-                 (onlineOpponentTurn && G.phase==='roll') ||
-                 (isOnlineMode && G.phase==='move' && G.cur!==myPlayerIdx);
+  // Disable roll button when it's computer's turn
+  btn.disabled=(G.cur===computerPlayer && G.phase==='roll');
 }
 
 function log(msg,cls=''){
@@ -1656,204 +1558,6 @@ QUESTIONS=[
   {"q":"What is the product of roots of  x² − 7x + 10 = 0?","options":["−7","7","10","−10"],"answer":2}
 ];
 
-/* ═══════════════════════════════════════════
-   ONLINE MULTIPLAYER — functions
-═══════════════════════════════════════════ */
-function generateRoomCode(){
-  const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  let c='';
-  for(let i=0;i<6;i++) c+=chars[Math.floor(Math.random()*chars.length)];
-  return c;
-}
-
-/* ── Called when P1 presses "Create Room" ── */
-async function onlineCreate(){
-  const statusEl=document.getElementById('onlineStatus');
-  const displayEl=document.getElementById('onlineRoomDisplay');
-  displayEl.style.display='';
-  document.getElementById('onlineJoinPanel').style.display='none';
-
-  if(!window._fb){
-    statusEl.textContent='⏳ Firebase still loading — please wait a moment and try again.';
-    statusEl.className='online-status err';
-    return;
-  }
-
-  roomCode=generateRoomCode();
-  myPlayerIdx=0;
-  isOnlineMode=true;
-
-  document.getElementById('onlineCreateBtn').disabled=true;
-  document.getElementById('onlineJoinBtn').disabled=true;
-  document.getElementById('roomCodeDisplay').textContent=roomCode;
-  statusEl.textContent='⏳ Creating room…';
-  statusEl.className='online-status';
-
-  // Write placeholder so P2 can find the room before the game starts
-  const{db,ref,set,onValue}=window._fb;
-  try{
-    await set(ref(db,`rooms/${roomCode}`),{status:'waiting',host:0,createdAt:Date.now()});
-    statusEl.textContent='✅ Room ready! Share the code above, then click Start Game.';
-    statusEl.className='online-status ok';
-  }catch(e){
-    statusEl.textContent='❌ Could not create room: '+e.message;
-    statusEl.className='online-status err';
-    isOnlineMode=false; roomCode='';
-    document.getElementById('onlineCreateBtn').disabled=false;
-    document.getElementById('onlineJoinBtn').disabled=false;
-    return;
-  }
-
-  // Copy-on-click
-  document.getElementById('roomCodeDisplay').onclick=()=>{
-    navigator.clipboard&&navigator.clipboard.writeText(roomCode).then(()=>{
-      statusEl.textContent='📋 Code copied! Share it with your opponent.';
-    });
-  };
-
-  // P1 listens for remote state (P2 moves)
-  if(_fbUnsubscribe) _fbUnsubscribe();
-  _fbUnsubscribe=onValue(ref(db,`rooms/${roomCode}`),(snap)=>{
-    const d=snap.val();
-    if(!d||!d.G) return;
-    applyRemoteState(d);
-  });
-}
-
-/* ── Called when P1 presses "Join Room" toggle ── */
-function onlineShowJoin(){
-  document.getElementById('onlineJoinPanel').style.display='';
-  document.getElementById('onlineRoomDisplay').style.display='none';
-}
-
-/* ── Called when P2 presses "Join →" ── */
-async function onlineJoin(){
-  const code=(document.getElementById('joinCodeInput').value||'').trim().toUpperCase();
-  const statusEl=document.getElementById('onlineJoinStatus');
-  if(code.length!==6){
-    statusEl.textContent='⚠ Enter the full 6-character code.';
-    statusEl.className='online-status err';
-    return;
-  }
-  if(!window._fb){
-    statusEl.textContent='⏳ Firebase loading… try again in a second.';
-    statusEl.className='online-status err';
-    return;
-  }
-  statusEl.textContent='🔄 Connecting…';
-  statusEl.className='online-status';
-
-  const{db,ref,get,onValue}=window._fb;
-  try{
-    const snap=await get(ref(db,`rooms/${code}`));
-    if(!snap.exists()){
-      statusEl.textContent='❌ Room not found. Double-check the code.';
-      statusEl.className='online-status err';
-      return;
-    }
-  }catch(e){
-    statusEl.textContent='❌ Connection error: '+e.message;
-    statusEl.className='online-status err';
-    return;
-  }
-
-  roomCode=code;
-  myPlayerIdx=1;
-  isOnlineMode=true;
-  computerPlayer=-1;
-
-  statusEl.textContent='✅ Connected! Waiting for Player 1 to start…';
-  statusEl.className='online-status ok';
-
-  // Disable start button so P2 waits for P1's state push
-  document.getElementById('setupModal').classList.remove('open');
-  showOnlineBanner();
-  log('🌐 Joined room '+roomCode+' — you are Player 2. Waiting for Player 1 to start…','le-special');
-
-  // P2 listens for P1's state
-  if(_fbUnsubscribe) _fbUnsubscribe();
-  _fbUnsubscribe=onValue(ref(db,`rooms/${roomCode}`),(snap)=>{
-    const d=snap.val();
-    if(!d||!d.G) return;
-    applyRemoteState(d);
-  });
-}
-
-/* ── Push current G to Firebase ── */
-function pushGameState(){
-  if(!isOnlineMode||!window._fb) return;
-  const{db,ref,set}=window._fb;
-  G.seq=(G.seq||0)+1;
-  _lastAppliedSeq=G.seq;
-  set(ref(db,`rooms/${roomCode}`),{G:JSON.parse(JSON.stringify(G)),pusher:myPlayerIdx});
-}
-
-/* ── Apply state received from the remote player ── */
-function applyRemoteState(data){
-  if(!data||!data.G) return;
-  const remoteG=data.G;
-  // Ignore our own echoed pushes
-  if(data.pusher===myPlayerIdx) return;
-  if((remoteG.seq||0)<=_lastAppliedSeq) return;
-  _lastAppliedSeq=remoteG.seq||0;
-
-  // Apply
-  G.pieces=remoteG.pieces;
-  G.cur   =remoteG.cur;
-  G.dice  =remoteG.dice;
-  G.phase =remoteG.phase;
-  G.seq   =remoteG.seq||0;
-
-  // Update dice display
-  if(G.dice&&G.dice[0]){
-    renderDie('d0',G.dice[0]); renderDie('d1',G.dice[1]);
-    document.getElementById('deq').textContent=G.dice[0]===G.dice[1]?'=':'≠';
-  }
-
-  renderPieces();
-  document.getElementById('moveOpts').innerHTML='';
-  moveQueue=[];
-
-  // Win?
-  if(G.phase==='over'){
-    syncUI();
-    showWinScreen(G.cur);
-    return;
-  }
-
-  // If remote player just rolled (phase=move, their turn) — log it, no move buttons for us
-  if(G.phase==='move'&&G.cur!==myPlayerIdx){
-    log(`${NAMES[G.cur]} rolled ${G.dice[0]} & ${G.dice[1]}${G.dice[0]===G.dice[1]?' (doubles!)':''}. Choosing a move…`,'le-roll');
-  }
-
-  syncUI();
-}
-
-function showOnlineBanner(){
-  const el=document.getElementById('onlineBanner');
-  el.style.display='flex';
-  document.getElementById('onlineBannerCode').textContent='🌐 Room: '+roomCode;
-  document.getElementById('onlineBannerRole').textContent='You are Player '+(myPlayerIdx+1);
-}
-</script>
-
-<!-- Firebase Realtime Database (modular SDK) -->
-<script type="module">
-import{initializeApp}from"https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
-import{getDatabase,ref,set,get,onValue}from"https://www.gstatic.com/firebasejs/12.13.0/firebase-database.js";
-const firebaseConfig={
-  apiKey:"AIzaSyBJ-3WI1FwM3zAIB8UNFZEPB7MYcPybFaA",
-  authDomain:"game2learndb.firebaseapp.com",
-  databaseURL:"https://game2learndb-default-rtdb.firebaseio.com",
-  projectId:"game2learndb",
-  storageBucket:"game2learndb.firebasestorage.app",
-  messagingSenderId:"542243702534",
-  appId:"1:542243702534:web:93d2ac9b5b7a0594b1c087",
-  measurementId:"G-M7FG667EEM"
-};
-const app=initializeApp(firebaseConfig);
-const db=getDatabase(app);
-window._fb={db,ref,set,get,onValue};
 </script>
 </body>
 </html>
