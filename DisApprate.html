@@ -3,31 +3,35 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>(Dis)Apprate</title>
+<title>Play2Learn</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;overflow:hidden}
-body{background:#1b4332;font-family:'Segoe UI',Arial,sans-serif;color:#f0f0f0;display:flex;flex-direction:column}
+body{background:#2b2b2b;font-family:'Segoe UI',Arial,sans-serif;color:#f0f0f0;display:flex;flex-direction:column}
 header{text-align:center;padding:8px 0;background:rgba(0,0,0,.35);font-size:1.6em;font-weight:900;letter-spacing:6px;color:#ffd700;text-shadow:0 2px 8px #000;flex-shrink:0}
 .game{display:flex;flex:1;gap:8px;padding:8px;min-height:0;overflow:hidden}
 
 /* ── BOARD ────────────────────────────────── */
 .board-wrap{flex:1;display:flex;align-items:center;justify-content:center;overflow:hidden}
-.board{display:grid;grid-template-columns:repeat(16,1fr);gap:2px;background:#3b1f0e;border:3px solid #8d6e3f;border-radius:6px;padding:3px;width:min(calc(100vh * 16/9 - 120px), calc(100vw - 320px));aspect-ratio:16/9}
+.board{display:grid;grid-template-columns:repeat(16,1fr);gap:2px;background:#3b1f0e;border:3px solid #8d6e3f;border-radius:6px;padding:3px;width:min(calc(100vh * 16/9 - 180px), calc(100vw - 280px));aspect-ratio:16/9}
 
 .cell{position:relative;border-radius:3px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:1px;overflow:visible;aspect-ratio:1}
 .cell.norm{background:#f5e6c8}
 .cell.norm.alt{background:#e8d4b0}
 .cell.snake{background:#ffaaaa}
 .cell.ladder{background:#aae8aa}
+.cell.safe{background:#dce8ff;border:1.5px solid #7ab0e8}
 .cell.start{background:#fffacd;border:2px solid #e0b800}
 .cell.finish{background:#ffd700;border:2px solid #ff8c00}
 
 .cnum{font-size:.55em;font-weight:700;color:#2c1810;line-height:1;z-index:1}
 .cgfx{font-size:clamp(20px,calc((100vw - 320px)*0.038),58px);line-height:1;z-index:1;display:block;text-align:center}
+.cgfx.shield{font-size:clamp(11px,calc((100vw - 320px)*0.022),32px)}
 .cspec{font-size:.44em;font-weight:600;line-height:1;z-index:1}
 .snake .cspec{color:#8b0000}
 .ladder .cspec{color:#145214}
+.safe .cspec{color:#1a3a6b}
+.safe .cnum{color:#1a3a6b}
 
 /* Pieces: fixed corners so all 4 coexist cleanly */
 .cpieces{position:absolute;inset:0;z-index:3;pointer-events:none}
@@ -47,6 +51,8 @@ header{text-align:center;padding:8px 0;background:rgba(0,0,0,.35);font-size:1.6e
 .piece.p1b{bottom:2px;left:2px}
 .piece.p2a{top:2px;right:2px}
 .piece.p2b{bottom:2px;right:2px}
+/* Paired-piece badge shown at cell centre */
+.pair-badge{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:clamp(8px,1.4vw,15px);z-index:5;pointer-events:none;line-height:1;opacity:.9}
 
 /* ── PORTAL / SPECIAL ANIMATIONS ─────────── */
 .portal-flash{position:absolute;inset:0;border-radius:3px;z-index:6;pointer-events:none}
@@ -88,11 +94,16 @@ header{text-align:center;padding:8px 0;background:rgba(0,0,0,.35);font-size:1.6e
   100%{background:rgba(130,80,255,.0);transform:scaleY(1)}
 }
 
+/* ── PLAYER BAR (above board) ─────────────── */
+.player-bar{display:flex;align-items:stretch;gap:8px;padding:4px 8px;background:rgba(0,0,0,.25);flex-shrink:0}
+.player-bar .pcard{flex:1}
+.player-bar .status{flex:0 0 auto;min-width:140px;align-self:center;font-size:.9em}
+
 /* ── PANEL ────────────────────────────────── */
-.panel{width:270px;display:flex;flex-direction:column;gap:8px;flex-shrink:0;overflow:hidden;align-self:stretch}
+.panel{width:260px;display:flex;flex-direction:column;gap:8px;flex-shrink:0;overflow:hidden;align-self:stretch}
 .panel-top{flex:0 0 auto;display:flex;flex-direction:column;gap:8px}
-.pcard{border-radius:8px;padding:9px 11px;border:2px solid transparent;transition:border-color .3s}
-.pcard h3{font-size:.9em;font-weight:700;margin-bottom:5px;letter-spacing:1px}
+.pcard{border-radius:8px;padding:8px 11px;border:2px solid transparent;transition:border-color .3s}
+.pcard h3{font-size:.88em;font-weight:700;margin-bottom:4px;letter-spacing:1px}
 .pcard.active{border-color:#ffd700;box-shadow:0 0 8px rgba(255,215,0,.4)}
 .pstatus{display:flex;gap:10px}
 .ppiece{display:flex;align-items:center;gap:4px;font-size:.78em}
@@ -113,7 +124,6 @@ header{text-align:center;padding:8px 0;background:rgba(0,0,0,.35);font-size:1.6e
 .btn-p2:hover:not(:disabled){background:#2471a3}
 .btn-roll{margin-top:2px}
 .btn-move{margin:3px 0}
-/* Special bonus buttons get a golden border */
 .btn-bonus{border:2px solid #ffd700 !important;background:rgba(255,215,0,.15) !important;color:#ffd700 !important}
 .btn-bonus:hover:not(:disabled){background:rgba(255,215,0,.3) !important}
 .btn-new{background:#27ae60;color:#fff;font-size:1.1em;padding:12px 28px;border-radius:10px;width:auto;margin-top:12px}
@@ -157,10 +167,157 @@ header{text-align:center;padding:8px 0;background:rgba(0,0,0,.35);font-size:1.6e
 @keyframes trophyBounce{0%{transform:scale(0) rotate(-15deg)}70%{transform:scale(1.25) rotate(6deg)}100%{transform:scale(1) rotate(0deg)}}
 .win-title{font-size:2em;font-weight:900;color:#ffd700;letter-spacing:3px;margin-bottom:6px;text-shadow:0 0 20px rgba(255,215,0,.7)}
 .win-sub{font-size:1em;color:#aee8c8;margin-bottom:4px}
+
+/* ── RULES MODAL (landscape) ──────────────── */
+.rules-modal{position:fixed;inset:0;background:rgba(0,0,0,.92);display:flex;align-items:center;justify-content:center;z-index:500;padding:8px}
+.rules-box{background:#1e1e1e;border:3px solid #ffd700;border-radius:16px;padding:14px 20px 12px;width:min(99vw,1100px);max-height:96vh;overflow-y:auto;box-shadow:0 20px 80px rgba(0,0,0,.95)}
+.rules-box::-webkit-scrollbar{width:5px}.rules-box::-webkit-scrollbar-thumb{background:#555;border-radius:3px}
+.rules-head{text-align:center;margin-bottom:8px}
+.rules-gametitle{font-size:1.35em;font-weight:900;color:#ffd700;letter-spacing:5px;text-shadow:0 0 14px rgba(255,215,0,.5)}
+.rules-tagline{color:#aaa;font-size:.72em;margin-top:2px}
+/* 3-column landscape grid */
+.rules-body{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0 16px;align-items:start}
+.rules-col{}
+.rules-section{font-size:.66em;font-weight:800;color:#ffd700;letter-spacing:2px;margin:7px 0 3px;padding-bottom:2px;border-bottom:1px solid rgba(255,215,0,.25);text-transform:uppercase}
+.rules-rule{display:flex;gap:5px;margin-bottom:3px;font-size:.72em;line-height:1.35;color:#ddd}
+.rules-icon{flex-shrink:0;width:18px;text-align:center}
+.rules-start{display:block;margin:10px auto 0;background:#27ae60;color:#fff;border:none;border-radius:10px;padding:8px 52px;font-size:.95em;font-weight:800;cursor:pointer;letter-spacing:2px;transition:background .2s}
+.rules-start:hover{background:#1e8449}
+
+/* ── LOG HISTORY MODAL ────────────────────── */
+.log-modal{position:fixed;inset:0;background:rgba(0,0,0,.75);display:none;align-items:center;justify-content:center;z-index:250;padding:16px}
+.log-modal.open{display:flex}
+.log-box{background:#1a1a1a;border:2px solid #555;border-radius:14px;padding:18px 22px;width:min(520px,92vw);max-height:78vh;display:flex;flex-direction:column;box-shadow:0 12px 48px rgba(0,0,0,.9)}
+.log-box-title{font-size:1em;font-weight:800;color:#ffd700;letter-spacing:2px;margin-bottom:10px;text-align:center;flex-shrink:0}
+.log-content{flex:1;overflow-y:auto;font-size:.74em;line-height:1.7}
+.log-content::-webkit-scrollbar{width:4px}.log-content::-webkit-scrollbar-thumb{background:#444;border-radius:2px}
+.log-content div{margin-bottom:1px}
+.log-close{margin-top:10px;background:#3a3a3a;color:#ccc;border:1px solid #555;border-radius:7px;padding:7px;width:100%;cursor:pointer;font-weight:700;font-size:.85em;flex-shrink:0}
+.log-close:hover{background:#484848}
+.btn-log{background:#3a3a3a;color:#bbb;border:1px solid #4a4a4a;font-size:.82em;width:100%;margin-top:4px}
+.btn-log:hover{background:#484848}
+
+/* ── VOICE MIC ────────────────────────────── */
+.mic-row{display:flex;gap:6px;align-items:center}
+.btn-mic{flex:1;background:#3a3a3a;color:#ccc;font-size:.82em;border:1px solid #555}
+.btn-mic:hover{background:#444}
+.btn-mic.listening{background:#c0392b !important;color:#fff !important;border-color:#e74c3c !important;animation:micPulse 1.4s infinite}
+@keyframes micPulse{0%,100%{box-shadow:0 0 0 0 rgba(231,76,60,.5)}65%{box-shadow:0 0 0 7px rgba(231,76,60,0)}}
+.voice-status{font-size:.66em;color:#888;text-align:center;min-height:14px;padding:2px 0;font-style:italic}
+
+/* ── SETUP MODAL ──────────────────────────── */
+.setup-modal{position:fixed;inset:0;background:rgba(0,0,0,.92);display:none;align-items:center;justify-content:center;z-index:480;padding:12px}
+.setup-modal.open{display:flex}
+.setup-box{background:#1a1a2e;border:3px solid #ffd700;border-radius:18px;padding:22px 28px 20px;width:min(98vw,620px);max-height:92vh;overflow-y:auto;box-shadow:0 20px 80px rgba(0,0,0,.95)}
+.setup-box::-webkit-scrollbar{width:5px}.setup-box::-webkit-scrollbar-thumb{background:#555;border-radius:3px}
+.setup-title{text-align:center;font-size:1.45em;font-weight:900;color:#ffd700;letter-spacing:4px;margin-bottom:18px;text-shadow:0 0 16px rgba(255,215,0,.4)}
+.setup-section{margin-bottom:16px}
+.setup-plabel{font-size:.88em;font-weight:800;letter-spacing:2px;margin-bottom:8px;text-transform:uppercase}
+.setup-avatars{display:flex;flex-wrap:wrap;gap:7px;margin-top:6px}
+.av-btn{width:44px;height:44px;font-size:1.45em;border:2px solid rgba(255,255,255,.18);border-radius:10px;background:rgba(255,255,255,.07);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:border-color .15s,background .15s;padding:0}
+.av-btn:hover{border-color:#ffd700;background:rgba(255,215,0,.15)}
+.av-btn.selected{border-color:#ffd700;background:rgba(255,215,0,.25);box-shadow:0 0 8px rgba(255,215,0,.5)}
+.setup-p2-toggle{display:flex;gap:8px;margin-bottom:10px}
+.p2-mode-btn{flex:1;padding:8px;border:2px solid rgba(255,255,255,.2);border-radius:8px;background:rgba(255,255,255,.07);color:#ccc;cursor:pointer;font-size:.84em;font-weight:700;transition:all .15s}
+.p2-mode-btn:hover{border-color:#ffd700;color:#fff}
+.p2-mode-btn.active{border-color:#ffd700;background:rgba(255,215,0,.18);color:#ffd700}
+.ai-levels{display:flex;gap:8px;margin-top:4px}
+.ai-level-card{flex:1;padding:10px 8px;border:2px solid rgba(255,255,255,.15);border-radius:10px;background:rgba(255,255,255,.05);cursor:pointer;text-align:center;transition:all .15s}
+.ai-level-card:hover{border-color:#ffd700;background:rgba(255,215,0,.1)}
+.ai-level-card.selected{border-color:#ffd700;background:rgba(255,215,0,.2)}
+.ai-icon{font-size:1.8em;margin-bottom:4px}
+.ai-name{font-size:.78em;font-weight:800;color:#ffd700;margin-bottom:2px}
+.ai-desc{font-size:.66em;color:#aaa;line-height:1.3}
+.setup-divider{border:none;border-top:1px solid rgba(255,255,255,.1);margin:14px 0}
+.setup-start{display:block;margin:14px auto 0;background:#27ae60;color:#fff;border:none;border-radius:10px;padding:11px 56px;font-size:1em;font-weight:800;cursor:pointer;letter-spacing:2px;transition:background .2s;width:100%}
+.setup-start:hover{background:#1e8449}
+
+/* ── PLAYER AVATAR IN CARD ─────────────────── */
+.player-av{font-size:1.6em;line-height:1;margin-right:5px;vertical-align:middle}
+
+/* ── ONLINE MODE UI ───────────────────────── */
+.online-section{margin-top:10px}
+.online-opt-row{display:flex;gap:8px;margin-bottom:10px}
+.online-opt-btn{flex:1;padding:9px 6px;border:2px solid rgba(255,255,255,.2);border-radius:8px;background:rgba(255,255,255,.07);color:#ccc;cursor:pointer;font-size:.84em;font-weight:700;transition:all .15s}
+.online-opt-btn:hover:not(:disabled){border-color:#4fc3f7;color:#fff}
+.online-opt-btn.active{border-color:#4fc3f7;background:rgba(79,195,247,.18);color:#4fc3f7}
+.online-opt-btn:disabled{opacity:.45;cursor:default}
+.room-code-wrap{text-align:center;margin:8px 0}
+.room-code-label{font-size:.72em;color:#aaa;letter-spacing:1px;margin-bottom:4px}
+.room-code-display{font-size:2.1em;font-weight:900;letter-spacing:.22em;color:#4fc3f7;background:rgba(79,195,247,.1);border:2px dashed rgba(79,195,247,.4);border-radius:10px;padding:6px 14px;display:inline-block;user-select:all;cursor:copy;text-shadow:0 0 14px rgba(79,195,247,.5)}
+.room-code-display:active{background:rgba(79,195,247,.25)}
+.online-status{font-size:.74em;color:#aaa;text-align:center;min-height:18px;margin-top:6px;font-style:italic}
+.online-status.ok{color:#27ae60;font-style:normal;font-weight:700}
+.online-status.err{color:#e74c3c;font-style:normal;font-weight:700}
+.join-row{display:flex;gap:6px;margin-top:6px}
+.join-input{flex:1;background:#22223a;border:2px solid rgba(255,255,255,.2);border-radius:7px;color:#f0f0f0;font-size:.92em;font-weight:700;padding:7px 10px;letter-spacing:.12em;text-transform:uppercase;outline:none}
+.join-input:focus{border-color:#4fc3f7}
+.join-go{background:#4fc3f7;color:#111;border:none;border-radius:7px;padding:7px 14px;font-weight:800;cursor:pointer;font-size:.86em;transition:background .15s}
+.join-go:hover{background:#81d4fa}
+/* Online banner shown above board during online game */
+.online-banner{display:none;align-items:center;justify-content:center;gap:16px;background:rgba(79,195,247,.1);border-bottom:1px solid rgba(79,195,247,.3);padding:3px 10px;font-size:.74em;color:#4fc3f7;flex-shrink:0}
+.online-banner-code{font-weight:900;letter-spacing:.1em}
+.online-banner-role{color:#aaa}
+.online-banner-dot{width:7px;height:7px;border-radius:50%;background:#27ae60;animation:onlinePulse 1.6s infinite}
+@keyframes onlinePulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* ── EDUCATIONAL MODE TOGGLE ──────────────── */
+.edu-toggle-row{background:rgba(255,215,0,.07);border:1px solid rgba(255,215,0,.28);border-radius:8px;padding:11px 14px;margin-top:14px}
+.edu-toggle{display:flex;align-items:flex-start;gap:9px;cursor:pointer;color:#ddd;font-size:.82em;line-height:1.45;user-select:none}
+.edu-toggle input[type=checkbox]{width:17px;height:17px;margin-top:1px;flex-shrink:0;cursor:pointer;accent-color:#ffd700}
+.edu-badge{display:inline-block;background:#ffd700;color:#1a1a1a;font-size:.65em;font-weight:800;padding:1px 6px;border-radius:4px;letter-spacing:1px;vertical-align:middle;margin-left:4px}
+
+/* ── QUIZ MODAL ───────────────────────────── */
+.quiz-modal{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;z-index:400;padding:16px}
+.quiz-modal.open{display:flex}
+.quiz-box{background:#12122a;border:3px solid var(--qcol,#ffd700);border-radius:16px;padding:22px 26px;width:min(580px,94vw);box-shadow:0 16px 64px rgba(0,0,0,.95)}
+.quiz-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.quiz-label{font-size:.8em;font-weight:800;color:var(--qcol,#ffd700);letter-spacing:2px;text-transform:uppercase}
+.quiz-sq{font-size:.72em;color:#999;text-align:right;max-width:55%}
+.quiz-q{font-size:.95em;font-weight:600;color:#f0f0f0;line-height:1.55;margin-bottom:14px;min-height:52px}
+.quiz-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.quiz-opt{padding:9px 11px;border:2px solid #38385a;border-radius:8px;background:#1c1c38;color:#ccc;cursor:pointer;font-size:.84em;font-weight:600;text-align:left;transition:border-color .15s,background .15s;display:flex;gap:8px;align-items:flex-start}
+.quiz-opt:hover:not(:disabled){border-color:var(--qcol,#ffd700);background:#22224a;color:#fff}
+.quiz-letter{flex-shrink:0;width:18px;height:18px;border-radius:50%;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;font-size:.78em;font-weight:800}
+.quiz-opt.correct{border-color:#27ae60 !important;background:rgba(39,174,96,.22) !important;color:#7dff7d !important}
+.quiz-opt.wrong  {border-color:#e74c3c !important;background:rgba(231,76,60,.22) !important;color:#ff9999 !important}
+.quiz-opt:disabled{cursor:default}
+.quiz-timer-wrap{height:5px;background:#2a2a44;border-radius:3px;overflow:hidden;margin-bottom:10px}
+.quiz-timer-bar{height:100%;background:var(--qcol,#ffd700);width:100%;border-radius:3px}
+.quiz-result{text-align:center;font-weight:800;font-size:.9em;min-height:20px}
+.quiz-result.ok  {color:#27ae60}
+.quiz-result.fail{color:#e74c3c}
 </style>
 </head>
 <body>
-<header>(Dis)Apprate</header>
+<header>Play2Learn</header>
+
+<!-- PLAYER BAR — above the board -->
+<div class="player-bar">
+  <div class="pcard active" id="c0" style="background:rgba(231,76,60,.18)">
+    <h3 style="color:#ff8080"><span class="player-av" id="av0disp">🦁</span><span id="pname0">Player 1</span></h3>
+    <div class="pstatus">
+      <div class="ppiece"><div class="pdot" style="background:#e74c3c">A</div><span id="s0a">Sq 1</span></div>
+      <div class="ppiece"><div class="pdot" style="background:#e74c3c">B</div><span id="s0b">Sq 1</span></div>
+    </div>
+  </div>
+
+  <div class="status" id="status">Player 1's Turn</div>
+
+  <div class="pcard" id="c1" style="background:rgba(52,152,219,.18)">
+    <h3 style="color:#85c1e9"><span class="player-av" id="av1disp">🐯</span><span id="pname1">Player 2</span></h3>
+    <div class="pstatus">
+      <div class="ppiece"><div class="pdot" style="background:#3498db">A</div><span id="s1a">Sq 1</span></div>
+      <div class="ppiece"><div class="pdot" style="background:#3498db">B</div><span id="s1b">Sq 1</span></div>
+    </div>
+  </div>
+</div>
+<!-- Online game status banner -->
+<div class="online-banner" id="onlineBanner">
+  <div class="online-banner-dot"></div>
+  <span class="online-banner-code" id="onlineBannerCode">🌐 Room: ------</span>
+  <span class="online-banner-role" id="onlineBannerRole"></span>
+</div>
 
 <div class="game">
   <div class="board-wrap">
@@ -170,23 +327,10 @@ header{text-align:center;padding:8px 0;background:rgba(0,0,0,.35);font-size:1.6e
   <div class="panel">
     <div class="panel-top">
 
-      <div class="pcard active" id="c0" style="background:rgba(231,76,60,.18)">
-        <h3 style="color:#ff8080">Player 1</h3>
-        <div class="pstatus">
-          <div class="ppiece"><div class="pdot" style="background:#e74c3c">A</div><span id="s0a">Sq 1</span></div>
-          <div class="ppiece"><div class="pdot" style="background:#e74c3c">B</div><span id="s0b">Sq 1</span></div>
-        </div>
+      <div class="mic-row">
+        <button class="btn btn-mic" id="micBtn" onclick="toggleMic()">🎤 Voice: Off</button>
       </div>
-
-      <div class="pcard" id="c1" style="background:rgba(52,152,219,.18)">
-        <h3 style="color:#85c1e9">Player 2</h3>
-        <div class="pstatus">
-          <div class="ppiece"><div class="pdot" style="background:#3498db">A</div><span id="s1a">Sq 1</span></div>
-          <div class="ppiece"><div class="pdot" style="background:#3498db">B</div><span id="s1b">Sq 1</span></div>
-        </div>
-      </div>
-
-      <div class="status" id="status">Player 1's Turn</div>
+      <div class="voice-status" id="voiceStatus"></div>
 
       <div class="dice-wrap">
         <div class="die" id="d0"></div>
@@ -198,18 +342,204 @@ header{text-align:center;padding:8px 0;background:rgba(0,0,0,.35);font-size:1.6e
       <div id="moveOpts"></div>
 
       <div class="legend">
-        <div class="lg"><div class="lgsq" style="background:#ffaaaa"></div>🛡 Prime (safe + fall)</div>
-        <div class="lg"><div class="lgsq" style="background:#aae8aa"></div>🛡 ÷5/6 (safe + jump)</div>
-        <div class="lg"><div class="lgsq" style="background:#fffacd;border:1px solid #c9a700"></div>Start 🏠</div>
-        <div class="lg"><div class="lgsq" style="background:#ffd700;border:1px solid #ff8c00"></div>Finish 🏰</div>
-        <div class="lg" style="color:#c39aff">✦ doubles on start → jump up a row</div>
-        <div class="lg" style="color:#c39aff">✦ doubles on safe house → move by d²</div>
-        <div class="lg" style="color:#ff69b4">⚔ land on foe → foe sent home</div>
-        <div class="lg" style="color:#ff69b4">🛡 land on safe + foe → you sent home</div>
+        <div class="lg"><div class="lgsq" style="background:#ffaaaa"></div>⚠ Prime ≥11 → falls to prev 🛡</div>
+        <div class="lg"><div class="lgsq" style="background:#aae8aa"></div>÷5 or ÷6 → jumps ahead</div>
+        <div class="lg"><div class="lgsq" style="background:#dce8ff;border:1px solid #7ab0e8"></div>🛡 Perfect square — safe house</div>
+        <div class="lg"><div class="lgsq" style="background:#fffacd;border:1px solid #c9a700"></div>🏠 Start</div>
+        <div class="lg"><div class="lgsq" style="background:#ffd700;border:1px solid #ff8c00"></div>🏰 Finish</div>
+        <div class="lg" style="color:#c39aff">✦ doubles on 🏠 → jump d rows up</div>
+        <div class="lg" style="color:#c39aff">✦ doubles on 🛡 → +d² move</div>
+        <div class="lg" style="color:#ff69b4">⚔ land on foe → foe to 🏠</div>
+        <div class="lg" style="color:#ff69b4">🛡 foe on safe → you to 🏠</div>
+        <div class="lg" style="color:#7ddfff">🔗 same sq → immune pair</div>
+        <div class="lg" style="color:#7ddfff">🔗 even sum → both move by full sum</div>
+        <div class="lg" style="color:#7ddfff">🔗 doubles → both move by d²</div>
+        <div class="lg" style="color:#7ddfff">🔗 pair move → primes safe</div>
       </div>
 
+      <button class="btn btn-log" onclick="openLog()">📜 Move History</button>
     </div>
-    <div class="log" id="log"></div>
+    <div class="log" id="log" style="display:none"></div>
+  </div>
+</div>
+
+<!-- RULES MODAL — landscape 3-column layout, shown on load -->
+<div class="rules-modal" id="rulesModal">
+  <div class="rules-box">
+
+    <div class="rules-head">
+      <div class="rules-gametitle">Play2Learn</div>
+      <div class="rules-tagline">A strategic twist on Snakes &amp; Ladders — 16×9 board · 144 squares · 2 players · 2 pieces each · First to land both on sq 144 wins!</div>
+    </div>
+
+    <div class="rules-body">
+
+      <!-- ── Column 1: Objective + Rolling + Doubles ── -->
+      <div class="rules-col">
+        <div class="rules-section">🎯 Objective</div>
+        <div class="rules-rule"><span class="rules-icon">🏁</span><span>Move <strong>both</strong> pieces sq 1→144 before your opponent.</span></div>
+
+        <div class="rules-section">🎲 Rolling &amp; Moving</div>
+        <div class="rules-rule"><span class="rules-icon">≠</span><span><strong>Different dice</strong> — move both pieces (one per die).</span></div>
+        <div class="rules-rule"><span class="rules-icon">=</span><span><strong>Doubles</strong> — move one piece by the sum (2d).</span></div>
+        <div class="rules-rule"><span class="rules-icon">↩</span><span>Overshoot sq 144 → piece bounces back by the excess.</span></div>
+        <div class="rules-rule"><span class="rules-icon">1</span><span><strong>One piece finished</strong> — remaining piece: doubles (d,d)→+d²; any other roll→+sum.</span></div>
+
+        <div class="rules-section">✦ Doubles Bonuses</div>
+        <div class="rules-rule"><span class="rules-icon">🏠</span><span><strong>Doubles on sq 1</strong> → jump piece <em>d rows</em> up same column. <em>(1,1→32 · 3,3→64)</em></span></div>
+        <div class="rules-rule"><span class="rules-icon">🛡</span><span><strong>Doubles on safe house</strong> → option +d² move. <em>(3,3→+9)</em></span></div>
+
+        <div class="rules-section">🗝 Board Colours</div>
+        <div class="rules-rule"><span class="rules-icon" style="background:#ffaaaa;border-radius:2px">&nbsp;</span><span style="color:#ff9999">Red — dangerous prime (≥11) → falls to nearest 🛡</span></div>
+        <div class="rules-rule"><span class="rules-icon" style="background:#aae8aa;border-radius:2px">&nbsp;</span><span style="color:#7dff7d">Green — ÷5 or ÷6 → jumps to bonus square</span></div>
+        <div class="rules-rule"><span class="rules-icon" style="background:#dce8ff;border:1px solid #7ab0e8;border-radius:2px">&nbsp;</span><span style="color:#aad4ff">Blue — perfect square 🛡 safe house</span></div>
+        <div class="rules-rule"><span class="rules-icon">ℹ</span><span>Primes 2, 3, 5, 7 are safe. Special: 131 &amp; 139 → sq 49.</span></div>
+      </div>
+
+      <!-- ── Column 2: Immune Pair + Capture ── -->
+      <div class="rules-col">
+        <div class="rules-section">🔗 Immune Pair</div>
+        <div class="rules-rule"><span class="rules-icon">🔗</span><span>Both your pieces on the <strong>same square</strong> = immune pair — invulnerable to capture.</span></div>
+        <div class="rules-rule"><span class="rules-icon">🔗</span><span><strong>Even sum</strong> → move both pieces by the full sum. <em>(4+6 → +10 each)</em></span></div>
+        <div class="rules-rule"><span class="rules-icon">🔗</span><span><strong>Doubles (d,d)</strong> → move both pieces by d². <em>(3,3 → +9 each)</em></span></div>
+        <div class="rules-rule"><span class="rules-icon">🛡</span><span><strong>Immune pair move</strong> — dangerous primes are <em>completely skipped</em>!</span></div>
+
+        <div class="rules-section">⚔ Capture</div>
+        <div class="rules-rule"><span class="rules-icon">⚔</span><span>Land on lone opponent piece → it goes back to 🏠 sq 1.</span></div>
+        <div class="rules-rule"><span class="rules-icon">🛡</span><span>Land on opponent on a <strong>safe house</strong> → <em>you</em> go back to 🏠.</span></div>
+        <div class="rules-rule"><span class="rules-icon">🔗</span><span>Attack an immune pair → blocked, nothing happens.</span></div>
+        <div class="rules-rule"><span class="rules-icon">🔒</span><span>Sq 1 and sq 144 are always capture-free.</span></div>
+
+        <div class="rules-section">📚 Educational Mode</div>
+        <div class="rules-rule"><span class="rules-icon">📚</span><span>Land on a dangerous prime → answer a math question to <strong>stay</strong> instead of falling!</span></div>
+        <div class="rules-rule"><span class="rules-icon">🤖</span><span>Computer always answers correctly in Educational Mode.</span></div>
+      </div>
+
+      <!-- ── Column 3: AI + Voice ── -->
+      <div class="rules-col">
+        <div class="rules-section">🤖 Computer Opponent</div>
+        <div class="rules-rule"><span class="rules-icon">🤖</span><span><strong>Grandmaster</strong> — always picks the best available move.</span></div>
+        <div class="rules-rule"><span class="rules-icon">🎲</span><span><strong>Random</strong> — picks any valid move at random.</span></div>
+        <div class="rules-rule"><span class="rules-icon">🐌</span><span><strong>Easy</strong> — always picks the worst possible move.</span></div>
+        <div class="rules-rule"><span class="rules-icon">⚙</span><span>Select in Game Setup (after closing this screen).</span></div>
+
+        <div class="rules-section">🎤 Voice Commands</div>
+        <div class="rules-rule"><span class="rules-icon">🎤</span><span><strong>"Roll"</strong> → rolls the dice.</span></div>
+        <div class="rules-rule"><span class="rules-icon">🎤</span><span><strong>"Option 1…5"</strong> / <strong>"One"…"First"</strong> → picks that move.</span></div>
+        <div class="rules-rule"><span class="rules-icon">🎤</span><span><strong>"New game"</strong> → restarts · <strong>"Rules"</strong> → this screen.</span></div>
+
+        <div class="rules-section">⌨ Quick Ref</div>
+        <div class="rules-rule"><span class="rules-icon">🏠</span><span>Sq 1 — Start &nbsp;·&nbsp; 🏰 Sq 144 — Finish</span></div>
+        <div class="rules-rule"><span class="rules-icon">📜</span><span><strong>Move History</strong> button — review all past moves.</span></div>
+        <div class="rules-rule"><span class="rules-icon">🎮</span><span>After setup: roll to begin, choose your move, first to get <em>both</em> pieces to 144 wins!</span></div>
+      </div>
+
+    </div><!-- /rules-body -->
+
+    <button class="rules-start" onclick="closeRules()">Next: Set Up Players →</button>
+  </div>
+</div>
+
+<!-- SETUP MODAL — player & AI configuration -->
+<div class="setup-modal" id="setupModal">
+  <div class="setup-box">
+    <div class="setup-title">🎮 Game Setup</div>
+
+    <!-- Player 1 -->
+    <div class="setup-section">
+      <div class="setup-plabel" style="color:#ff9999">🔴 Player 1 — Choose your avatar</div>
+      <div class="setup-avatars" id="av0"></div>
+    </div>
+
+    <hr class="setup-divider">
+
+    <!-- Player 2 -->
+    <div class="setup-section">
+      <div class="setup-plabel" style="color:#85c1e9">🔵 Player 2</div>
+      <div class="setup-p2-toggle">
+        <button class="p2-mode-btn active" id="p2HumanBtn" onclick="setP2Mode('human')">👤 Human</button>
+        <button class="p2-mode-btn" id="p2CpuBtn" onclick="setP2Mode('cpu')">🤖 Computer</button>
+        <button class="p2-mode-btn" id="p2OnlineBtn" onclick="setP2Mode('online')">🌐 Online</button>
+      </div>
+      <div id="p2HumanSec">
+        <div class="setup-avatars" id="av1"></div>
+      </div>
+      <div id="p2CpuSec" style="display:none">
+        <div class="ai-levels">
+          <div class="ai-level-card selected" id="ai1" onclick="setAI(1)">
+            <div class="ai-icon">🤖</div>
+            <div class="ai-name">Grandmaster</div>
+            <div class="ai-desc">Picks the best move every time</div>
+          </div>
+          <div class="ai-level-card" id="ai2" onclick="setAI(2)">
+            <div class="ai-icon">🎲</div>
+            <div class="ai-name">Random</div>
+            <div class="ai-desc">Completely unpredictable</div>
+          </div>
+          <div class="ai-level-card" id="ai3" onclick="setAI(3)">
+            <div class="ai-icon">🐌</div>
+            <div class="ai-name">Easy</div>
+            <div class="ai-desc">Always picks the worst move</div>
+          </div>
+        </div>
+      </div>
+      <!-- Online section -->
+      <div id="p2OnlineSec" style="display:none" class="online-section">
+        <div class="online-opt-row">
+          <button class="online-opt-btn" id="onlineCreateBtn" onclick="onlineCreate()">🏠 Create Room</button>
+          <button class="online-opt-btn" id="onlineJoinBtn" onclick="onlineShowJoin()">🔗 Join Room</button>
+        </div>
+        <div id="onlineRoomDisplay" style="display:none">
+          <div class="room-code-wrap">
+            <div class="room-code-label">Share this code with your opponent:</div>
+            <div class="room-code-display" id="roomCodeDisplay" title="Click to copy">------</div>
+          </div>
+          <div class="online-status" id="onlineStatus">⏳ Waiting for opponent…</div>
+        </div>
+        <div id="onlineJoinPanel" style="display:none">
+          <div class="join-row">
+            <input type="text" class="join-input" id="joinCodeInput" placeholder="ROOM CODE" maxlength="6" oninput="this.value=this.value.toUpperCase()">
+            <button class="join-go" onclick="onlineJoin()">Join →</button>
+          </div>
+          <div class="online-status" id="onlineJoinStatus"></div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="setup-divider">
+
+    <!-- Educational Mode -->
+    <div class="edu-toggle-row" style="margin-top:0">
+      <label class="edu-toggle">
+        <input type="checkbox" id="eduCheck">
+        <span>📚 <strong>Educational Mode</strong> — land on a dangerous prime? Answer a math question to stay! <span class="edu-badge">NEW</span></span>
+      </label>
+    </div>
+
+    <button class="setup-start" onclick="setupGame()">▶ Start Game!</button>
+  </div>
+</div>
+
+<!-- QUIZ MODAL (educational mode) -->
+<div class="quiz-modal" id="quizModal">
+  <div class="quiz-box">
+    <div class="quiz-head">
+      <div class="quiz-label">🧮 Math Challenge!</div>
+      <div class="quiz-sq" id="quizSq"></div>
+    </div>
+    <div class="quiz-q" id="quizQ"></div>
+    <div class="quiz-opts" id="quizOpts"></div>
+    <div class="quiz-timer-wrap"><div class="quiz-timer-bar" id="quizTimerBar"></div></div>
+    <div class="quiz-result" id="quizResult"></div>
+  </div>
+</div>
+
+<!-- LOG HISTORY MODAL -->
+<div class="log-modal" id="logModal" onclick="if(event.target===this)closeLog()">
+  <div class="log-box">
+    <div class="log-box-title">📜 Move History</div>
+    <div class="log-content" id="logContent"></div>
+    <button class="log-close" onclick="closeLog()">✕ Close</button>
   </div>
 </div>
 
@@ -242,27 +572,54 @@ header{text-align:center;padding:8px 0;background:rgba(0,0,0,.35);font-size:1.6e
 ═══════════════════════════════════════════ */
 const COLS=16, ROWS=9;
 
-const SNAKES={
-   7: 4,  13: 8,  23:14,  31:16,
-  43:26,  53:39,  61:44,  79:58,
-  89:69, 107:82, 113:86, 131:104,
- 137:114,139:117
-};
+/* ── Prime helper ─────────────────────────── */
+function isPrime(n){
+  if(n<2) return false;
+  for(let i=2;i*i<=n;i++) if(n%i===0) return false;
+  return true;
+}
+
+/* ── Perfect squares 1–144 (safe houses) ─────
+   1²=1, 2²=4, 3²=9, 4²=16, 5²=25, 6²=36,
+   7²=49, 8²=64, 9²=81, 10²=100, 11²=121, 12²=144  */
+const PERFECT_SQUARES=new Set();
+for(let k=1;k*k<=144;k++) PERFECT_SQUARES.add(k*k);
+
+/* ── Dangerous primes: 5th prime (11) and beyond ──
+   First four primes 2,3,5,7 are NOT dangerous.      */
+function isDangerous(n){ return n>=11 && isPrime(n); }
+
+/* ── SNAKES: dangerous prime → largest perfect square below it ── */
+const SNAKES=(function(){
+  const psList=[...PERFECT_SQUARES].sort((a,b)=>a-b);
+  const s={};
+  for(let n=11;n<=143;n++){
+    if(isDangerous(n)){
+      let dest=1;
+      for(const ps of psList){ if(ps<n) dest=ps; else break; }
+      s[n]=dest;
+    }
+  }
+  return s;
+})();
+
+// Special overrides: 131 and 139 fall all the way to 49 (7²)
+SNAKES[131]=49;
+SNAKES[139]=49;
+
+/* ── LADDERS: divisible by 5 or 6, hand-tuned destinations ──
+   36 removed (now a safe house / perfect square).              */
 const LADDERS={
-   6:22,  12:28,  18:38,  24:46,
-  30:57,  36:68,  48:81,  60:92,
-  66:98,  78:111, 96:121,120:133
+  6:22,  12:28, 18:38, 24:46,
+  30:57, 48:81, 60:92,
+  66:98, 78:111, 96:121, 108:129, 120:133
 };
 
-// Colored (special) squares are safe houses: resident is protected from capture;
-// an attacker landing there is instead sent back to start.
-const SAFE_HOUSES = new Set([
-  ...Object.keys(SNAKES).map(Number),
-  ...Object.keys(LADDERS).map(Number)
-]);
+/* ── Safe houses for capture: all perfect squares ── */
+const SAFE_HOUSES=PERFECT_SQUARES;
 
 const COLORS    = [['#e74c3c','#e74c3c'],['#3498db','#3498db']];
-const NAMES     = ['Player 1','Player 2'];
+let   NAMES     = ['Player 1','Player 2'];
 const PIECE_CLS = [['p1a','p1b'],['p2a','p2b']];
 const DOTS      = {0:[],1:[4],2:[2,6],3:[2,4,6],4:[0,2,6,8],5:[0,2,4,6,8],6:[0,2,3,5,6,8]};
 
@@ -274,14 +631,170 @@ function squareAt(vRow,col){
   return bRow%2===0 ? bRow*COLS+col+1 : bRow*COLS+(COLS-1-col)+1;
 }
 
-// Square directly above sq in the same visual column (one row up)
-function verticalUpOf(sq){
-  const bRow    = Math.floor((sq-1)/COLS);
-  const posInRow= (sq-1)%COLS;
-  const vRow    = ROWS-1-bRow;
-  const col     = bRow%2===0 ? posInRow : COLS-1-posInRow;
-  if(vRow===0) return null;           // already on top row
-  return squareAt(vRow-1, col);
+/* ── verticalUpByRows: move `rows` board-rows up in the same visual column ──
+   Examples from sq 1 (bottom-left):
+     d=1 → sq 32   (row 2, right end)
+     d=2 → sq 33   (row 3, left end)
+     d=3 → sq 64   (row 4, right end)   */
+function verticalUpByRows(sq, rows){
+  const bRow    =Math.floor((sq-1)/COLS);
+  const posInRow=(sq-1)%COLS;
+  const vRow    =ROWS-1-bRow;
+  const col     =bRow%2===0 ? posInRow : COLS-1-posInRow;
+  const newVRow =vRow-rows;
+  if(newVRow<0) return null;
+  return squareAt(newVRow, col);
+}
+
+/* ═══════════════════════════════════════════
+   AVATARS & PLAYER CONFIG
+═══════════════════════════════════════════ */
+const AVATAR_LIST=['🦁','🐯','🦊','🐺','🧙','🧑‍🚀','🥷','👑','🐸','🦄','🐲','🦈'];
+const AI_AVATARS={1:'🤖',2:'🎲',3:'🐌'};
+const AI_NAMES={1:'Grandmaster',2:'Random Bot',3:'Easy Mode'};
+let playerAvatars=['🦁','🐯'];
+
+// selected indices in setup modal
+let _setupAv=[0,1];
+let _p2Mode='human'; // 'human' | 'cpu'
+let _aiLevel=1;
+
+let computerPlayer=-1; // -1=none, 0=P1 cpu, 1=P2 cpu
+let aiLevel=1;
+
+/* ── Avatar picker builder ─ */
+function buildAvatarPicker(containerId, playerIdx){
+  const el=document.getElementById(containerId);
+  el.innerHTML='';
+  AVATAR_LIST.forEach((av,i)=>{
+    const b=document.createElement('button');
+    b.className='av-btn'+(i===_setupAv[playerIdx]?' selected':'');
+    b.textContent=av;
+    b.title=av;
+    b.onclick=()=>{
+      _setupAv[playerIdx]=i;
+      el.querySelectorAll('.av-btn').forEach((x,j)=>x.classList.toggle('selected',j===i));
+    };
+    el.appendChild(b);
+  });
+}
+
+function setP2Mode(mode){
+  _p2Mode=mode;
+  document.getElementById('p2HumanBtn').classList.toggle('active',mode==='human');
+  document.getElementById('p2CpuBtn').classList.toggle('active',mode==='cpu');
+  document.getElementById('p2OnlineBtn').classList.toggle('active',mode==='online');
+  document.getElementById('p2HumanSec').style.display=mode==='human'?'':'none';
+  document.getElementById('p2CpuSec').style.display=mode==='cpu'?'':'none';
+  document.getElementById('p2OnlineSec').style.display=mode==='online'?'':'none';
+  // Reset online state if switching away
+  if(mode!=='online'){isOnlineMode=false;roomCode='';}
+}
+
+function setAI(level){
+  _aiLevel=level;
+  [1,2,3].forEach(l=>document.getElementById('ai'+l).classList.toggle('selected',l===level));
+}
+
+function openSetup(){
+  buildAvatarPicker('av0',0);
+  buildAvatarPicker('av1',1);
+  document.getElementById('setupModal').classList.add('open');
+}
+
+function setupGame(){
+  // Online mode: only P1 (creator) calls setupGame — P2 joined independently
+  if(_p2Mode==='online'){
+    if(!isOnlineMode||!roomCode){
+      alert('Please click "Create Room" first to get a room code, then share it with your opponent.');
+      return;
+    }
+    playerAvatars[0]=AVATAR_LIST[_setupAv[0]];
+    playerAvatars[1]='🌐';
+    computerPlayer=-1;
+    NAMES[0]='Player 1'; NAMES[1]='Player 2';
+    eduMode=false; // edu mode not supported in online play
+    document.getElementById('av0disp').textContent=playerAvatars[0];
+    document.getElementById('av1disp').textContent='🌐';
+    document.getElementById('pname0').textContent=NAMES[0];
+    document.getElementById('pname1').textContent=NAMES[1];
+    document.getElementById('setupModal').classList.remove('open');
+    showOnlineBanner();
+    newGame();
+    return;
+  }
+
+  // Read avatar choices
+  playerAvatars[0]=AVATAR_LIST[_setupAv[0]];
+  if(_p2Mode==='cpu'){
+    computerPlayer=1;
+    aiLevel=_aiLevel;
+    playerAvatars[1]=AI_AVATARS[_aiLevel];
+    NAMES[1]=AI_NAMES[_aiLevel];
+  } else {
+    computerPlayer=-1;
+    playerAvatars[1]=AVATAR_LIST[_setupAv[1]];
+    NAMES[0]='Player 1'; NAMES[1]='Player 2';
+  }
+  NAMES[0]='Player 1';
+
+  // Read edu mode
+  eduMode=document.getElementById('eduCheck').checked;
+
+  // Update player bar display
+  document.getElementById('av0disp').textContent=playerAvatars[0];
+  document.getElementById('av1disp').textContent=playerAvatars[1];
+  document.getElementById('pname0').textContent=NAMES[0];
+  document.getElementById('pname1').textContent=NAMES[1];
+
+  document.getElementById('setupModal').classList.remove('open');
+  newGame();
+}
+
+/* ═══════════════════════════════════════════
+   MOVE QUEUE  (for AI evaluation)
+═══════════════════════════════════════════ */
+let moveQueue=[];
+
+/* ═══════════════════════════════════════════
+   AI LOGIC
+═══════════════════════════════════════════ */
+function scoreOption(meta){
+  if(!meta) return 50+Math.random()*50;
+  const ps=G.pieces[G.cur].slice();
+
+  if(meta.type==='vertical'){
+    const fp=ps.slice(); fp[meta.pi]=meta.dest;
+    return fp[0]+fp[1];
+  }
+  if(meta.type==='exec'){
+    const fp=ps.slice();
+    for(const{p,s}of meta.moves){
+      let raw=fp[p]+s;
+      if(raw>144) raw=144-(raw-144);
+      raw=Math.max(1,Math.min(144,raw));
+      if(!meta.isPairMove && SNAKES[raw]) raw=SNAKES[raw];
+      else if(LADDERS[raw]) raw=LADDERS[raw];
+      fp[p]=raw;
+    }
+    return fp[0]+fp[1];
+  }
+  return 50;
+}
+
+function aiPickMove(){
+  if(!moveQueue.length) return;
+  let chosen;
+  if(aiLevel===2){
+    chosen=moveQueue[Math.floor(Math.random()*moveQueue.length)];
+  } else {
+    const scored=moveQueue.map(opt=>({opt,score:scoreOption(opt.meta)}));
+    scored.sort((a,b)=>aiLevel===1?b.score-a.score:a.score-b.score);
+    chosen=scored[0].opt;
+  }
+  document.getElementById('moveOpts').innerHTML='';
+  moveQueue=[];
+  chosen.handler();
 }
 
 /* ═══════════════════════════════════════════
@@ -290,16 +803,115 @@ function verticalUpOf(sq){
 let G={};
 let confettiRAF=null;
 
+/* ═══════════════════════════════════════════
+   EDUCATIONAL MODE
+═══════════════════════════════════════════ */
+let eduMode=false;
+let QUESTIONS=[];
+let usedQIdx=new Set();
+let quizTimerTO=null;
+
+function showQuiz(sq, fallDest){
+  return new Promise(resolve=>{
+    if(!QUESTIONS.length){ resolve(false); return; }
+
+    // Pick a random unused question; reset pool if all used
+    let available=[...Array(QUESTIONS.length).keys()].filter(i=>!usedQIdx.has(i));
+    if(!available.length){ usedQIdx.clear(); available=[...Array(QUESTIONS.length).keys()]; }
+    const idx=available[Math.floor(Math.random()*available.length)];
+    usedQIdx.add(idx);
+    const q=QUESTIONS[idx];
+
+    // Populate modal
+    document.getElementById('quizSq').textContent=`Square ${sq} — Fall to ${fallDest} if wrong!`;
+    document.getElementById('quizQ').textContent=q.q;
+    document.getElementById('quizResult').textContent='';
+    document.getElementById('quizResult').className='quiz-result';
+
+    // Build option buttons
+    const optsEl=document.getElementById('quizOpts');
+    optsEl.innerHTML='';
+    q.options.forEach((opt,i)=>{
+      const btn=document.createElement('button');
+      btn.className='quiz-opt';
+      btn.textContent=opt;
+      btn.onclick=()=>selectAnswer(i, q.answer, q.options[q.answer], resolve, optsEl);
+      optsEl.appendChild(btn);
+    });
+
+    // Timer bar — 25 seconds
+    const bar=document.getElementById('quizTimerBar');
+    bar.style.transition='none';
+    bar.style.width='100%';
+    // Force reflow so transition starts fresh
+    void bar.offsetWidth;
+    bar.style.transition='width 25s linear';
+    bar.style.width='0%';
+
+    // Auto-fail on timeout
+    if(quizTimerTO) clearTimeout(quizTimerTO);
+    quizTimerTO=setTimeout(()=>{
+      // Disable all buttons
+      optsEl.querySelectorAll('.quiz-opt').forEach(b=>b.disabled=true);
+      const res=document.getElementById('quizResult');
+      res.textContent=`⏰ Time's up! The answer was: "${q.options[q.answer]}"`;
+      res.className='quiz-result fail';
+      setTimeout(()=>{ closeQuizModal(); resolve(false); }, 2000);
+    }, 25000);
+
+    // Show modal
+    document.getElementById('quizModal').style.display='flex';
+  });
+}
+
+function selectAnswer(chosen, correct, correctText, resolve, optsEl){
+  if(quizTimerTO){ clearTimeout(quizTimerTO); quizTimerTO=null; }
+
+  // Stop timer bar
+  const bar=document.getElementById('quizTimerBar');
+  bar.style.transition='none';
+  void bar.offsetWidth;
+
+  // Disable all options & mark correct/wrong
+  optsEl.querySelectorAll('.quiz-opt').forEach((b,i)=>{
+    b.disabled=true;
+    if(i===correct) b.classList.add('correct');
+    else if(i===chosen && chosen!==correct) b.classList.add('wrong');
+  });
+
+  const passed=(chosen===correct);
+  const res=document.getElementById('quizResult');
+  if(passed){
+    res.textContent='✅ Correct! You stay on this square.';
+    res.className='quiz-result ok';
+  } else {
+    res.textContent=`❌ Wrong! The answer was: "${correctText}"`;
+    res.className='quiz-result fail';
+  }
+
+  setTimeout(()=>{ closeQuizModal(); resolve(passed); }, 1800);
+}
+
+function closeQuizModal(){
+  document.getElementById('quizModal').style.display='none';
+}
+
 function newGame(){
   if(confettiRAF){cancelAnimationFrame(confettiRAF);confettiRAF=null;}
   document.getElementById('winModal').style.display='none';
-  G={pieces:[[1,1],[1,1]],cur:0,dice:[0,0],phase:'roll'};
+  G={pieces:[[1,1],[1,1]],cur:0,dice:[0,0],phase:'roll',seq:0};
+  _lastAppliedSeq=0;
+  usedQIdx.clear(); moveQueue=[];
   document.getElementById('log').innerHTML='';
   document.getElementById('moveOpts').innerHTML='';
   renderDie('d0',0); renderDie('d1',0);
   document.getElementById('deq').textContent='?';
   renderPieces(); syncUI();
   log(`Game started! ${NAMES[0]}'s turn.`,'le-roll');
+  // Push initial state to Firebase if P1 in online mode
+  if(isOnlineMode && myPlayerIdx===0) pushGameState();
+  // If P1 is computer, kick off its turn
+  if(computerPlayer===0) setTimeout(()=>doRoll(),1000);
 }
 
 /* ═══════════════════════════════════════════
@@ -313,15 +925,21 @@ function buildBoard(){
       const n=squareAt(r,c);
       const cell=document.createElement('div');
       cell.id=`sq${n}`;
-      if     (n===1)       cell.className='cell start';
-      else if(n===144)     cell.className='cell finish';
-      else if(SNAKES[n])   cell.className='cell snake';
-      else if(LADDERS[n])  cell.className='cell ladder';
-      else                 cell.className='cell norm'+((r+c)%2===0?'':' alt');
+
+      // Priority: start > finish > safe house > snake > ladder > normal
+      if     (n===1)                      cell.className='cell start';
+      else if(n===144)                    cell.className='cell finish';
+      else if(PERFECT_SQUARES.has(n))     cell.className='cell safe';
+      else if(SNAKES[n])                  cell.className='cell snake';
+      else if(LADDERS[n])                 cell.className='cell ladder';
+      else                                cell.className='cell norm'+((r+c)%2===0?'':' alt');
 
       let gfx='', spec='';
-      if(n===1)    gfx =`<span class="cgfx">🏠</span>`;
-      if(n===144)  gfx =`<span class="cgfx">🏰</span>`;
+      if(n===1)   gfx=`<span class="cgfx">🏠</span>`;
+      if(n===144) gfx=`<span class="cgfx">🏰</span>`;
+      if(PERFECT_SQUARES.has(n) && n!==1 && n!==144)
+        gfx=`<span class="cgfx shield">🛡</span>`;
+
       if(SNAKES[n])  spec=`<span class="cspec">↓${SNAKES[n]}</span>`;
       if(LADDERS[n]) spec=`<span class="cspec">↑${LADDERS[n]}</span>`;
 
@@ -336,6 +954,7 @@ function buildBoard(){
 ═══════════════════════════════════════════ */
 function renderPieces(){
   document.querySelectorAll('.cpieces').forEach(el=>el.innerHTML='');
+  document.querySelectorAll('.pair-badge').forEach(el=>el.remove());
   for(let p=0;p<2;p++){
     for(let pi=0;pi<2;pi++){
       const sq=G.pieces[p][pi];
@@ -347,6 +966,18 @@ function renderPieces(){
       el.textContent=pi===0?'A':'B';
       el.title=`${NAMES[p]} – Piece ${pi===0?'A':'B'}`;
       cont.appendChild(el);
+    }
+    // Show 🔗 badge if both pieces share a square (immune pair, not at start or finish)
+    const [sqA,sqB]=G.pieces[p];
+    if(sqA===sqB && sqA!==1 && sqA!==144){
+      const cellEl=document.getElementById(`sq${sqA}`);
+      if(cellEl){
+        const badge=document.createElement('div');
+        badge.className='pair-badge';
+        badge.textContent='🔗';
+        badge.title=`${NAMES[p]} – Immune pair!`;
+        cellEl.appendChild(badge);
+      }
     }
   }
 }
@@ -400,6 +1031,8 @@ function doRoll(){
         log(`${NAMES[G.cur]} rolled ${d1} & ${d2}${d1===d2?' (doubles!)':''}`, 'le-roll');
         G.phase='move';
         buildMoveOptions();
+        // Push dice result to Firebase so opponent can see the roll
+        if(isOnlineMode && G.cur===myPlayerIdx) pushGameState();
       },1100);
     }
   },80);
@@ -438,26 +1071,38 @@ async function flashCell(sq,type){
 
 /* ═══════════════════════════════════════════
    CAPTURE RESOLUTION
-   Returns true if the MOVING piece was itself sent home (landed on
-   a safe house occupied by the opponent).
+   Returns true if the MOVING piece was itself sent home.
+
+   Pair immunity: if both opponent pieces occupy sq, the pair
+   is invulnerable — no capture in either direction.
+   Safe house: a lone opponent piece on a safe square expels
+   the attacker instead of the defender.
 ═══════════════════════════════════════════ */
 async function resolveCapture(playerIdx, pieceIdx, sq){
-  // Square 1 and 144 are always exempt from capture
   if(sq===1||sq===144) return false;
 
   const opp=1-playerIdx;
   const pName=['A','B'][pieceIdx];
 
-  for(let opi=0;opi<2;opi++){
-    if(G.pieces[opp][opi]!==sq) continue;
+  // Count opponent pieces on this square
+  const oppOnSq=[0,1].filter(i=>G.pieces[opp][i]===sq);
 
+  if(oppOnSq.length===2){
+    // Immune pair — attacker is blocked, nothing happens
+    await flashCell(sq,'vertical');
+    log(`🔗 ${NAMES[opp]}'s pieces are a paired immune duo on sq ${sq}! ${NAMES[playerIdx]} Piece ${pName} is blocked.`,'le-special');
+    return false;
+  }
+
+  if(oppOnSq.length===1){
+    const opi=oppOnSq[0];
     if(SAFE_HOUSES.has(sq)){
-      // Safe house: attacker is expelled
+      // Safe house with lone defender: attacker is expelled
       await flashCell(sq,'capture');
       log(`🛡 Safe house ${sq}! ${NAMES[playerIdx]} Piece ${pName} is expelled back to start!`,'le-capture');
       G.pieces[playerIdx][pieceIdx]=1;
       renderPieces();
-      return true;   // attacker was captured — stop processing this piece
+      return true;
     } else {
       // Normal square: defender is expelled
       const oName=['A','B'][opi];
@@ -465,7 +1110,6 @@ async function resolveCapture(playerIdx, pieceIdx, sq){
       log(`⚔ ${NAMES[playerIdx]} Piece ${pName} captures ${NAMES[opp]} Piece ${oName}! Sent to start.`,'le-capture');
       G.pieces[opp][opi]=1;
       renderPieces();
-      // continue: there could be a second opponent piece on the same square
     }
   }
   return false;
@@ -486,86 +1130,105 @@ function checkWinAndNext(){
 
 /* ═══════════════════════════════════════════
    MOVE OPTIONS
-   Doubles give three kinds of bonus (in addition to normal sum):
-     1. If piece is on sq 1 (start): offer vertical-up jump
-     2. If piece is on a safe-house: offer d² movement
-   One piece at 144 → remaining piece uses lower die (or single-die for doubles)
+
+   DOUBLES special bonuses (gold buttons):
+     1. Piece on sq 1 (home)  → offer vertical jump of d rows up
+     2. Piece on a safe house → offer +d² movement (if d²≠sum)
+     3. Both pieces active    → pair move by d (= sum/2)
+   Normal doubles: move one piece by 2d.
+   Different dice, even sum, both active → pair move by sum/2.
+   Different dice:  move both pieces (one per die).
+   One piece at 144: remaining piece uses lower die (or d for doubles).
 ═══════════════════════════════════════════ */
 function buildMoveOptions(){
   const[d1,d2]=G.dice;
   const ps=G.pieces[G.cur];
   const fin=[ps[0]===144, ps[1]===144];
   const opts=document.getElementById('moveOpts');
-  opts.innerHTML='';
+  opts.innerHTML=''; moveQueue=[];
   const big=Math.max(d1,d2), small=Math.min(d1,d2);
+  const sum=d1+d2;
+  // Immune pair: both pieces on the same square (and not both finished)
+  const immunePair = !fin[0]&&!fin[1] && ps[0]===ps[1];
 
   if(fin[0]&&fin[1]){nextTurn();return;}
 
-  // ── One piece finished: remaining piece uses lower/single die ──────
+  // ── One piece finished ─────────────────────────────────────────────
+  //   Doubles (d,d)  → move by d²
+  //   Any other roll → move by sum
   if(fin[0]||fin[1]){
     const pi=fin[0]?1:0;
-    const pos=ps[pi];
     const lbl=['A','B'][pi];
     if(d1===d2){
-      const d=d1, sq=d*d;
-      mkBtn(`Move ${lbl} by ${d} (single die)`,()=>exec([{p:pi,s:d}]));
-      if(pos===1){
-        const up=verticalUpOf(pos);
-        if(up) mkBtn(`✦ Move ${lbl} ↑ to ${up} (doubles on start)`,()=>execVertical(pi,up),true);
-      }
-      if(SAFE_HOUSES.has(pos) && sq!==d){
-        mkBtn(`✦ Move ${lbl} by ${sq} (${d}² safe house)`,()=>exec([{p:pi,s:sq}]),true);
-      }
+      const dsq=d1*d1;
+      mkBtn(`Move ${lbl} by ${dsq}  (${d1}² doubles)`,()=>exec([{p:pi,s:dsq}]),false,{type:'exec',moves:[{p:pi,s:dsq}],isPairMove:false});
     } else {
-      mkBtn(`Move ${lbl} by ${small} (lower die)`,()=>exec([{p:pi,s:small}]));
+      const singleSum=d1+d2;
+      mkBtn(`Move ${lbl} by ${singleSum}  (sum)`,()=>exec([{p:pi,s:singleSum}]),false,{type:'exec',moves:[{p:pi,s:singleSum}],isPairMove:false});
     }
-    return;
+    maybeAI(); return;
   }
 
   // ── Both pieces active ─────────────────────────────────────────────
   if(d1===d2){
-    const d=d1, sum=2*d, sq=d*d;
+    const d=d1, sum2=2*d, dsq=d*d;
     for(let pi=0;pi<2;pi++){
       const pos=ps[pi];
       const lbl=['A','B'][pi];
-      mkBtn(`Move ${lbl} by ${sum}`,()=>exec([{p:pi,s:sum}]));
+      mkBtn(`Move ${lbl} by ${sum2}`,()=>exec([{p:pi,s:sum2}]),false,{type:'exec',moves:[{p:pi,s:sum2}],isPairMove:false});
       if(pos===1){
-        const up=verticalUpOf(pos);
-        if(up) mkBtn(`✦ Move ${lbl} ↑ to ${up} (doubles on start)`,()=>execVertical(pi,up),true);
+        const up=verticalUpByRows(pos,d);
+        if(up) mkBtn(`✦ ${lbl} ↑ ${d} row${d>1?'s':''} → sq ${up}  (doubles on 🏠)`,()=>execVertical(pi,up),true,{type:'vertical',pi,dest:up});
       }
-      if(SAFE_HOUSES.has(pos) && pos!==1 && sq!==sum){
-        mkBtn(`✦ Move ${lbl} by ${sq} (${d}² safe house)`,()=>exec([{p:pi,s:sq}]),true);
+      if(SAFE_HOUSES.has(pos)&&pos!==1&&dsq!==sum2){
+        mkBtn(`✦ Move ${lbl} by +${dsq}  (${d}² on 🛡)`,()=>exec([{p:pi,s:dsq}]),true,{type:'exec',moves:[{p:pi,s:dsq}],isPairMove:false});
       }
     }
-    return;
+    // Immune pair + doubles → both move by d²
+    if(immunePair){
+      mkBtn(`🔗 Move A+B by +${dsq}  (${d}² immune pair)`,()=>exec([{p:0,s:dsq},{p:1,s:dsq}],true),true,{type:'exec',moves:[{p:0,s:dsq},{p:1,s:dsq}],isPairMove:true});
+    }
+    maybeAI(); return;
   }
 
-  // Different dice — finishing constraint: piece near 144 is forced onto larger die
+  // ── Different dice — both pieces must move ─────────────────────────
   const posA=ps[0], posB=ps[1];
-  const forceBigA=posA+small<144 && posA+big>=144;
-  const forceBigB=posB+small<144 && posB+big>=144;
+  const forceBigA=posA+small<144&&posA+big>=144;
+  const forceBigB=posB+small<144&&posB+big>=144;
   if(forceBigA&&!forceBigB){
-    mkBtn(`A +${big} (forced) · B +${small}`,()=>exec([{p:0,s:big},{p:1,s:small}]));
+    mkBtn(`A +${big} (forced) · B +${small}`,()=>exec([{p:0,s:big},{p:1,s:small}]),false,{type:'exec',moves:[{p:0,s:big},{p:1,s:small}],isPairMove:false});
   } else if(forceBigB&&!forceBigA){
-    mkBtn(`A +${small} · B +${big} (forced)`,()=>exec([{p:0,s:small},{p:1,s:big}]));
+    mkBtn(`A +${small} · B +${big} (forced)`,()=>exec([{p:0,s:small},{p:1,s:big}]),false,{type:'exec',moves:[{p:0,s:small},{p:1,s:big}],isPairMove:false});
   } else {
-    mkBtn(`A +${d1} · B +${d2}`,()=>exec([{p:0,s:d1},{p:1,s:d2}]));
-    mkBtn(`A +${d2} · B +${d1}`,()=>exec([{p:0,s:d2},{p:1,s:d1}]));
+    mkBtn(`A +${d1} · B +${d2}`,()=>exec([{p:0,s:d1},{p:1,s:d2}]),false,{type:'exec',moves:[{p:0,s:d1},{p:1,s:d2}],isPairMove:false});
+    mkBtn(`A +${d2} · B +${d1}`,()=>exec([{p:0,s:d2},{p:1,s:d1}]),false,{type:'exec',moves:[{p:0,s:d2},{p:1,s:d1}],isPairMove:false});
+  }
+  // Immune pair + even sum → both move by full sum
+  if(sum%2===0&&immunePair){
+    mkBtn(`🔗 Move A+B by +${sum}  (even sum, immune pair)`,()=>exec([{p:0,s:sum},{p:1,s:sum}],true),true,{type:'exec',moves:[{p:0,s:sum},{p:1,s:sum}],isPairMove:true});
+  }
+  maybeAI();
+}
+
+function maybeAI(){
+  if(G.cur===computerPlayer && G.phase==='move'){
+    setTimeout(()=>aiPickMove(), 900);
   }
 }
 
-function mkBtn(label,handler,bonus=false){
+function mkBtn(label,handler,bonus=false,meta=null){
   const b=document.createElement('button');
   b.className=`btn btn-move btn-p${G.cur+1}${bonus?' btn-bonus':''}`;
   b.textContent=label;
-  b.onclick=()=>{document.getElementById('moveOpts').innerHTML=''; handler();};
+  b.onclick=()=>{document.getElementById('moveOpts').innerHTML=''; moveQueue=[]; handler();};
   document.getElementById('moveOpts').appendChild(b);
+  moveQueue.push({label,handler,bonus,meta});
 }
 
 /* ═══════════════════════════════════════════
    EXECUTE NORMAL MOVES  (async — animated)
 ═══════════════════════════════════════════ */
-async function exec(moves){
+async function exec(moves,isPairMove=false){
   for(const{p:pi,s:steps}of moves){
     const from=G.pieces[G.cur][pi];
     const name=['A','B'][pi];
@@ -574,37 +1237,58 @@ async function exec(moves){
     let raw=from+steps;
 
     if(raw>144){
-      // Bounce-back: walk to 144, pause, walk back
       const excess=raw-144, to=144-excess;
       log(`${NAMES[G.cur]} Piece ${name}: ${from} → 144 ↩ bounces to ${to}`,'le-bounce');
-      await animateSteps(G.cur,pi,from,144,110);
-      await sleep(340);
-      await animateSteps(G.cur,pi,144,to,110);
+      await animateSteps(G.cur,pi,from,144,200);
+      await sleep(380);
+      await animateSteps(G.cur,pi,144,to,200);
     } else {
       log(`${NAMES[G.cur]} Piece ${name}: ${from} → ${raw}`);
-      await animateSteps(G.cur,pi,from,raw,110);
+      await animateSteps(G.cur,pi,from,raw,200);
     }
 
     const landed=G.pieces[G.cur][pi];
-    if(landed===144) continue;   // reached finish, no further effects
+    if(landed===144) continue;
 
     // ── Capture check ──────────────────────────────────────────────
     const expelled=await resolveCapture(G.cur,pi,landed);
-    if(expelled) continue;       // piece was sent home, skip snake/ladder
+    if(expelled) continue;
 
     // ── Snake / Ladder ─────────────────────────────────────────────
     if(SNAKES[landed]){
       const dest=SNAKES[landed];
-      log(`  ⚠ Square ${landed} is prime! Piece ${name} falls to ${dest}.`,'le-snake');
-      await flashCell(landed,'snake-in');
-      const ms=Math.max(35,Math.min(80,Math.floor(900/Math.abs(dest-landed))));
-      await animateSteps(G.cur,pi,landed,dest,ms);
-      await flashCell(dest,'arrive');
+      if(isPairMove){
+        // Immune pair — dangerous primes are safe!
+        log(`🔗 Immune pair passes sq ${landed} safely — no fall!`,'le-special');
+      } else {
+        // Educational mode: offer quiz to stay on square
+        let stay=false;
+        if(eduMode && QUESTIONS.length){
+          if(G.cur===computerPlayer){
+            // Computer always answers correctly
+            stay=true;
+            log(`🤖 ${NAMES[G.cur]} Piece ${name} answers the challenge — stays on sq ${landed}!`,'le-special');
+          } else {
+            stay=await showQuiz(landed,dest);
+          }
+        }
+        if(stay){
+          if(G.cur!==computerPlayer)
+            log(`✅ Math challenge passed! ${NAMES[G.cur]} Piece ${name} stays on sq ${landed}.`,'le-special');
+        } else {
+          if(eduMode && QUESTIONS.length && G.cur!==computerPlayer) log(`❌ Challenge failed — `,'le-snake');
+          log(`  ⚠ Sq ${landed} is a dangerous prime! Piece ${name} falls to ${dest} 🛡`,'le-snake');
+          await flashCell(landed,'snake-in');
+          const ms=Math.max(60,Math.min(150,Math.floor(1400/Math.abs(dest-landed))));
+          await animateSteps(G.cur,pi,landed,dest,ms);
+          await flashCell(dest,'arrive');
+        }
+      }
     } else if(LADDERS[landed]){
       const dest=LADDERS[landed];
-      log(`  ✦ Square ${landed} ÷5/6! Piece ${name} jumps to ${dest}.`,'le-ladder');
+      log(`  ✦ Sq ${landed} ÷5/6! Piece ${name} jumps to ${dest}.`,'le-ladder');
       await flashCell(landed,'ladder-in');
-      const ms=Math.max(35,Math.min(80,Math.floor(900/Math.abs(dest-landed))));
+      const ms=Math.max(60,Math.min(150,Math.floor(1400/Math.abs(dest-landed))));
       await animateSteps(G.cur,pi,landed,dest,ms);
       await flashCell(dest,'arrive');
     }
@@ -612,26 +1296,29 @@ async function exec(moves){
 
   syncUI();
   checkWinAndNext();
+  // Push final state to Firebase so opponent sees new positions and knows it's their turn
+  if(isOnlineMode) pushGameState();
 }
 
 /* ═══════════════════════════════════════════
-   EXECUTE VERTICAL JUMP  (doubles on start)
-   Teleports piece to the square directly above in the same column.
-   Capture rules apply; snake/ladder effects do NOT (it's a power move).
+   EXECUTE VERTICAL JUMP  (doubles on home)
+   Jumps piece d rows up in the same visual column.
+   Capture rules apply; snake/ladder effects do NOT.
 ═══════════════════════════════════════════ */
 async function execVertical(pieceIdx, destSq){
   const from=G.pieces[G.cur][pieceIdx];
   const name=['A','B'][pieceIdx];
   log(`${NAMES[G.cur]} Piece ${name} ↑ jumps vertically: ${from} → ${destSq}`,'le-special');
   await flashCell(from,'vertical');
-  await animateSteps(G.cur,pieceIdx,from,destSq,80);
+  await animateSteps(G.cur,pieceIdx,from,destSq,160);
   await flashCell(destSq,'arrive');
 
   const expelled=await resolveCapture(G.cur,pieceIdx,destSq);
-  if(expelled){ syncUI(); checkWinAndNext(); return; }
+  if(expelled){ syncUI(); checkWinAndNext(); if(isOnlineMode) pushGameState(); return; }
 
   syncUI();
   checkWinAndNext();
+  if(isOnlineMode) pushGameState();
 }
 
 /* ═══════════════════════════════════════════
@@ -643,6 +1330,8 @@ function nextTurn(){
   document.getElementById('deq').textContent='?';
   document.getElementById('rollBtn').disabled=false;
   syncUI();
+  // Auto-roll for computer
+  if(G.cur===computerPlayer) setTimeout(()=>doRoll(),1000);
 }
 
 function syncUI(){
@@ -653,11 +1342,20 @@ function syncUI(){
   document.getElementById('s1b').textContent=lbl(G.pieces[1][1]);
   document.getElementById('c0').classList.toggle('active',G.cur===0&&G.phase!=='over');
   document.getElementById('c1').classList.toggle('active',G.cur===1&&G.phase!=='over');
-  if(G.phase!=='over')
-    document.getElementById('status').textContent=`${NAMES[G.cur]}'s Turn`;
+  if(G.phase!=='over'){
+    const isCpuTurn=(G.cur===computerPlayer);
+    document.getElementById('status').textContent=
+      `${NAMES[G.cur]}'s Turn${eduMode?' 📚':''}${isCpuTurn?' 🤖':''}`;
+  }
   const btn=document.getElementById('rollBtn');
   btn.classList.toggle('btn-p1',G.cur===0);
   btn.classList.toggle('btn-p2',G.cur===1);
+  // Disable roll when: computer's turn OR online opponent's turn OR game over
+  const onlineOpponentTurn = isOnlineMode && G.cur!==myPlayerIdx;
+  btn.disabled = G.phase==='over' ||
+                 (G.cur===computerPlayer && G.phase==='roll') ||
+                 (onlineOpponentTurn && G.phase==='roll') ||
+                 (isOnlineMode && G.phase==='move' && G.cur!==myPlayerIdx);
 }
 
 function log(msg,cls=''){
@@ -710,10 +1408,434 @@ function launchConfetti(){
 }
 
 /* ═══════════════════════════════════════════
+   RULES MODAL
+═══════════════════════════════════════════ */
+function closeRules(){
+  document.getElementById('rulesModal').style.display='none';
+  openSetup();
+}
+
+/* ═══════════════════════════════════════════
+   LOG HISTORY MODAL
+═══════════════════════════════════════════ */
+function openLog(){
+  const src=document.getElementById('log');
+  const content=document.getElementById('logContent');
+  content.innerHTML=src.innerHTML||'<div style="color:#666;text-align:center;padding:24px">No moves yet.</div>';
+  document.getElementById('logModal').classList.add('open');
+  content.scrollTop=content.scrollHeight;
+}
+function closeLog(){
+  document.getElementById('logModal').classList.remove('open');
+}
+
+/* ═══════════════════════════════════════════
+   VOICE RECOGNITION
+   Commands: "roll", "option N / N-word / N-th", "new game"
+═══════════════════════════════════════════ */
+let recognition=null;
+let micOn=false;
+
+const WORD_TO_N={
+  'one':1,'two':2,'three':3,'four':4,'five':5,
+  '1':1,'2':2,'3':3,'4':4,'5':5,
+  'first':1,'second':2,'third':3,'fourth':4,'fifth':5
+};
+
+function handleVoice(text){
+  const t=text.toLowerCase().trim();
+  const vsEl=document.getElementById('voiceStatus');
+
+  // Roll
+  if(/\broll\b/.test(t)){
+    vsEl.textContent='🎤 Heard: "roll"';
+    doRoll();
+    return;
+  }
+  // New game
+  if(/\bnew\s*game\b/.test(t)){
+    vsEl.textContent='🎤 Heard: "new game"';
+    newGame();
+    return;
+  }
+  // Rules
+  if(/\brules?\b/.test(t)){
+    vsEl.textContent='🎤 Heard: "rules"';
+    document.getElementById('rulesModal').style.display='flex';
+    return;
+  }
+  // Option N
+  for(const[word,n] of Object.entries(WORD_TO_N)){
+    // matches "option two", "two", "option 2", "2" etc.
+    const pat=new RegExp('(\\boption\\s+'+word+'\\b|^'+word+'$)');
+    if(pat.test(t)){
+      const btns=[...document.querySelectorAll('#moveOpts .btn')];
+      if(btns[n-1]){
+        vsEl.textContent=`🎤 Heard: option ${n}`;
+        btns[n-1].click();
+      } else {
+        vsEl.textContent=`🎤 No option ${n} available`;
+      }
+      return;
+    }
+  }
+  vsEl.textContent=`🎤 "${text}"`;
+}
+
+function setupRecognition(){
+  const SpeechRec=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SpeechRec){
+    document.getElementById('micBtn').textContent='🚫 Voice N/A';
+    document.getElementById('micBtn').disabled=true;
+    return null;
+  }
+  const r=new SpeechRec();
+  r.lang='en-US';
+  r.continuous=true;
+  r.interimResults=false;
+  r.maxAlternatives=3;
+  r.onresult=e=>{
+    for(let i=e.resultIndex;i<e.results.length;i++){
+      if(e.results[i].isFinal){
+        // Try all alternatives
+        for(let a=0;a<e.results[i].length;a++){
+          const txt=e.results[i][a].transcript;
+          handleVoice(txt);
+          break; // use best alternative
+        }
+      }
+    }
+  };
+  r.onerror=err=>{
+    if(err.error!=='no-speech' && err.error!=='aborted'){
+      document.getElementById('voiceStatus').textContent=`🎤 Error: ${err.error}`;
+    }
+  };
+  r.onend=()=>{
+    // Auto-restart if still enabled
+    if(micOn) try{ r.start(); }catch(e){}
+  };
+  return r;
+}
+
+function toggleMic(){
+  const btn=document.getElementById('micBtn');
+  if(!recognition) recognition=setupRecognition();
+  if(!recognition) return;
+
+  micOn=!micOn;
+  if(micOn){
+    try{ recognition.start(); }catch(e){}
+    btn.textContent='🎤 Voice: On';
+    btn.classList.add('listening');
+    document.getElementById('voiceStatus').textContent='Listening… say "Roll", "Option 1", "New game"…';
+  } else {
+    try{ recognition.abort(); }catch(e){}
+    btn.textContent='🎤 Voice: Off';
+    btn.classList.remove('listening');
+    document.getElementById('voiceStatus').textContent='';
+  }
+}
+
+/* ═══════════════════════════════════════════
    INIT
+   (Rules modal is visible on load via CSS.
+    Game starts after rules → setup → setupGame())
 ═══════════════════════════════════════════ */
 buildBoard();
-newGame();
+// Pre-initialise state so the board renders pieces at sq 1 while modals are shown
+G={pieces:[[1,1],[1,1]],cur:0,dice:[0,0],phase:'roll'};
+renderPieces(); syncUI();
+QUESTIONS=[
+  {"q":"Solve for x:  2x + 5 = 13","options":["x = 3","x = 4","x = 5","x = 6"],"answer":1},
+  {"q":"What is the LCM of 4 and 6?","options":["8","12","16","24"],"answer":1},
+  {"q":"What is the GCD of 24 and 36?","options":["4","8","12","18"],"answer":2},
+  {"q":"Which of these is a prime number?","options":["15","21","23","27"],"answer":2},
+  {"q":"What is 15% of 80?","options":["10","12","15","20"],"answer":1},
+  {"q":"Express 0.375 as a fraction.","options":["3/8","3/7","5/12","5/16"],"answer":0},
+  {"q":"What is 2⁸?","options":["128","256","512","1024"],"answer":1},
+  {"q":"What is the sum of the first 10 natural numbers?","options":["45","50","55","60"],"answer":2},
+  {"q":"How many factors does 36 have?","options":["7","8","9","10"],"answer":2},
+  {"q":"What is (−3)²?","options":["−9","−6","6","9"],"answer":3},
+  {"q":"What is the remainder when 100 is divided by 7?","options":["1","2","3","4"],"answer":1},
+  {"q":"Which of these is NOT a perfect square?","options":["81","100","121","130"],"answer":3},
+  {"q":"What is 5! (5 factorial)?","options":["60","100","120","150"],"answer":2},
+  {"q":"What is 5! ÷ 3!?","options":["10","15","20","25"],"answer":2},
+  {"q":"What is 2³ × 3²?","options":["48","54","72","96"],"answer":2},
+  {"q":"If n is odd, which expression is always even?","options":["n + 1","n + 2","2n + 1","n²"],"answer":0},
+  {"q":"What is 12.5% expressed as a fraction?","options":["1/6","1/7","1/8","1/9"],"answer":2},
+  {"q":"What is √0.25?","options":["0.05","0.5","2.5","5"],"answer":1},
+  {"q":"What is the 7th prime number?","options":["13","15","17","19"],"answer":2},
+  {"q":"How many prime numbers are between 10 and 30?","options":["4","5","6","7"],"answer":1},
+  {"q":"What is 2/3 + 3/4?","options":["5/7","11/12","13/12","17/12"],"answer":3},
+  {"q":"Solve for x:  3x − 7 = 14","options":["5","6","7","8"],"answer":2},
+  {"q":"If 5x = 45, then x = ?","options":["7","8","9","10"],"answer":2},
+  {"q":"Simplify:  3(2x − 4)","options":["5x − 4","6x − 4","6x − 12","6x + 12"],"answer":2},
+  {"q":"Expand  (x + 3)²","options":["x² + 9","x² + 3x + 9","x² + 6x + 9","x² + 9x + 9"],"answer":2},
+  {"q":"Factor:  x² − 9","options":["(x − 3)²","(x + 3)²","(x + 3)(x − 3)","(x − 9)(x + 1)"],"answer":2},
+  {"q":"Solve  x² = 64  (positive root only)","options":["6","7","8","9"],"answer":2},
+  {"q":"If  2x + 3y = 12  and  x = 3,  what is y?","options":["1","2","3","4"],"answer":1},
+  {"q":"What is the slope of  y = 3x − 7?","options":["−7","−3","3","7"],"answer":2},
+  {"q":"Solve:  x / 4 = 5","options":["1.25","5/4","20","25"],"answer":2},
+  {"q":"If  f(x) = 2x + 1,  what is  f(3)?","options":["5","6","7","8"],"answer":2},
+  {"q":"Solve:  |x| = 5","options":["x = 5 only","x = −5 only","x = ±5","No solution"],"answer":2},
+  {"q":"What is the y-intercept of  y = 4x + 7?","options":["4","7","−4","−7"],"answer":1},
+  {"q":"Simplify:  (x³)²","options":["x⁵","x⁶","x⁸","x⁹"],"answer":1},
+  {"q":"Solve:  2(x − 3) = 10","options":["5","7","8","11"],"answer":2},
+  {"q":"Which is equivalent to  x⁻²?","options":["−x²","1/x","1/x²","x/2"],"answer":2},
+  {"q":"If  y = x²  and  x = −3,  then  y = ?","options":["−9","−6","6","9"],"answer":3},
+  {"q":"Solve the inequality:  3x + 2 > 11","options":["x > 2","x > 3","x > 4","x > 5"],"answer":1},
+  {"q":"Find the value of  (2 + 3)² − 2²","options":["17","19","21","25"],"answer":2},
+  {"q":"If  2^x = 16,  then  x = ?","options":["2","3","4","8"],"answer":2},
+  {"q":"If  x + y = 8  and  x − y = 2,  then  x = ?","options":["3","4","5","6"],"answer":2},
+  {"q":"The roots of  x² − 5x + 6 = 0  are:","options":["1 and 6","2 and 3","−2 and −3","−1 and −6"],"answer":1},
+  {"q":"Simplify:  (3x²y)(2xy³)","options":["5x³y⁴","6x³y⁴","5x²y³","6x²y³"],"answer":1},
+  {"q":"If  a : b = 3 : 4  and  a = 12,  then  b = ?","options":["9","12","16","18"],"answer":2},
+  {"q":"What is the sum of roots of  x² − 7x + 10 = 0?","options":["−7","7","10","−10"],"answer":1},
+  {"q":"Area of a triangle with base 8 and height 6?","options":["14","24","48","96"],"answer":1},
+  {"q":"Perimeter of a rectangle with sides 5 and 8?","options":["13","26","40","80"],"answer":1},
+  {"q":"Area of a circle with radius 7?  (use π = 22/7)","options":["22","44","154","308"],"answer":2},
+  {"q":"Sum of interior angles in a triangle?","options":["90°","180°","270°","360°"],"answer":1},
+  {"q":"In a right triangle with legs 3 and 4, the hypotenuse is?","options":["5","6","7","8"],"answer":0},
+  {"q":"Sum of interior angles of a hexagon?","options":["360°","540°","720°","900°"],"answer":2},
+  {"q":"Volume of a cube with side length 4?","options":["16","32","64","128"],"answer":2},
+  {"q":"Two angles of a triangle are 60° and 80°. The third angle is?","options":["30°","40°","50°","60°"],"answer":1},
+  {"q":"Area of a square whose diagonal is 10?","options":["25","50","100","200"],"answer":1},
+  {"q":"Circumference of a circle with diameter 14?  (use π = 22/7)","options":["22","44","88","154"],"answer":1},
+  {"q":"How many sides does a decagon have?","options":["8","9","10","12"],"answer":2},
+  {"q":"What is the exterior angle of a regular hexagon?","options":["30°","45°","60°","90°"],"answer":2},
+  {"q":"Volume of a cylinder with r = 7 and h = 10?  (use π = 22/7)","options":["220","1540","3080","4400"],"answer":1},
+  {"q":"Corresponding angles formed by parallel lines and a transversal are:","options":["Supplementary","Complementary","Equal","Perpendicular"],"answer":2},
+  {"q":"A rhombus has diagonals of length 10 and 24. Its area is?","options":["60","120","240","480"],"answer":1},
+  {"q":"In a 30-60-90 triangle, if the shortest side is 5, the hypotenuse is?","options":["5√2","10","5√3","15"],"answer":1},
+  {"q":"Area of a trapezoid with parallel sides 6 and 10, and height 4?","options":["16","24","32","64"],"answer":2},
+  {"q":"Distance between points (0, 0) and (3, 4)?","options":["3","4","5","7"],"answer":2},
+  {"q":"How many diagonals does a pentagon have?","options":["4","5","6","7"],"answer":1},
+  {"q":"What is the slope of  y = −2x + 5?","options":["−5","−2","2","5"],"answer":1},
+  {"q":"A shirt costs $80 after a 20% discount. What was the original price?","options":["$88","$96","$100","$120"],"answer":2},
+  {"q":"60 is what percent of 240?","options":["20%","25%","30%","40%"],"answer":1},
+  {"q":"The mean of {5, 8, x, 12} is 9. Find x.","options":["9","10","11","12"],"answer":2},
+  {"q":"What is the median of {3, 7, 5, 2, 8}?","options":["3","5","6","7"],"answer":1},
+  {"q":"What is the mode of {2, 3, 3, 4, 5, 3, 6}?","options":["2","3","4","5"],"answer":1},
+  {"q":"Population increased from 20,000 to 25,000. Percentage increase?","options":["20%","25%","30%","40%"],"answer":1},
+  {"q":"What is the average of the first 5 odd numbers: 1, 3, 5, 7, 9?","options":["5","6","7","8"],"answer":0},
+  {"q":"Ratio 3:5 — if the total is 80, the larger part is?","options":["30","40","48","50"],"answer":3},
+  {"q":"Simple interest on $500 at 4% per year for 3 years?","options":["$20","$40","$60","$80"],"answer":2},
+  {"q":"P(A) = 0.4 and P(B) = 0.5; A and B are independent. P(A and B) = ?","options":["0.20","0.40","0.45","0.90"],"answer":0},
+  {"q":"A fair die is rolled once. Probability of getting a prime number?","options":["1/6","1/3","1/2","2/3"],"answer":2},
+  {"q":"What is the range of {4, 9, 2, 16, 7}?","options":["12","13","14","15"],"answer":2},
+  {"q":"Boys : Girls = 3 : 2 and total students = 50. How many girls?","options":["15","20","25","30"],"answer":1},
+  {"q":"A price rises by 10% then falls by 10%. The net change is?","options":["0%","−1%","−2%","+1%"],"answer":1},
+  {"q":"Compound interest on $1000 at 10% per year for 2 years?","options":["$100","$200","$210","$220"],"answer":2},
+  {"q":"Next term in:  2, 6, 18, 54, ___","options":["108","162","216","324"],"answer":1},
+  {"q":"Sum of  1 + 2 + 3 + ⋯ + 20 = ?","options":["190","200","210","220"],"answer":2},
+  {"q":"What is the 10th Fibonacci number?  (sequence: 1, 1, 2, 3, 5, 8, …)","options":["34","55","89","144"],"answer":1},
+  {"q":"Next term in:  1, 4, 9, 16, 25, ___","options":["30","36","42","49"],"answer":1},
+  {"q":"10th term of the arithmetic sequence  3, 7, 11, 15, …?","options":["37","38","39","40"],"answer":2},
+  {"q":"Sum of the first 4 terms of  2, 6, 18, 54, …?","options":["54","78","80","84"],"answer":2},
+  {"q":"In how many ways can 4 different books be arranged on a shelf?","options":["12","16","24","32"],"answer":2},
+  {"q":"How many ways can 2 items be chosen from 5?  (C(5,2) = ?)","options":["5","10","20","25"],"answer":1},
+  {"q":"If  log₂(8) = x,  then  x = ?","options":["2","3","4","6"],"answer":1},
+  {"q":"What is  log₁₀(1000)?","options":["2","3","4","5"],"answer":1},
+  {"q":"What is  sin(30°)?","options":["1/4","1/3","1/2","√3/2"],"answer":2},
+  {"q":"What is  cos(60°)?","options":["0","1/4","1/2","√3/2"],"answer":2},
+  {"q":"What is  tan(45°)?","options":["0","1/2","1","√3"],"answer":2},
+  {"q":"For any angle θ,  sin²θ + cos²θ = ?","options":["0","1/2","1","2"],"answer":2},
+  {"q":"Which of these numbers is divisible by 11?","options":["123","132","143","152"],"answer":2},
+  {"q":"What is  (−2)⁵?","options":["−32","−16","16","32"],"answer":0},
+  {"q":"What is  √(3² + 4²)?","options":["3.5","4","5","7"],"answer":2},
+  {"q":"Which of these is an irrational number?","options":["√4","√9","√16","√2"],"answer":3},
+  {"q":"How many integers from 1 to 100 are divisible by both 3 and 5?","options":["5","6","7","8"],"answer":1},
+  {"q":"What is the product of roots of  x² − 7x + 10 = 0?","options":["−7","7","10","−10"],"answer":2}
+];
+
+/* ═══════════════════════════════════════════
+   ONLINE MULTIPLAYER — globals
+═══════════════════════════════════════════ */
+let isOnlineMode   = false;
+let myPlayerIdx    = 0;      // 0 = Player 1, 1 = Player 2
+let roomCode       = '';
+let _lastAppliedSeq = -1;
+let _fbUnsubscribe  = null;
+
+function generateRoomCode(){
+  const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let c='';
+  for(let i=0;i<6;i++) c+=chars[Math.floor(Math.random()*chars.length)];
+  return c;
+}
+
+/* ── Called when P1 presses "Create Room" ── */
+function onlineCreate(){
+  if(!window._fb){
+    document.getElementById('onlineStatus').textContent='⏳ Firebase loading… try again in a second.';
+    document.getElementById('onlineStatus').className='online-status err';
+    document.getElementById('onlineRoomDisplay').style.display='';
+    return;
+  }
+  roomCode=generateRoomCode();
+  myPlayerIdx=0;
+  isOnlineMode=true;
+
+  document.getElementById('onlineCreateBtn').disabled=true;
+  document.getElementById('onlineJoinBtn').disabled=true;
+  document.getElementById('onlineRoomDisplay').style.display='';
+  document.getElementById('onlineJoinPanel').style.display='none';
+  document.getElementById('roomCodeDisplay').textContent=roomCode;
+  document.getElementById('onlineStatus').textContent='⏳ Waiting for opponent to join…';
+  document.getElementById('onlineStatus').className='online-status';
+
+  // Copy-on-click helper
+  document.getElementById('roomCodeDisplay').onclick=()=>{
+    navigator.clipboard&&navigator.clipboard.writeText(roomCode).then(()=>{
+      document.getElementById('onlineStatus').textContent='📋 Code copied!';
+    });
+  };
+
+  // P1 listens for remote state (P2 moves)
+  const{db,ref,onValue}=window._fb;
+  if(_fbUnsubscribe) _fbUnsubscribe();
+  _fbUnsubscribe=onValue(ref(db,`rooms/${roomCode}`),(snap)=>{
+    const d=snap.val();
+    if(!d||!d.G) return;
+    applyRemoteState(d);
+  });
+}
+
+/* ── Called when P1 presses "Join Room" toggle ── */
+function onlineShowJoin(){
+  document.getElementById('onlineJoinPanel').style.display='';
+  document.getElementById('onlineRoomDisplay').style.display='none';
+}
+
+/* ── Called when P2 presses "Join →" ── */
+async function onlineJoin(){
+  const code=(document.getElementById('joinCodeInput').value||'').trim().toUpperCase();
+  const statusEl=document.getElementById('onlineJoinStatus');
+  if(code.length!==6){
+    statusEl.textContent='⚠ Enter the full 6-character code.';
+    statusEl.className='online-status err';
+    return;
+  }
+  if(!window._fb){
+    statusEl.textContent='⏳ Firebase loading… try again in a second.';
+    statusEl.className='online-status err';
+    return;
+  }
+  statusEl.textContent='🔄 Connecting…';
+  statusEl.className='online-status';
+
+  const{db,ref,get,onValue}=window._fb;
+  try{
+    const snap=await get(ref(db,`rooms/${code}`));
+    if(!snap.exists()){
+      statusEl.textContent='❌ Room not found. Double-check the code.';
+      statusEl.className='online-status err';
+      return;
+    }
+  }catch(e){
+    statusEl.textContent='❌ Connection error: '+e.message;
+    statusEl.className='online-status err';
+    return;
+  }
+
+  roomCode=code;
+  myPlayerIdx=1;
+  isOnlineMode=true;
+  computerPlayer=-1;
+
+  statusEl.textContent='✅ Connected! Waiting for Player 1 to start…';
+  statusEl.className='online-status ok';
+
+  // Disable start button so P2 waits for P1's state push
+  document.getElementById('setupModal').classList.remove('open');
+  showOnlineBanner();
+  log('🌐 Joined room '+roomCode+' — you are Player 2. Waiting for Player 1 to start…','le-special');
+
+  // P2 listens for P1's state
+  if(_fbUnsubscribe) _fbUnsubscribe();
+  _fbUnsubscribe=onValue(ref(db,`rooms/${roomCode}`),(snap)=>{
+    const d=snap.val();
+    if(!d||!d.G) return;
+    applyRemoteState(d);
+  });
+}
+
+/* ── Push current G to Firebase ── */
+function pushGameState(){
+  if(!isOnlineMode||!window._fb) return;
+  const{db,ref,set}=window._fb;
+  G.seq=(G.seq||0)+1;
+  _lastAppliedSeq=G.seq;
+  set(ref(db,`rooms/${roomCode}`),{G:JSON.parse(JSON.stringify(G)),pusher:myPlayerIdx});
+}
+
+/* ── Apply state received from the remote player ── */
+function applyRemoteState(data){
+  if(!data||!data.G) return;
+  const remoteG=data.G;
+  // Ignore our own echoed pushes
+  if(data.pusher===myPlayerIdx) return;
+  if((remoteG.seq||0)<=_lastAppliedSeq) return;
+  _lastAppliedSeq=remoteG.seq||0;
+
+  // Apply
+  G.pieces=remoteG.pieces;
+  G.cur   =remoteG.cur;
+  G.dice  =remoteG.dice;
+  G.phase =remoteG.phase;
+  G.seq   =remoteG.seq||0;
+
+  // Update dice display
+  if(G.dice&&G.dice[0]){
+    renderDie('d0',G.dice[0]); renderDie('d1',G.dice[1]);
+    document.getElementById('deq').textContent=G.dice[0]===G.dice[1]?'=':'≠';
+  }
+
+  renderPieces();
+  document.getElementById('moveOpts').innerHTML='';
+  moveQueue=[];
+
+  // Win?
+  if(G.phase==='over'){
+    syncUI();
+    showWinScreen(G.cur);
+    return;
+  }
+
+  // If remote player just rolled (phase=move, their turn) — log it, no move buttons for us
+  if(G.phase==='move'&&G.cur!==myPlayerIdx){
+    log(`${NAMES[G.cur]} rolled ${G.dice[0]} & ${G.dice[1]}${G.dice[0]===G.dice[1]?' (doubles!)':''}. Choosing a move…`,'le-roll');
+  }
+
+  syncUI();
+}
+
+function showOnlineBanner(){
+  const el=document.getElementById('onlineBanner');
+  el.style.display='flex';
+  document.getElementById('onlineBannerCode').textContent='🌐 Room: '+roomCode;
+  document.getElementById('onlineBannerRole').textContent='You are Player '+(myPlayerIdx+1);
+}
+</script>
+
+<!-- Firebase Realtime Database (modular SDK) -->
+<script type="module">
+import{initializeApp}from"https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
+import{getDatabase,ref,set,get,onValue}from"https://www.gstatic.com/firebasejs/12.13.0/firebase-database.js";
+const firebaseConfig={
+  apiKey:"AIzaSyBJ-3WI1FwM3zAIB8UNFZEPB7MYcPybFaA",
+  authDomain:"game2learndb.firebaseapp.com",
+  databaseURL:"https://game2learndb-default-rtdb.firebaseio.com",
+  projectId:"game2learndb",
+  storageBucket:"game2learndb.firebasestorage.app",
+  messagingSenderId:"542243702534",
+  appId:"1:542243702534:web:93d2ac9b5b7a0594b1c087",
+  measurementId:"G-M7FG667EEM"
+};
+const app=initializeApp(firebaseConfig);
+const db=getDatabase(app);
+window._fb={db,ref,set,get,onValue};
 </script>
 </body>
 </html>
