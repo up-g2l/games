@@ -16,22 +16,24 @@ header{text-align:center;padding:8px 0;background:rgba(0,0,0,.35);font-size:1.6e
 .board{display:grid;grid-template-columns:repeat(16,1fr);gap:2px;background:#3b1f0e;border:3px solid #8d6e3f;border-radius:6px;padding:3px;width:min(calc(100vh * 16/9 - 180px), calc(100vw - 280px));aspect-ratio:16/9}
 
 .cell{position:relative;border-radius:3px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:1px;overflow:visible;aspect-ratio:1}
-.cell.norm{background:#f5e6c8}
-.cell.norm.alt{background:#e8d4b0}
-.cell.snake{background:#ffaaaa}
-.cell.ladder{background:#aae8aa}
-.cell.safe{background:#dce8ff;border:1.5px solid #7ab0e8}
+.cell.norm{background:#b09068}
+.cell.norm.alt{background:#987848}
+.cell.snake{background:#c03030}
+.cell.ladder{background:#267326}
+.cell.safe{background:#5a88b8;border:1.5px solid #3a6898}
 .cell.start{background:#fffacd;border:2px solid #e0b800}
 .cell.finish{background:#ffd700;border:2px solid #ff8c00}
 
-.cnum{font-size:.55em;font-weight:700;color:#2c1810;line-height:1;z-index:1}
+.cnum{font-size:.55em;font-weight:700;color:#f8e8c8;line-height:1;z-index:1}
 .cgfx{font-size:clamp(20px,calc((100vw - 320px)*0.038),58px);line-height:1;z-index:1;display:block;text-align:center}
-.cgfx.shield{font-size:clamp(11px,calc((100vw - 320px)*0.022),32px)}
+.cgfx.shield{font-size:clamp(18px,calc((100vw - 320px)*0.036),52px)}
+.cgfx.dragon{font-size:clamp(14px,calc((100vw - 320px)*0.028),42px);filter:drop-shadow(0 1px 3px rgba(255,60,0,.6))}
+.cgfx.eagle {font-size:clamp(14px,calc((100vw - 320px)*0.028),42px);filter:drop-shadow(0 1px 3px rgba(60,220,60,.6))}
 .cspec{font-size:.44em;font-weight:600;line-height:1;z-index:1}
-.snake .cspec{color:#8b0000}
-.ladder .cspec{color:#145214}
-.safe .cspec{color:#1a3a6b}
-.safe .cnum{color:#1a3a6b}
+.snake .cspec{color:#ffaaaa}
+.ladder .cspec{color:#aaffaa}
+.safe .cspec{color:#c8e8ff}
+.safe .cnum{color:#c8e8ff}
 
 /* Pieces: fixed corners so all 4 coexist cleanly */
 .cpieces{position:absolute;inset:0;z-index:3;pointer-events:none}
@@ -61,6 +63,8 @@ header{text-align:center;padding:8px 0;background:rgba(0,0,0,.35);font-size:1.6e
 .portal-flash.arrive   {animation:arriveFlash .65s ease-out forwards}
 .portal-flash.capture  {animation:captureFlash .7s ease-out forwards}
 .portal-flash.vertical {animation:verticalFlash .6s ease-out forwards}
+.portal-flash.explode  {animation:explodeOut .9s ease-out forwards;z-index:7}
+.portal-flash.liftOff  {animation:liftOffAnim .75s ease-out forwards;z-index:7}
 
 @keyframes snakeIn{
   0%  {background:rgba(255,60,60,0);transform:scale(1) rotate(0deg)}
@@ -94,6 +98,28 @@ header{text-align:center;padding:8px 0;background:rgba(0,0,0,.35);font-size:1.6e
   100%{background:rgba(130,80,255,.0);transform:scaleY(1)}
 }
 
+@keyframes explodeOut{
+  0%  {background:rgba(255,80,0,0);transform:scale(1)}
+  10% {background:rgba(255,80,0,.95);transform:scale(1.5);box-shadow:0 0 32px rgba(255,120,0,1)}
+  25% {background:rgba(255,200,0,.88);transform:scale(1.3) rotate(9deg);box-shadow:0 0 22px rgba(255,200,0,.9)}
+  45% {background:rgba(255,60,0,.55);transform:scale(1.15) rotate(-7deg)}
+  70% {background:rgba(255,40,0,.22);transform:scale(1.04) rotate(3deg)}
+  100%{background:rgba(255,40,0,0);box-shadow:none;transform:scale(1)}
+}
+@keyframes liftOffAnim{
+  0%  {background:rgba(40,230,90,0);transform:scale(1)}
+  20% {background:rgba(40,230,90,.92);transform:scale(1.25) translateY(-5px);box-shadow:0 0 26px rgba(60,255,100,.9)}
+  45% {background:rgba(100,255,150,.7);transform:scale(1.12) translateY(-3px)}
+  70% {background:rgba(40,230,90,.3);transform:scale(1.04) translateY(-1px)}
+  100%{background:rgba(40,230,90,0);box-shadow:none;transform:scale(1)}
+}
+.piece-flyer{border-radius:50%;border:2.5px solid rgba(255,255,255,.92);display:flex;align-items:center;justify-content:center;font-weight:900;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.9)}
+@keyframes snakeSpin{0%{transform:rotate(0deg) scale(1.1)}40%{transform:rotate(200deg) scale(1.35)}100%{transform:rotate(390deg) scale(1)}}
+@keyframes ladderBurst{0%,100%{box-shadow:0 3px 8px rgba(0,0,0,.7)}50%{box-shadow:0 6px 32px rgba(60,255,100,.95),0 0 50px rgba(100,255,120,.6)}}
+.piece-flyer.snake-fly{animation:snakeSpin .72s ease-in;box-shadow:0 3px 24px rgba(255,80,0,.9)}
+.piece-flyer.ladder-fly{animation:ladderBurst .28s ease-in-out 2;box-shadow:0 3px 14px rgba(60,220,60,.75)}
+.btn-rules{background:#3a3a3a;color:#bbb;border:1px solid #4a4a4a;font-size:.82em;width:100%;margin-top:4px}
+.btn-rules:hover{background:#484848}
 /* ── PLAYER BAR (above board) ─────────────── */
 .player-bar{display:flex;align-items:stretch;gap:8px;padding:4px 8px;background:rgba(0,0,0,.25);flex-shrink:0}
 .player-bar .pcard{flex:1}
@@ -169,7 +195,8 @@ header{text-align:center;padding:8px 0;background:rgba(0,0,0,.35);font-size:1.6e
 .win-sub{font-size:1em;color:#aee8c8;margin-bottom:4px}
 
 /* ── RULES MODAL (landscape) ──────────────── */
-.rules-modal{position:fixed;inset:0;background:rgba(0,0,0,.92);display:flex;align-items:center;justify-content:center;z-index:500;padding:8px}
+.rules-modal{position:fixed;inset:0;background:rgba(0,0,0,.92);display:none;align-items:center;justify-content:center;z-index:500;padding:8px}
+.rules-modal.open{display:flex}
 .rules-box{background:#1e1e1e;border:3px solid #ffd700;border-radius:16px;padding:14px 20px 12px;width:min(99vw,1100px);max-height:96vh;overflow-y:auto;box-shadow:0 20px 80px rgba(0,0,0,.95)}
 .rules-box::-webkit-scrollbar{width:5px}.rules-box::-webkit-scrollbar-thumb{background:#555;border-radius:3px}
 .rules-head{text-align:center;margin-bottom:8px}
@@ -315,15 +342,16 @@ header{text-align:center;padding:8px 0;background:rgba(0,0,0,.35);font-size:1.6e
       <div id="moveOpts"></div>
 
       <div class="legend">
-        <div class="lg"><div class="lgsq" style="background:#ffaaaa"></div>⚠ Prime ≥11 → falls to prev 🛡</div>
-        <div class="lg"><div class="lgsq" style="background:#aae8aa"></div>÷5 or ÷6 → jumps ahead</div>
-        <div class="lg"><div class="lgsq" style="background:#dce8ff;border:1px solid #7ab0e8"></div>🛡 Perfect square — safe house</div>
+        <div class="lg"><div class="lgsq" style="background:#c03030"></div>⚠ Prime ≥11 → falls to prev 🛡</div>
+        <div class="lg"><div class="lgsq" style="background:#267326"></div>÷5 or ÷6 → jumps ahead</div>
+        <div class="lg"><div class="lgsq" style="background:#5a88b8;border:1px solid #3a6898"></div>🛡 Perfect square — safe house</div>
         <div class="lg"><div class="lgsq" style="background:#fffacd;border:1px solid #c9a700"></div>🏠 Start</div>
         <div class="lg"><div class="lgsq" style="background:#ffd700;border:1px solid #ff8c00"></div>🏰 Finish</div>
         <div class="lg" style="color:#c39aff">✦ doubles on 🏠 → jump d rows up</div>
         <div class="lg" style="color:#c39aff">✦ doubles on 🛡 → +d² move</div>
         <div class="lg" style="color:#c39aff">= doubles (both active) → each +sum option</div>
         <div class="lg" style="color:#c39aff">1 piece left → sum or ↪ d₁→d₂ sequence</div>
+        <div class="lg" style="color:#ffd700">🏠 Leave home: need even sum or doubles</div>
         <div class="lg" style="color:#ff69b4">⚔ land on foe → foe to 🏠</div>
         <div class="lg" style="color:#ff69b4">🛡 foe on safe → you to 🏠</div>
         <div class="lg" style="color:#7ddfff">🔗 same sq → immune pair</div>
@@ -332,6 +360,7 @@ header{text-align:center;padding:8px 0;background:rgba(0,0,0,.35);font-size:1.6e
         <div class="lg" style="color:#7ddfff">🔗 pair move → primes safe</div>
       </div>
 
+      <button class="btn btn-rules" onclick="openRules()">📋 Rules</button>
       <button class="btn btn-log" onclick="openLog()">📜 Move History</button>
     </div>
     <div class="log" id="log" style="display:none"></div>
@@ -412,7 +441,7 @@ header{text-align:center;padding:8px 0;background:rgba(0,0,0,.35);font-size:1.6e
 
     </div><!-- /rules-body -->
 
-    <button class="rules-start" onclick="closeRules()">Next: Set Up Players →</button>
+    <button class="rules-start" onclick="closeRules()">✕ Close Rules</button>
   </div>
 </div>
 
@@ -564,13 +593,17 @@ const SNAKES=(function(){
 // Special overrides: 131 and 139 fall all the way to 49 (7²)
 SNAKES[131]=49;
 SNAKES[139]=49;
+// Custom snake destinations (override auto-generated)
+SNAKES[11]=1;  SNAKES[13]=1;
+SNAKES[29]=16; SNAKES[31]=16;
+SNAKES[101]=81; SNAKES[103]=81;
 
-/* ── LADDERS: divisible by 5 or 6, hand-tuned destinations ──
-   36 removed (now a safe house / perfect square).              */
+/* ── LADDERS: curated destinations ──────────────────────────
+   66 removed; 42, 54, 72, 102 added; 6 moved from 22 to 51. */
 const LADDERS={
-  6:22,  12:28, 18:38, 24:46,
-  30:57, 48:81, 60:92,
-  66:98, 78:111, 96:121, 108:129, 120:133
+  6:51,  12:28, 18:38, 24:46,
+  30:57, 42:69, 48:81, 54:86, 60:92,
+  72:99, 78:111, 96:121, 102:135, 108:129, 120:133
 };
 
 /* ── Safe houses for capture: all perfect squares ── */
@@ -898,8 +931,14 @@ function buildBoard(){
       if(PERFECT_SQUARES.has(n) && n!==1 && n!==144)
         gfx=`<span class="cgfx shield">🛡</span>`;
 
-      if(SNAKES[n])  spec=`<span class="cspec">↓${SNAKES[n]}</span>`;
-      if(LADDERS[n]) spec=`<span class="cspec">↑${LADDERS[n]}</span>`;
+      if(SNAKES[n]){
+        gfx=`<span class="cgfx dragon">🐉</span>`;
+        spec=`<span class="cspec">↓${SNAKES[n]}</span>`;
+      }
+      if(LADDERS[n]){
+        gfx=`<span class="cgfx eagle">🦅</span>`;
+        spec=`<span class="cspec">↑${LADDERS[n]}</span>`;
+      }
 
       cell.innerHTML=`<span class="cnum">${n}</span>${gfx}${spec}<div class="cpieces" id="p${n}"></div>`;
       board.appendChild(cell);
@@ -1019,7 +1058,8 @@ async function flashCell(sq,type){
   cell.appendChild(f);
   const dur={
     'snake-in':900,'ladder-in':900,'arrive':680,
-    'capture':720,'vertical':640
+    'capture':720,'vertical':640,
+    'explode':920,'liftOff':780
   }[type]||700;
   await sleep(dur);
   f.remove();
@@ -1150,23 +1190,50 @@ function buildMoveOptions(){
     maybeAI(); return;
   }
 
-  // ── Different dice — both pieces must move ─────────────────────────
+  // ── Different dice — both pieces active ─────────────────────────────
   const posA=ps[0], posB=ps[1];
-  const forceBigA=posA+small<144&&posA+big>=144;
-  const forceBigB=posB+small<144&&posB+big>=144;
-  if(forceBigA&&!forceBigB){
-    mkBtn(`A +${big} (forced) · B +${small}`,()=>exec([{p:0,s:big},{p:1,s:small}]),false,{type:'exec',moves:[{p:0,s:big},{p:1,s:small}],isPairMove:false});
-  } else if(forceBigB&&!forceBigA){
-    mkBtn(`A +${small} · B +${big} (forced)`,()=>exec([{p:0,s:small},{p:1,s:big}]),false,{type:'exec',moves:[{p:0,s:small},{p:1,s:big}],isPairMove:false});
-  } else {
+  const atHomeA=(posA===1), atHomeB=(posB===1);
+
+  if(sum%2===1){ // ── Odd sum ──────────────────────────────────────────
+    if(atHomeA&&atHomeB){
+      log(`${NAMES[G.cur]} rolled odd sum (${d1}+${d2}=${sum}) — both pieces need even sum or doubles to leave home. Turn skipped.`,'le-roll');
+      nextTurn(); return;
+    }
+    if(atHomeA||atHomeB){
+      const freeP=atHomeA?1:0;
+      const lockP=1-freeP;
+      const fLbl=['A','B'][freeP], kLbl=['A','B'][lockP];
+      log(`${NAMES[G.cur]} Piece ${kLbl} needs even sum or doubles to leave home. Move Piece ${fLbl} only.`,'le-roll');
+      mkBtn(`Move ${fLbl} by ${d1}`,()=>exec([{p:freeP,s:d1}]),false,{type:'exec',moves:[{p:freeP,s:d1}],isPairMove:false});
+      mkBtn(`Move ${fLbl} by ${d2}`,()=>exec([{p:freeP,s:d2}]),false,{type:'exec',moves:[{p:freeP,s:d2}],isPairMove:false});
+      maybeAI(); return;
+    }
     mkBtn(`A +${d1} · B +${d2}`,()=>exec([{p:0,s:d1},{p:1,s:d2}]),false,{type:'exec',moves:[{p:0,s:d1},{p:1,s:d2}],isPairMove:false});
     mkBtn(`A +${d2} · B +${d1}`,()=>exec([{p:0,s:d2},{p:1,s:d1}]),false,{type:'exec',moves:[{p:0,s:d2},{p:1,s:d1}],isPairMove:false});
-  }
-  // Immune pair + even sum → both move by full sum
-  if(sum%2===0&&immunePair){
-    mkBtn(`🔗 Move A+B by +${sum}  (even sum, immune pair)`,()=>exec([{p:0,s:sum},{p:1,s:sum}],true),true,{type:'exec',moves:[{p:0,s:sum},{p:1,s:sum}],isPairMove:true});
+  } else { // ── Even sum ─────────────────────────────────────────────
+    mkBtn(`A +${d1} · B +${d2}`,()=>exec([{p:0,s:d1},{p:1,s:d2}]),false,{type:'exec',moves:[{p:0,s:d1},{p:1,s:d2}],isPairMove:false});
+    mkBtn(`A +${d2} · B +${d1}`,()=>exec([{p:0,s:d2},{p:1,s:d1}]),false,{type:'exec',moves:[{p:0,s:d2},{p:1,s:d1}],isPairMove:false});
+    if(immunePair){
+      mkBtn(`🔗 Move A+B by +${sum}  (even sum, immune pair)`,()=>exec([{p:0,s:sum},{p:1,s:sum}],true),true,{type:'exec',moves:[{p:0,s:sum},{p:1,s:sum}],isPairMove:true});
+    }
+    addShieldForgo(posA,posB,d1,d2);
   }
   maybeAI();
+}
+
+/* ── Shield safety forgo ── */
+function addShieldForgo(posA,posB,d1,d2){
+  const fin=[G.pieces[G.cur][0]===144, G.pieces[G.cur][1]===144];
+  const safeA = !fin[0] && posA!==1 && posA!==144 && SAFE_HOUSES.has(posA);
+  const safeB = !fin[1] && posB!==1 && posB!==144 && SAFE_HOUSES.has(posB);
+  if(safeA){
+    mkBtn(`🛡 A stays on sq ${posA}  ·  B +${d1}`,()=>exec([{p:1,s:d1}]),true,{type:'exec',moves:[{p:1,s:d1}],isPairMove:false});
+    mkBtn(`🛡 A stays on sq ${posA}  ·  B +${d2}`,()=>exec([{p:1,s:d2}]),true,{type:'exec',moves:[{p:1,s:d2}],isPairMove:false});
+  }
+  if(safeB){
+    mkBtn(`A +${d1}  ·  🛡 B stays on sq ${posB}`,()=>exec([{p:0,s:d1}]),true,{type:'exec',moves:[{p:0,s:d1}],isPairMove:false});
+    mkBtn(`A +${d2}  ·  🛡 B stays on sq ${posB}`,()=>exec([{p:0,s:d2}]),true,{type:'exec',moves:[{p:0,s:d2}],isPairMove:false});
+  }
 }
 
 function maybeAI(){
@@ -1182,6 +1249,51 @@ function mkBtn(label,handler,bonus=false,meta=null){
   b.onclick=()=>{document.getElementById('moveOpts').innerHTML=''; moveQueue=[]; handler();};
   document.getElementById('moveOpts').appendChild(b);
   moveQueue.push({label,handler,bonus,meta});
+}
+
+/* ═══════════════════════════════════════════
+   FLYING PIECE ANIMATION
+═══════════════════════════════════════════ */
+async function flyPiece(playerIdx,pieceIdx,from,to,type){
+  const fromCell=document.getElementById(`sq${from}`);
+  const toCell  =document.getElementById(`sq${to}`);
+  if(!fromCell||!toCell){
+    const ms=Math.max(60,Math.min(150,Math.floor(1400/Math.abs(to-from))));
+    await animateSteps(playerIdx,pieceIdx,from,to,ms);
+    await flashCell(to,'arrive');
+    return;
+  }
+  const fr=fromCell.getBoundingClientRect();
+  const tr=toCell.getBoundingClientRect();
+  const sz=Math.round(Math.min(fr.width*0.78,30));
+  const isSnake=(type==='snake');
+  G.pieces[playerIdx][pieceIdx]=to;
+  renderPieces();
+  const flyer=document.createElement('div');
+  flyer.className=`piece-flyer ${isSnake?'snake-fly':'ladder-fly'}`;
+  const cx=fr.left+fr.width/2,cy=fr.top+fr.height/2;
+  flyer.style.cssText=[
+    'position:fixed',`width:${sz}px`,`height:${sz}px`,
+    `left:${cx}px`,`top:${cy}px`,
+    `margin-left:-${sz/2}px`,`margin-top:-${sz/2}px`,
+    'z-index:1000','pointer-events:none',
+    `background:${COLORS[playerIdx][pieceIdx]}`,
+    'border-radius:50%','border:2.5px solid rgba(255,255,255,.92)',
+    'display:flex','align-items:center','justify-content:center',
+    `font-size:${Math.round(sz*0.44)}px`,'font-weight:900','color:#fff',
+    'text-shadow:0 1px 4px rgba(0,0,0,.9)',
+    isSnake
+      ?'transition:left .72s cubic-bezier(.55,.05,.85,.5),top .72s cubic-bezier(.55,.05,.85,.5)'
+      :'transition:left .58s cubic-bezier(.05,.8,.3,1),top .58s cubic-bezier(.05,.8,.3,1)',
+  ].join(';');
+  flyer.textContent=pieceIdx===0?'A':'B';
+  document.body.appendChild(flyer);
+  await sleep(30);
+  flyer.style.left=`${tr.left+tr.width/2}px`;
+  flyer.style.top =`${tr.top +tr.height/2}px`;
+  await sleep(isSnake?750:610);
+  flyer.remove();
+  await flashCell(to,'arrive');
 }
 
 /* ═══════════════════════════════════════════
@@ -1230,20 +1342,16 @@ async function execOneStep(pi,steps,isPairMove){
           log(`✅ Math challenge passed! ${NAMES[G.cur]} Piece ${name} stays on sq ${landed}.`,'le-special');
       } else {
         if(eduMode && activeQ().length && G.cur!==computerPlayer) log(`❌ Challenge failed — `,'le-snake');
-        log(`  ⚠ Sq ${landed} is a dangerous prime! Piece ${name} falls to ${dest} 🛡`,'le-snake');
-        await flashCell(landed,'snake-in');
-        const ms=Math.max(60,Math.min(150,Math.floor(1400/Math.abs(dest-landed))));
-        await animateSteps(G.cur,pi,landed,dest,ms);
-        await flashCell(dest,'arrive');
+        log(`  💥 Sq ${landed} is a dangerous prime! Piece ${name} falls to ${dest} 🛡`,'le-snake');
+        await flashCell(landed,'explode');
+        await flyPiece(G.cur,pi,landed,dest,'snake');
       }
     }
   } else if(LADDERS[landed]){
     const dest=LADDERS[landed];
-    log(`  ✦ Sq ${landed} ÷5/6! Piece ${name} jumps to ${dest}.`,'le-ladder');
-    await flashCell(landed,'ladder-in');
-    const ms=Math.max(60,Math.min(150,Math.floor(1400/Math.abs(dest-landed))));
-    await animateSteps(G.cur,pi,landed,dest,ms);
-    await flashCell(dest,'arrive');
+    log(`  ✦ Sq ${landed} ÷5/6! Piece ${name} launches to ${dest} 🚀`,'le-ladder');
+    await flashCell(landed,'liftOff');
+    await flyPiece(G.cur,pi,landed,dest,'ladder');
   }
 }
 
@@ -1377,10 +1485,8 @@ function launchConfetti(){
 /* ═══════════════════════════════════════════
    RULES MODAL
 ═══════════════════════════════════════════ */
-function closeRules(){
-  document.getElementById('rulesModal').style.display='none';
-  openSetup();
-}
+function openRules(){document.getElementById('rulesModal').classList.add('open');}
+function closeRules(){document.getElementById('rulesModal').classList.remove('open');}
 
 /* ═══════════════════════════════════════════
    LOG HISTORY MODAL
@@ -1506,13 +1612,13 @@ function toggleMic(){
 
 /* ═══════════════════════════════════════════
    INIT
-   (Rules modal is visible on load via CSS.
-    Game starts after rules → setup → setupGame())
+   (Setup modal shown directly on load.)
 ═══════════════════════════════════════════ */
 buildBoard();
 // Pre-initialise state so the board renders pieces at sq 1 while modals are shown
 G={pieces:[[1,1],[1,1]],cur:0,dice:[0,0],phase:'roll'};
 renderPieces(); syncUI();
+openSetup();
 QUESTIONS=[
   {"q":"Solve for x:  2x + 5 = 13","options":["x = 3","x = 4","x = 5","x = 6"],"answer":1},
   {"q":"What is the LCM of 4 and 6?","options":["8","12","16","24"],"answer":1},
