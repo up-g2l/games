@@ -240,6 +240,11 @@ header{text-align:center;padding:8px 0;background:rgba(0,0,0,.35);font-size:1.6e
 .edu-toggle{display:flex;align-items:flex-start;gap:9px;cursor:pointer;color:#ddd;font-size:.82em;line-height:1.45;user-select:none}
 .edu-toggle input[type=checkbox]{width:17px;height:17px;margin-top:1px;flex-shrink:0;cursor:pointer;accent-color:#ffd700}
 .edu-badge{display:inline-block;background:#ffd700;color:#1a1a1a;font-size:.65em;font-weight:800;padding:1px 6px;border-radius:4px;letter-spacing:1px;vertical-align:middle;margin-left:4px}
+.edu-level-row{display:none;gap:7px;margin-top:9px}
+.edu-level-row.visible{display:flex}
+.edu-lvl-btn{flex:1;padding:8px 6px;border:2px solid rgba(255,255,255,.18);border-radius:8px;background:rgba(255,255,255,.06);color:#ccc;cursor:pointer;font-size:.82em;font-weight:700;transition:all .15s;text-align:center}
+.edu-lvl-btn:hover{border-color:#ffd700;color:#fff}
+.edu-lvl-btn.active{border-color:#ffd700;background:rgba(255,215,0,.2);color:#ffd700}
 
 /* ── QUIZ MODAL ───────────────────────────── */
 .quiz-modal{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;z-index:400;padding:16px}
@@ -460,9 +465,13 @@ header{text-align:center;padding:8px 0;background:rgba(0,0,0,.35);font-size:1.6e
     <!-- Educational Mode -->
     <div class="edu-toggle-row" style="margin-top:0">
       <label class="edu-toggle">
-        <input type="checkbox" id="eduCheck">
+        <input type="checkbox" id="eduCheck" onchange="toggleEduLevelRow('eduLevelRow',this.checked)">
         <span>📚 <strong>Educational Mode</strong> — land on a dangerous prime? Answer a math question to stay! <span class="edu-badge">NEW</span></span>
       </label>
+    </div>
+    <div class="edu-level-row" id="eduLevelRow">
+      <button class="edu-lvl-btn active" id="eduBasicBtn" onclick="setEduLevel('basic')">📊 Basic Math</button>
+      <button class="edu-lvl-btn" id="eduApBtn" onclick="setEduLevel('ap')">🎓 AP Algebra</button>
     </div>
 
     <button class="setup-start" onclick="setupGame()">▶ Start Game!</button>
@@ -746,20 +755,33 @@ let confettiRAF=null;
    EDUCATIONAL MODE
 ═══════════════════════════════════════════ */
 let eduMode=false;
+let questionLevel='basic';
 let QUESTIONS=[];
+let AP_QUESTIONS=[];
 let usedQIdx=new Set();
 let quizTimerTO=null;
 
+function toggleEduLevelRow(rowId,show){
+  const row=document.getElementById(rowId);
+  if(row) row.classList.toggle('visible',show);
+}
+function setEduLevel(level){
+  questionLevel=level;
+  document.getElementById('eduBasicBtn').classList.toggle('active',level==='basic');
+  document.getElementById('eduApBtn').classList.toggle('active',level==='ap');
+}
+function activeQ(){ return questionLevel==='ap'?AP_QUESTIONS:QUESTIONS; }
+
 function showQuiz(sq, fallDest){
   return new Promise(resolve=>{
-    if(!QUESTIONS.length){ resolve(false); return; }
+    const bank=activeQ();
+    if(!bank.length){ resolve(false); return; }
 
-    // Pick a random unused question; reset pool if all used
-    let available=[...Array(QUESTIONS.length).keys()].filter(i=>!usedQIdx.has(i));
-    if(!available.length){ usedQIdx.clear(); available=[...Array(QUESTIONS.length).keys()]; }
+    let available=[...Array(bank.length).keys()].filter(i=>!usedQIdx.has(i));
+    if(!available.length){ usedQIdx.clear(); available=[...Array(bank.length).keys()]; }
     const idx=available[Math.floor(Math.random()*available.length)];
     usedQIdx.add(idx);
-    const q=QUESTIONS[idx];
+    const q=bank[idx];
 
     // Populate modal
     document.getElementById('quizSq').textContent=`Square ${sq} — Fall to ${fallDest} if wrong!`;
@@ -1195,7 +1217,7 @@ async function execOneStep(pi,steps,isPairMove){
       log(`🔗 Immune pair passes sq ${landed} safely — no fall!`,'le-special');
     } else {
       let stay=false;
-      if(eduMode && QUESTIONS.length){
+      if(eduMode && activeQ().length){
         if(G.cur===computerPlayer){
           stay=true;
           log(`🤖 ${NAMES[G.cur]} Piece ${name} answers the challenge — stays on sq ${landed}!`,'le-special');
@@ -1207,7 +1229,7 @@ async function execOneStep(pi,steps,isPairMove){
         if(G.cur!==computerPlayer)
           log(`✅ Math challenge passed! ${NAMES[G.cur]} Piece ${name} stays on sq ${landed}.`,'le-special');
       } else {
-        if(eduMode && QUESTIONS.length && G.cur!==computerPlayer) log(`❌ Challenge failed — `,'le-snake');
+        if(eduMode && activeQ().length && G.cur!==computerPlayer) log(`❌ Challenge failed — `,'le-snake');
         log(`  ⚠ Sq ${landed} is a dangerous prime! Piece ${name} falls to ${dest} 🛡`,'le-snake');
         await flashCell(landed,'snake-in');
         const ms=Math.max(60,Math.min(150,Math.floor(1400/Math.abs(dest-landed))));
@@ -1593,6 +1615,214 @@ QUESTIONS=[
   {"q":"How many integers from 1 to 100 are divisible by both 3 and 5?","options":["5","6","7","8"],"answer":1},
   {"q":"What is the product of roots of  x² − 7x + 10 = 0?","options":["−7","7","10","−10"],"answer":2}
 ];
+
+AP_QUESTIONS=[
+  {"q":"Solve:  x² − 5x + 6 = 0","options":["x = 1 and x = 6","x = 2 and x = 3","x = −2 and x = −3","x = −1 and x = −6"],"answer":1},
+  {"q":"Which expression is equivalent to  (x² − 9)/(x² + x − 6)?","options":["(x + 3)/(x + 2)","(x − 3)/(x − 2)","(x + 3)/(x − 2)","(x − 3)/(x + 2)"],"answer":1},
+  {"q":"If  f(x) = 3x − 7,  what is  f⁻¹(x)?","options":["(x − 7)/3","(x + 7)/3","3x + 7","1/(3x − 7)"],"answer":1},
+  {"q":"Solve:  2^(x+1) = 32","options":["3","4","5","6"],"answer":1},
+  {"q":"What is the discriminant of  3x² + 2x + 1 = 0?","options":["−8","8","−4","4"],"answer":0},
+  {"q":"What is the vertex of  f(x) = x² − 4x + 7?","options":["(−2, 3)","(2, 3)","(2, −3)","(4, 7)"],"answer":1},
+  {"q":"Solve:  log₃(x + 2) = 3","options":["25","27","7","9"],"answer":0},
+  {"q":"If  f(x) = 2x + 1  and  g(x) = x² − 3,  find  (f∘g)(2):","options":["3","5","7","9"],"answer":0},
+  {"q":"What is the axis of symmetry of  y = 3x² − 12x + 7?","options":["x = 2","x = −2","x = 4","x = 6"],"answer":0},
+  {"q":"Simplify:  log₂(64)","options":["4","5","6","8"],"answer":2},
+  {"q":"What is the sum of the roots of  2x² − 7x + 3 = 0?","options":["3/2","7/2","−7/2","3"],"answer":1},
+  {"q":"Factor completely:  x³ + 8","options":["(x + 2)(x² + 2x + 4)","(x + 2)(x² − 2x + 4)","(x − 2)(x² + 2x + 4)","(x + 2)²(x − 4)"],"answer":1},
+  {"q":"What is the domain of  f(x) = √(2x − 6)?","options":["x > 3","x ≥ 3","x ≤ 3","x > −3"],"answer":1},
+  {"q":"Solve the system:  2x + 3y = 12,  x − y = 1","options":["x = 2, y = 1","x = 3, y = 2","x = 4, y = 3","x = 1, y = 2"],"answer":1},
+  {"q":"Which is equivalent to  x² + 6x + 9?","options":["(x − 3)²","(x + 3)²","(x + 3)(x − 3)","x² − 9"],"answer":1},
+  {"q":"If  log(a) = 2  and  log(b) = 3,  what is  log(a²b)?","options":["5","6","7","8"],"answer":2},
+  {"q":"Solve:  3/(x − 1) = 6/(x + 2)","options":["2","3","4","5"],"answer":2},
+  {"q":"The product of the roots of  3x² − 5x + 2 = 0  is:","options":["5/3","2/3","−2/3","3/2"],"answer":1},
+  {"q":"Solve:  e^(2x) = e^(x+3)","options":["1","2","3","6"],"answer":2},
+  {"q":"What is  f(2)  if  f(x) = x³ − 4x² + x + 6?","options":["0","2","−2","6"],"answer":0},
+  {"q":"Find the inverse of  f(x) = (2x − 1)/(x + 3)","options":["(3x + 1)/(2 − x)","(x + 1)/(2x − 3)","(2x − 1)/(x + 3)","(3x − 1)/(x + 2)"],"answer":0},
+  {"q":"What is the horizontal asymptote of  f(x) = (3x² + 1)/(x² − 4)?","options":["y = 0","y = 1","y = 3","y = −4"],"answer":2},
+  {"q":"Solve:  |2x − 3| = 7","options":["x = 5 only","x = 5 or x = −2","x = 2 or x = −5","x = −2 only"],"answer":1},
+  {"q":"If  f(x) = x + 2  and  g(x) = x² − 1,  find  (g∘f)(−1):","options":["0","1","2","3"],"answer":0},
+  {"q":"What is  log₅(25) + log₅(5)?","options":["2","3","4","5"],"answer":1},
+  {"q":"What are the vertical asymptotes of  f(x) = (x+1)/((x−2)(x+3))?","options":["x = −1 only","x = 2 and x = −3","x = −2 and x = 3","x = 2 only"],"answer":1},
+  {"q":"Solve  x + y = 5  and  xy = 6","options":["x = 1, y = 6","x = 2, y = 3","x = 4, y = 1","x = 3, y = 3"],"answer":1},
+  {"q":"Which polynomial has roots  x = 3  and  x = −5?","options":["x² + 2x + 15","x² + 2x − 15","x² − 2x − 15","x² − 8x + 15"],"answer":1},
+  {"q":"Solve:  log(x) + log(x − 3) = 1","options":["2","5","10","−2"],"answer":1},
+  {"q":"For exactly one real solution to  x² + kx + 16 = 0,  k = ?","options":["±4","±6","±8","±16"],"answer":2},
+  {"q":"Solve:  2^x = 8^(x−1)","options":["1/2","3/2","2","3"],"answer":1},
+  {"q":"Expand:  (x + 2)⁴","options":["x⁴ + 4x³ + 6x² + 4x + 1","x⁴ + 8x³ + 24x² + 32x + 16","x⁴ + 4x³ + 16x² + 8x + 4","x⁴ + 6x³ + 12x² + 8x + 1"],"answer":1},
+  {"q":"Simplify:  (x² − 16)/(x² + 3x − 4)","options":["(x + 4)/(x − 1)","(x − 4)/(x − 1)","(x + 4)/(x + 1)","(x − 4)/(x + 1)"],"answer":1},
+  {"q":"What is the range of  f(x) = −2(x − 1)² + 5?","options":["y ≥ 5","y ≤ 5","y ≥ −5","all real numbers"],"answer":1},
+  {"q":"The graph of  y = 2^x  shifted 3 units left is:","options":["y = 2^(x − 3)","y = 2^(x + 3)","y = 2^x − 3","y = 2^x + 3"],"answer":1},
+  {"q":"Solve:  4x² − 12x + 9 = 0","options":["x = 3/4","x = 3/2","x = 2/3","x = 4/3"],"answer":1},
+  {"q":"Which of the following is an odd function?","options":["f(x) = x² + 1","f(x) = x³ − x","f(x) = x² − x","f(x) = |x| + x"],"answer":1},
+  {"q":"Solve:  3x − 4 = 2(x + 5)","options":["10","12","14","16"],"answer":2},
+  {"q":"What is the 8th term of the geometric sequence  3, 6, 12, …?","options":["192","256","384","512"],"answer":2},
+  {"q":"Solve the inequality:  x² − x − 6 < 0","options":["x < −2 or x > 3","−2 < x < 3","x > 3","x < −2"],"answer":1},
+  {"q":"If  f(x) = 2x² − 3,  then  f(a + 1) = ?","options":["2a² + 4a − 1","2a² + 4a + 1","2a² − 4a − 1","2a² + 2a − 1"],"answer":0},
+  {"q":"What is  log₄(1/16)?","options":["−4","−2","2","4"],"answer":1},
+  {"q":"What is the 20th term of the arithmetic sequence  5, 8, 11, 14, …?","options":["56","59","62","65"],"answer":2},
+  {"q":"Solve:  2/(x − 1) + 1/(x + 1) = 3/(x² − 1)","options":["x = 1/3","x = 2/3","x = 3/2","x = −2/3"],"answer":1},
+  {"q":"Which value satisfies  4^(x−1) = 32?","options":["5/2","3","7/2","4"],"answer":2},
+  {"q":"Sum of the first 6 terms of  2 + 6 + 18 + …","options":["364","486","728","1458"],"answer":2},
+  {"q":"If  f(x) = x² + 1  and  g(x) = √x,  find  (g∘f)(2):","options":["√3","√5","√7","3"],"answer":1},
+  {"q":"The system  2x − 3y = 7  and  4x − 6y = 14  has:","options":["no solution","exactly one solution","infinitely many solutions","two solutions"],"answer":2},
+  {"q":"Sum of first 10 terms of  4 + 7 + 10 + …","options":["145","160","175","190"],"answer":2},
+  {"q":"Simplify:  (3x²y)(−2xy³)","options":["−6x²y³","−6x³y⁴","6x³y⁴","−6x³y³"],"answer":1},
+  {"q":"What is  i²?","options":["1","−1","i","−i"],"answer":1},
+  {"q":"Simplify:  (3 + 2i)(3 − 2i)","options":["9 − 4i","13","5","9 + 4i"],"answer":1},
+  {"q":"What is  (2 + 3i) + (5 − i)?","options":["7 + 2i","7 + 4i","3 + 2i","7 − 2i"],"answer":0},
+  {"q":"What is  i⁴?","options":["−1","1","i","−i"],"answer":1},
+  {"q":"Multiply:  (1 + 2i)(3 − i)","options":["3 + 5i","5 + 5i","5 − 5i","1 + 5i"],"answer":1},
+  {"q":"How many complex solutions does  x² + 4 = 0  have?","options":["0","1","2","4"],"answer":2},
+  {"q":"Solve:  2x² + x = 0","options":["x = 0 only","x = 0 or x = 1/2","x = 0 or x = −1/2","x = 1/2 or x = −1/2"],"answer":2},
+  {"q":"A quadratic has vertex (3, −4) and passes through (5, 0). Its equation is:","options":["f(x) = (x − 3)² − 4","f(x) = (x + 3)² + 4","f(x) = (x − 3)² + 4","f(x) = −(x − 3)² − 4"],"answer":0},
+  {"q":"The sum of roots of  x³ − 2x² − 5x + 6 = 0  is:","options":["−2","2","5","6"],"answer":1},
+  {"q":"If  f(x) = √(x + 3)  and  g(x) = x² − 3,  then  f(g(x)) = ?","options":["|x|","x","x² + 3","√(x² + 3)"],"answer":0},
+  {"q":"Remainder when  x³ − 2x² + 3x − 1  is divided by  (x − 2):","options":["1","3","5","7"],"answer":2},
+  {"q":"Factor:  6x² + 7x − 3","options":["(3x + 1)(2x − 3)","(3x − 1)(2x + 3)","(6x + 1)(x − 3)","(2x − 1)(3x + 3)"],"answer":1},
+  {"q":"If  g(x) = 4x − 5,  solve  g(2a + 1) = 3","options":["1/4","1/2","1","3/4"],"answer":1},
+  {"q":"Solve the inequality:  2x + 3 > 7","options":["x > 2","x < 2","x > 5","x > −2"],"answer":0},
+  {"q":"Solve:  2log₂(x) = 6","options":["4","6","8","12"],"answer":2},
+  {"q":"If  h(x) = 2^(x+1),  then  h(3) = ?","options":["8","12","16","32"],"answer":2},
+  {"q":"What are the zeros of  f(x) = x³ − x² − 4x + 4?","options":["x = 1, 2, −2","x = 1, 4, −4","x = −1, 2, −2","x = 2, −2 only"],"answer":0},
+  {"q":"3rd term of arithmetic sequence  a₁ = 7,  d = −3:","options":["1","4","10","13"],"answer":0},
+  {"q":"Solve:  x² − 2x − 35 < 0","options":["x < −5 or x > 7","−5 < x < 7","x > 7","x < −5"],"answer":1},
+  {"q":"If  f(x) = x + 2,  find  f(f(3)):","options":["5","7","9","11"],"answer":1},
+  {"q":"nth-term formula for  3, 7, 11, 15, …:","options":["4n − 1","4n + 1","3n + 1","3n − 1"],"answer":0},
+  {"q":"The system  3x + ay = 2  and  6x + 4y = b  has no solution when:","options":["a = 2 and b ≠ 4","a = 4 and b = 2","a = 2 and b = 4","a = 3 and b = 6"],"answer":0},
+  {"q":"Evaluate:  (2 − i)/(1 + i)","options":["(1 − 3i)/2","(3 − i)/2","(1 + 3i)/2","(3 + i)/2"],"answer":0},
+  {"q":"Domain of  f(x) = ln(x − 5):","options":["x > 0","x > 5","x ≥ 5","x > −5"],"answer":1},
+  {"q":"Which represents exponential decay?","options":["f(x) = 3^x","f(x) = (1/3)^x","f(x) = e^x","f(x) = 2^(x+1)"],"answer":1},
+  {"q":"Solve:  5^(2x−1) = 125","options":["1","2","3","4"],"answer":1},
+  {"q":"If  (x + 3)  is a factor of  x³ + kx² − 4x + 6,  then  k = ?","options":["−1","1","2","3"],"answer":1},
+  {"q":"What is  4^(3/2)?","options":["4","6","8","16"],"answer":2},
+  {"q":"Sum of the infinite geometric series  1 + 1/2 + 1/4 + …:","options":["1","3/2","2","3"],"answer":2},
+  {"q":"Center of the circle  x² + y² + 4x − 6y + 4 = 0:","options":["(2, −3)","(−2, 3)","(4, −6)","(−4, 6)"],"answer":1},
+  {"q":"Simplify:  (4x³y⁻²)/(2x⁻¹y³)","options":["2x²y⁻⁵","2x⁴/y⁵","2x⁴y⁵","4x²/y"],"answer":1},
+  {"q":"Solve:  3|x − 2| = 9","options":["x = 5 only","x = −1 only","x = 5 or x = −1","x = 1 or x = 5"],"answer":2},
+  {"q":"5th term in the expansion of  (x + 2)⁷:","options":["280x³","560x³","70x³","112x³"],"answer":1},
+  {"q":"Which quadratic has exactly one real solution?","options":["x² + x + 1 = 0","x² − 6x + 9 = 0","x² + 2x − 3 = 0","x² − 5x + 4 = 0"],"answer":1},
+  {"q":"Solve:  ln(2x + 3) = ln(x + 7)","options":["2","3","4","5"],"answer":2},
+  {"q":"Find  f(3)  if  f(x) = x²/(x − 1):","options":["3","9/2","6","9"],"answer":1},
+  {"q":"Solve  y = x²  and  y = x + 2  simultaneously:","options":["(1,1) and (2,4)","(−1,1) and (2,4)","(1,3) and (−2,0)","(0,2) and (2,4)"],"answer":1},
+  {"q":"All values of  x  for which  (x − 1)/(x + 3) ≤ 0:","options":["x < −3 or x > 1","−3 < x ≤ 1","−3 ≤ x ≤ 1","x ≤ 1"],"answer":1},
+  {"q":"Sum of first 4 terms of geometric sequence  a₁ = 4,  r = 3:","options":["120","160","240","324"],"answer":1},
+  {"q":"Solve:  2^(x−1) = 16","options":["3","4","5","6"],"answer":2},
+  {"q":"200 g sample, half-life 5 yr. Amount after 15 yr:","options":["12.5 g","25 g","50 g","100 g"],"answer":1},
+  {"q":"Simplify:  log₆(216)","options":["2","3","4","6"],"answer":1},
+  {"q":"Value of the determinant  |2 3 / 1 4|  (2×2 matrix):","options":["2","5","8","11"],"answer":1},
+  {"q":"Evaluate:  ∑(k=1 to 5) (2k + 1)","options":["25","30","35","40"],"answer":2},
+  {"q":"Solve:  3^(x+2) = 27","options":["0","1","2","3"],"answer":1},
+  {"q":"If  f(x) = ax² + bx + c  opens downward, then:","options":["a > 0","a = 0","a < 0","a = 1"],"answer":2},
+  {"q":"Solution set of  |3x + 1| < 5:","options":["−2 < x < 4/3","x < −2 or x > 4/3","−4/3 < x < 2","x < 4/3"],"answer":0},
+  {"q":"All real solutions of  x⁴ − 5x² + 4 = 0:","options":["x = ±1 only","x = ±2 only","x = ±1 or x = ±2","x = ±4"],"answer":2},
+  {"q":"If  f(x) = x/(x + 1),  what is  f(f(x))?","options":["x/(x + 1)","x/(2x + 1)","2x/(x + 1)","(x + 1)/(2x + 1)"],"answer":1},
+  {"q":"Solve:  x² + 4x = 21","options":["x = 3 or x = −7","x = 7 or x = −3","x = 3 or x = 7","x = −3 or x = −7"],"answer":0}
+];
+
+AP_QUESTIONS=[
+  {"q":"Solve:  x² − 5x + 6 = 0","options":["x = 1 and x = 6","x = 2 and x = 3","x = −2 and x = −3","x = −1 and x = −6"],"answer":1},
+  {"q":"Which expression is equivalent to  (x² − 9)/(x² + x − 6)?","options":["(x + 3)/(x + 2)","(x − 3)/(x − 2)","(x + 3)/(x − 2)","(x − 3)/(x + 2)"],"answer":1},
+  {"q":"If  f(x) = 3x − 7,  what is  f⁻¹(x)?","options":["(x − 7)/3","(x + 7)/3","3x + 7","1/(3x − 7)"],"answer":1},
+  {"q":"Solve:  2^(x+1) = 32","options":["3","4","5","6"],"answer":1},
+  {"q":"What is the discriminant of  3x² + 2x + 1 = 0?","options":["−8","8","−4","4"],"answer":0},
+  {"q":"What is the vertex of  f(x) = x² − 4x + 7?","options":["(−2, 3)","(2, 3)","(2, −3)","(4, 7)"],"answer":1},
+  {"q":"Solve:  log₃(x + 2) = 3","options":["25","27","7","9"],"answer":0},
+  {"q":"If  f(x) = 2x + 1  and  g(x) = x² − 3,  find  (f∘g)(2):","options":["3","5","7","9"],"answer":0},
+  {"q":"What is the axis of symmetry of  y = 3x² − 12x + 7?","options":["x = 2","x = −2","x = 4","x = 6"],"answer":0},
+  {"q":"Simplify:  log₂(64)","options":["4","5","6","8"],"answer":2},
+  {"q":"What is the sum of the roots of  2x² − 7x + 3 = 0?","options":["3/2","7/2","−7/2","3"],"answer":1},
+  {"q":"Factor completely:  x³ + 8","options":["(x + 2)(x² + 2x + 4)","(x + 2)(x² − 2x + 4)","(x − 2)(x² + 2x + 4)","(x + 2)²(x − 4)"],"answer":1},
+  {"q":"What is the domain of  f(x) = √(2x − 6)?","options":["x > 3","x ≥ 3","x ≤ 3","x > −3"],"answer":1},
+  {"q":"Solve the system:  2x + 3y = 12,  x − y = 1","options":["x = 2, y = 1","x = 3, y = 2","x = 4, y = 3","x = 1, y = 2"],"answer":1},
+  {"q":"Which is equivalent to  x² + 6x + 9?","options":["(x − 3)²","(x + 3)²","(x + 3)(x − 3)","x² − 9"],"answer":1},
+  {"q":"If  log(a) = 2  and  log(b) = 3,  what is  log(a²b)?","options":["5","6","7","8"],"answer":2},
+  {"q":"Solve:  3/(x − 1) = 6/(x + 2)","options":["2","3","4","5"],"answer":2},
+  {"q":"The product of the roots of  3x² − 5x + 2 = 0  is:","options":["5/3","2/3","−2/3","3/2"],"answer":1},
+  {"q":"Solve:  e^(2x) = e^(x+3)","options":["1","2","3","6"],"answer":2},
+  {"q":"What is  f(2)  if  f(x) = x³ − 4x² + x + 6?","options":["0","2","−2","6"],"answer":0},
+  {"q":"Find the inverse of  f(x) = (2x − 1)/(x + 3)","options":["(3x + 1)/(2 − x)","(x + 1)/(2x − 3)","(2x − 1)/(x + 3)","(3x − 1)/(x + 2)"],"answer":0},
+  {"q":"What is the horizontal asymptote of  f(x) = (3x² + 1)/(x² − 4)?","options":["y = 0","y = 1","y = 3","y = −4"],"answer":2},
+  {"q":"Solve:  |2x − 3| = 7","options":["x = 5 only","x = 5 or x = −2","x = 2 or x = −5","x = −2 only"],"answer":1},
+  {"q":"If  f(x) = x + 2  and  g(x) = x² − 1,  find  (g∘f)(−1):","options":["0","1","2","3"],"answer":0},
+  {"q":"What is  log₅(25) + log₅(5)?","options":["2","3","4","5"],"answer":1},
+  {"q":"What are the vertical asymptotes of  f(x) = (x+1)/((x−2)(x+3))?","options":["x = −1 only","x = 2 and x = −3","x = −2 and x = 3","x = 2 only"],"answer":1},
+  {"q":"Solve  x + y = 5  and  xy = 6","options":["x = 1, y = 6","x = 2, y = 3","x = 4, y = 1","x = 3, y = 3"],"answer":1},
+  {"q":"Which polynomial has roots  x = 3  and  x = −5?","options":["x² + 2x + 15","x² + 2x − 15","x² − 2x − 15","x² − 8x + 15"],"answer":1},
+  {"q":"Solve:  log(x) + log(x − 3) = 1","options":["2","5","10","−2"],"answer":1},
+  {"q":"For exactly one real solution to  x² + kx + 16 = 0,  k = ?","options":["±4","±6","±8","±16"],"answer":2},
+  {"q":"Solve:  2^x = 8^(x−1)","options":["1/2","3/2","2","3"],"answer":1},
+  {"q":"Expand:  (x + 2)⁴","options":["x⁴ + 4x³ + 6x² + 4x + 1","x⁴ + 8x³ + 24x² + 32x + 16","x⁴ + 4x³ + 16x² + 8x + 4","x⁴ + 6x³ + 12x² + 8x + 1"],"answer":1},
+  {"q":"Simplify:  (x² − 16)/(x² + 3x − 4)","options":["(x + 4)/(x − 1)","(x − 4)/(x − 1)","(x + 4)/(x + 1)","(x − 4)/(x + 1)"],"answer":1},
+  {"q":"What is the range of  f(x) = −2(x − 1)² + 5?","options":["y ≥ 5","y ≤ 5","y ≥ −5","all real numbers"],"answer":1},
+  {"q":"The graph of  y = 2^x  shifted 3 units left is:","options":["y = 2^(x − 3)","y = 2^(x + 3)","y = 2^x − 3","y = 2^x + 3"],"answer":1},
+  {"q":"Solve:  4x² − 12x + 9 = 0","options":["x = 3/4","x = 3/2","x = 2/3","x = 4/3"],"answer":1},
+  {"q":"Which of the following is an odd function?","options":["f(x) = x² + 1","f(x) = x³ − x","f(x) = x² − x","f(x) = |x| + x"],"answer":1},
+  {"q":"Solve:  3x − 4 = 2(x + 5)","options":["10","12","14","16"],"answer":2},
+  {"q":"What is the 8th term of the geometric sequence  3, 6, 12, …?","options":["192","256","384","512"],"answer":2},
+  {"q":"Solve the inequality:  x² − x − 6 < 0","options":["x < −2 or x > 3","−2 < x < 3","x > 3","x < −2"],"answer":1},
+  {"q":"If  f(x) = 2x² − 3,  then  f(a + 1) = ?","options":["2a² + 4a − 1","2a² + 4a + 1","2a² − 4a − 1","2a² + 2a − 1"],"answer":0},
+  {"q":"What is  log₄(1/16)?","options":["−4","−2","2","4"],"answer":1},
+  {"q":"What is the 20th term of the arithmetic sequence  5, 8, 11, 14, …?","options":["56","59","62","65"],"answer":2},
+  {"q":"Solve:  2/(x − 1) + 1/(x + 1) = 3/(x² − 1)","options":["x = 1/3","x = 2/3","x = 3/2","x = −2/3"],"answer":1},
+  {"q":"Which value satisfies  4^(x−1) = 32?","options":["5/2","3","7/2","4"],"answer":2},
+  {"q":"Sum of the first 6 terms of  2 + 6 + 18 + …","options":["364","486","728","1458"],"answer":2},
+  {"q":"If  f(x) = x² + 1  and  g(x) = √x,  find  (g∘f)(2):","options":["√3","√5","√7","3"],"answer":1},
+  {"q":"The system  2x − 3y = 7  and  4x − 6y = 14  has:","options":["no solution","exactly one solution","infinitely many solutions","two solutions"],"answer":2},
+  {"q":"Sum of first 10 terms of  4 + 7 + 10 + …","options":["145","160","175","190"],"answer":2},
+  {"q":"Simplify:  (3x²y)(−2xy³)","options":["−6x²y³","−6x³y⁴","6x³y⁴","−6x³y³"],"answer":1},
+  {"q":"What is  i²?","options":["1","−1","i","−i"],"answer":1},
+  {"q":"Simplify:  (3 + 2i)(3 − 2i)","options":["9 − 4i","13","5","9 + 4i"],"answer":1},
+  {"q":"What is  (2 + 3i) + (5 − i)?","options":["7 + 2i","7 + 4i","3 + 2i","7 − 2i"],"answer":0},
+  {"q":"What is  i⁴?","options":["−1","1","i","−i"],"answer":1},
+  {"q":"Multiply:  (1 + 2i)(3 − i)","options":["3 + 5i","5 + 5i","5 − 5i","1 + 5i"],"answer":1},
+  {"q":"How many complex solutions does  x² + 4 = 0  have?","options":["0","1","2","4"],"answer":2},
+  {"q":"Solve:  2x² + x = 0","options":["x = 0 only","x = 0 or x = 1/2","x = 0 or x = −1/2","x = 1/2 or x = −1/2"],"answer":2},
+  {"q":"A quadratic has vertex (3, −4) and passes through (5, 0). Its equation is:","options":["f(x) = (x − 3)² − 4","f(x) = (x + 3)² + 4","f(x) = (x − 3)² + 4","f(x) = −(x − 3)² − 4"],"answer":0},
+  {"q":"The sum of roots of  x³ − 2x² − 5x + 6 = 0  is:","options":["−2","2","5","6"],"answer":1},
+  {"q":"If  f(x) = √(x + 3)  and  g(x) = x² − 3,  then  f(g(x)) = ?","options":["|x|","x","x² + 3","√(x² + 3)"],"answer":0},
+  {"q":"Remainder when  x³ − 2x² + 3x − 1  is divided by  (x − 2):","options":["1","3","5","7"],"answer":2},
+  {"q":"Factor:  6x² + 7x − 3","options":["(3x + 1)(2x − 3)","(3x − 1)(2x + 3)","(6x + 1)(x − 3)","(2x − 1)(3x + 3)"],"answer":1},
+  {"q":"If  g(x) = 4x − 5,  solve  g(2a + 1) = 3","options":["1/4","1/2","1","3/4"],"answer":1},
+  {"q":"Solve the inequality:  2x + 3 > 7","options":["x > 2","x < 2","x > 5","x > −2"],"answer":0},
+  {"q":"Solve:  2log₂(x) = 6","options":["4","6","8","12"],"answer":2},
+  {"q":"If  h(x) = 2^(x+1),  then  h(3) = ?","options":["8","12","16","32"],"answer":2},
+  {"q":"What are the zeros of  f(x) = x³ − x² − 4x + 4?","options":["x = 1, 2, −2","x = 1, 4, −4","x = −1, 2, −2","x = 2, −2 only"],"answer":0},
+  {"q":"3rd term of arithmetic sequence  a₁ = 7,  d = −3:","options":["1","4","10","13"],"answer":0},
+  {"q":"Solve:  x² − 2x − 35 < 0","options":["x < −5 or x > 7","−5 < x < 7","x > 7","x < −5"],"answer":1},
+  {"q":"If  f(x) = x + 2,  find  f(f(3)):","options":["5","7","9","11"],"answer":1},
+  {"q":"nth-term formula for  3, 7, 11, 15, …:","options":["4n − 1","4n + 1","3n + 1","3n − 1"],"answer":0},
+  {"q":"The system  3x + ay = 2  and  6x + 4y = b  has no solution when:","options":["a = 2 and b ≠ 4","a = 4 and b = 2","a = 2 and b = 4","a = 3 and b = 6"],"answer":0},
+  {"q":"Evaluate:  (2 − i)/(1 + i)","options":["(1 − 3i)/2","(3 − i)/2","(1 + 3i)/2","(3 + i)/2"],"answer":0},
+  {"q":"Domain of  f(x) = ln(x − 5):","options":["x > 0","x > 5","x ≥ 5","x > −5"],"answer":1},
+  {"q":"Which represents exponential decay?","options":["f(x) = 3^x","f(x) = (1/3)^x","f(x) = e^x","f(x) = 2^(x+1)"],"answer":1},
+  {"q":"Solve:  5^(2x−1) = 125","options":["1","2","3","4"],"answer":1},
+  {"q":"If  (x + 3)  is a factor of  x³ + kx² − 4x + 6,  then  k = ?","options":["−1","1","2","3"],"answer":1},
+  {"q":"What is  4^(3/2)?","options":["4","6","8","16"],"answer":2},
+  {"q":"Sum of the infinite geometric series  1 + 1/2 + 1/4 + …:","options":["1","3/2","2","3"],"answer":2},
+  {"q":"Center of the circle  x² + y² + 4x − 6y + 4 = 0:","options":["(2, −3)","(−2, 3)","(4, −6)","(−4, 6)"],"answer":1},
+  {"q":"Simplify:  (4x³y⁻²)/(2x⁻¹y³)","options":["2x²y⁻⁵","2x⁴/y⁵","2x⁴y⁵","4x²/y"],"answer":1},
+  {"q":"Solve:  3|x − 2| = 9","options":["x = 5 only","x = −1 only","x = 5 or x = −1","x = 1 or x = 5"],"answer":2},
+  {"q":"5th term in the expansion of  (x + 2)⁷:","options":["280x³","560x³","70x³","112x³"],"answer":1},
+  {"q":"Which quadratic has exactly one real solution?","options":["x² + x + 1 = 0","x² − 6x + 9 = 0","x² + 2x − 3 = 0","x² − 5x + 4 = 0"],"answer":1},
+  {"q":"Solve:  ln(2x + 3) = ln(x + 7)","options":["2","3","4","5"],"answer":2},
+  {"q":"Find  f(3)  if  f(x) = x²/(x − 1):","options":["3","9/2","6","9"],"answer":1},
+  {"q":"Solve  y = x²  and  y = x + 2  simultaneously:","options":["(1,1) and (2,4)","(−1,1) and (2,4)","(1,3) and (−2,0)","(0,2) and (2,4)"],"answer":1},
+  {"q":"All values of  x  for which  (x − 1)/(x + 3) ≤ 0:","options":["x < −3 or x > 1","−3 < x ≤ 1","−3 ≤ x ≤ 1","x ≤ 1"],"answer":1},
+  {"q":"Sum of first 4 terms of geometric sequence  a₁ = 4,  r = 3:","options":["120","160","240","324"],"answer":1},
+  {"q":"Solve:  2^(x−1) = 16","options":["3","4","5","6"],"answer":2},
+  {"q":"200 g sample, half-life 5 yr. Amount after 15 yr:","options":["12.5 g","25 g","50 g","100 g"],"answer":1},
+  {"q":"Simplify:  log₆(216)","options":["2","3","4","6"],"answer":1},
+  {"q":"Value of the determinant  |2 3 / 1 4|  (2×2 matrix):","options":["2","5","8","11"],"answer":1},
+  {"q":"Evaluate:  ∑(k=1 to 5) (2k + 1)","options":["25","30","35","40"],"answer":2},
+  {"q":"Solve:  3^(x+2) = 27","options":["0","1","2","3"],"answer":1},
+  {"q":"If  f(x) = ax² + bx + c  opens downward, then:","options":["a > 0","a = 0","a < 0","a = 1"],"answer":2},
+  {"q":"Solution set of  |3x + 1| < 5:","options":["−2 < x < 4/3","x < −2 or x > 4/3","−4/3 < x < 2","x < 4/3"],"answer":0},
+  {"q":"All real solutions of  x⁴ − 5x² + 4 = 0:","options":["x = ±1 only","x = ±2 only","x = ±1 or x = ±2","x = ±4"],"answer":2},
+  {"q":"If  f(x) = x/(x + 1),  what is  f(f(x))?","options":["x/(x + 1)","x/(2x + 1)","2x/(x + 1)","(x + 1)/(2x + 1)"],"answer":1},
+  {"q":"Solve:  x² + 4x = 21","options":["x = 3 or x = −7","x = 7 or x = −3","x = 3 or x = 7","x = −3 or x = −7"],"answer":0}
+];
+
+
 
 </script>
 </body>
