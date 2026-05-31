@@ -317,6 +317,8 @@ header{text-align:center;padding:8px 0;background:rgba(0,0,0,.35);font-size:1.6e
         <div class="lg"><div class="lgsq" style="background:#ffd700;border:1px solid #ff8c00"></div>🏰 Finish</div>
         <div class="lg" style="color:#c39aff">✦ doubles on 🏠 → jump d rows up</div>
         <div class="lg" style="color:#c39aff">✦ doubles on 🛡 → +d² move</div>
+        <div class="lg" style="color:#c39aff">= doubles (both active) → each +sum option</div>
+        <div class="lg" style="color:#c39aff">1 piece left → sum or ↪ d₁→d₂ sequence</div>
         <div class="lg" style="color:#ff69b4">⚔ land on foe → foe to 🏠</div>
         <div class="lg" style="color:#ff69b4">🛡 foe on safe → you to 🏠</div>
         <div class="lg" style="color:#7ddfff">🔗 same sq → immune pair</div>
@@ -349,9 +351,10 @@ header{text-align:center;padding:8px 0;background:rgba(0,0,0,.35);font-size:1.6e
 
         <div class="rules-section">🎲 Rolling &amp; Moving</div>
         <div class="rules-rule"><span class="rules-icon">≠</span><span><strong>Different dice</strong> — move both pieces (one per die).</span></div>
-        <div class="rules-rule"><span class="rules-icon">=</span><span><strong>Doubles</strong> — move one piece by the sum (2d).</span></div>
+        <div class="rules-rule"><span class="rules-icon">=</span><span><strong>Doubles</strong> — move one piece by sum (2d) <em>or</em> move <strong>both</strong> pieces by sum (2d each).</span></div>
         <div class="rules-rule"><span class="rules-icon">↩</span><span>Overshoot sq 144 → piece bounces back by the excess.</span></div>
-        <div class="rules-rule"><span class="rules-icon">1</span><span><strong>One piece finished</strong> — remaining piece: doubles (d,d)→+d²; any other roll→+sum.</span></div>
+        <div class="rules-rule"><span class="rules-icon">1</span><span><strong>One piece finished</strong> — doubles: +d² or +d→+d sequence; other roll: +sum, +d₁→+d₂, or +d₂→+d₁.</span></div>
+        <div class="rules-rule"><span class="rules-icon">↪</span><span><strong>Sequence move</strong> — each die resolved separately: snake/ladder effects apply <em>after each step</em>.</span></div>
 
         <div class="rules-section">✦ Doubles Bonuses</div>
         <div class="rules-rule"><span class="rules-icon">🏠</span><span><strong>Doubles on sq 1</strong> → jump piece <em>d rows</em> up same column. <em>(1,1→32 · 3,3→64)</em></span></div>

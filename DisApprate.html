@@ -349,6 +349,8 @@ header{text-align:center;padding:8px 0;background:rgba(0,0,0,.35);font-size:1.6e
         <div class="lg"><div class="lgsq" style="background:#ffd700;border:1px solid #ff8c00"></div>🏰 Finish</div>
         <div class="lg" style="color:#c39aff">✦ doubles on 🏠 → jump d rows up</div>
         <div class="lg" style="color:#c39aff">✦ doubles on 🛡 → +d² move</div>
+        <div class="lg" style="color:#c39aff">= doubles (both active) → each +sum option</div>
+        <div class="lg" style="color:#c39aff">1 piece left → sum or ↪ d₁→d₂ sequence</div>
         <div class="lg" style="color:#ff69b4">⚔ land on foe → foe to 🏠</div>
         <div class="lg" style="color:#ff69b4">🛡 foe on safe → you to 🏠</div>
         <div class="lg" style="color:#7ddfff">🔗 same sq → immune pair</div>
@@ -381,9 +383,10 @@ header{text-align:center;padding:8px 0;background:rgba(0,0,0,.35);font-size:1.6e
 
         <div class="rules-section">🎲 Rolling &amp; Moving</div>
         <div class="rules-rule"><span class="rules-icon">≠</span><span><strong>Different dice</strong> — move both pieces (one per die).</span></div>
-        <div class="rules-rule"><span class="rules-icon">=</span><span><strong>Doubles</strong> — move one piece by the sum (2d).</span></div>
+        <div class="rules-rule"><span class="rules-icon">=</span><span><strong>Doubles</strong> — move one piece by sum (2d) <em>or</em> move <strong>both</strong> pieces by sum (2d each).</span></div>
         <div class="rules-rule"><span class="rules-icon">↩</span><span>Overshoot sq 144 → piece bounces back by the excess.</span></div>
-        <div class="rules-rule"><span class="rules-icon">1</span><span><strong>One piece finished</strong> — remaining piece: doubles (d,d)→+d²; any other roll→+sum.</span></div>
+        <div class="rules-rule"><span class="rules-icon">1</span><span><strong>One piece finished</strong> — doubles: +d² or +d→+d sequence; other roll: +sum, +d₁→+d₂, or +d₂→+d₁.</span></div>
+        <div class="rules-rule"><span class="rules-icon">↪</span><span><strong>Sequence move</strong> — each die resolved separately: snake/ladder effects apply <em>after each step</em>.</span></div>
 
         <div class="rules-section">✦ Doubles Bonuses</div>
         <div class="rules-rule"><span class="rules-icon">🏠</span><span><strong>Doubles on sq 1</strong> → jump piece <em>d rows</em> up same column. <em>(1,1→32 · 3,3→64)</em></span></div>
@@ -500,6 +503,12 @@ header{text-align:center;padding:8px 0;background:rgba(0,0,0,.35);font-size:1.6e
           <div class="join-row">
             <input type="text" class="join-input" id="joinCodeInput" placeholder="ROOM CODE" maxlength="6" oninput="this.value=this.value.toUpperCase()">
             <button class="join-go" onclick="onlineJoin()">Join →</button>
+          </div>
+          <div class="edu-toggle-row" style="margin-top:8px">
+            <label class="edu-toggle">
+              <input type="checkbox" id="p2EduCheck">
+              <span>📚 <strong>Educational Mode</strong> — answer math questions to survive dangerous primes!</span>
+            </label>
           </div>
           <div class="online-status" id="onlineJoinStatus"></div>
         </div>
@@ -713,7 +722,7 @@ function setupGame(){
     playerAvatars[1]='🌐';
     computerPlayer=-1;
     NAMES[0]='Player 1'; NAMES[1]='Player 2';
-    eduMode=false; // edu mode not supported in online play
+    eduMode=document.getElementById('eduCheck').checked;
     document.getElementById('av0disp').textContent=playerAvatars[0];
     document.getElementById('av1disp').textContent='🌐';
     document.getElementById('pname0').textContent=NAMES[0];
@@ -1808,6 +1817,9 @@ async function onlineJoin(){
   isOnlineMode=true;
   computerPlayer=-1;
 
+  // Apply P2's own edu preference immediately
+  eduMode=document.getElementById('p2EduCheck').checked;
+
   statusEl.textContent='✅ Connected! Waiting for Player 1 to start…';
   statusEl.className='online-status ok';
 
@@ -1831,7 +1843,7 @@ function pushGameState(){
   const{db,ref,set}=window._fb;
   G.seq=(G.seq||0)+1;
   _lastAppliedSeq=G.seq;
-  set(ref(db,`rooms/${roomCode}`),{G:JSON.parse(JSON.stringify(G)),pusher:myPlayerIdx});
+  set(ref(db,`rooms/${roomCode}`),{G:JSON.parse(JSON.stringify(G)),pusher:myPlayerIdx,eduMode:eduMode});
 }
 
 /* ── Apply state received from the remote player ── */
@@ -1842,6 +1854,13 @@ function applyRemoteState(data){
   if(data.pusher===myPlayerIdx) return;
   if((remoteG.seq||0)<=_lastAppliedSeq) return;
   _lastAppliedSeq=remoteG.seq||0;
+
+  // Edu mode: OR of both players' choices — if either player wants it, both get it
+  if(data.eduMode!==undefined){
+    const wasEdu=eduMode;
+    eduMode=data.eduMode||eduMode;
+    if(eduMode&&!wasEdu) log('📚 Educational Mode enabled by your opponent!','le-special');
+  }
 
   // Apply
   G.pieces=remoteG.pieces;
