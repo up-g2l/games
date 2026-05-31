@@ -700,6 +700,21 @@ function scoreOption(meta){
     }
     return fp[0]+fp[1];
   }
+  if(meta.type==='seq'){
+    const fp=ps.slice();
+    let raw=fp[meta.pi]+meta.s1;
+    if(raw>144) raw=144-(raw-144);
+    raw=Math.max(1,Math.min(144,raw));
+    if(SNAKES[raw]) raw=SNAKES[raw]; else if(LADDERS[raw]) raw=LADDERS[raw];
+    if(raw<144){
+      raw+=meta.s2;
+      if(raw>144) raw=144-(raw-144);
+      raw=Math.max(1,Math.min(144,raw));
+      if(SNAKES[raw]) raw=SNAKES[raw]; else if(LADDERS[raw]) raw=LADDERS[raw];
+    }
+    fp[meta.pi]=raw;
+    return fp[0]+fp[1];
+  }
   return 50;
 }
 
@@ -1070,17 +1085,18 @@ function buildMoveOptions(){
   if(fin[0]&&fin[1]){nextTurn();return;}
 
   // ── One piece finished ─────────────────────────────────────────────
-  //   Doubles (d,d)  → move by d²
-  //   Any other roll → move by sum
   if(fin[0]||fin[1]){
     const pi=fin[0]?1:0;
     const lbl=['A','B'][pi];
     if(d1===d2){
       const dsq=d1*d1;
       mkBtn(`Move ${lbl} by ${dsq}  (${d1}² doubles)`,()=>exec([{p:pi,s:dsq}]),false,{type:'exec',moves:[{p:pi,s:dsq}],isPairMove:false});
+      mkBtn(`Move ${lbl}: +${d1} → +${d1}  (sequence)`,()=>execSeq(pi,d1,d1),false,{type:'seq',pi,s1:d1,s2:d1});
     } else {
       const singleSum=d1+d2;
       mkBtn(`Move ${lbl} by ${singleSum}  (sum)`,()=>exec([{p:pi,s:singleSum}]),false,{type:'exec',moves:[{p:pi,s:singleSum}],isPairMove:false});
+      mkBtn(`Move ${lbl}: +${d1} → +${d2}  (sequence)`,()=>execSeq(pi,d1,d2),false,{type:'seq',pi,s1:d1,s2:d2});
+      mkBtn(`Move ${lbl}: +${d2} → +${d1}  (sequence)`,()=>execSeq(pi,d2,d1),false,{type:'seq',pi,s1:d2,s2:d1});
     }
     maybeAI(); return;
   }
@@ -1100,6 +1116,8 @@ function buildMoveOptions(){
         mkBtn(`✦ Move ${lbl} by +${dsq}  (${d}² on 🛡)`,()=>exec([{p:pi,s:dsq}]),true,{type:'exec',moves:[{p:pi,s:dsq}],isPairMove:false});
       }
     }
+    // Both pieces move by sum (new rule)
+    mkBtn(`Move A+B by +${sum2}  (both, sum)`,()=>exec([{p:0,s:sum2},{p:1,s:sum2}]),false,{type:'exec',moves:[{p:0,s:sum2},{p:1,s:sum2}],isPairMove:false});
     // Immune pair + doubles → both move by d²
     if(immunePair){
       mkBtn(`🔗 Move A+B by +${dsq}  (${d}² immune pair)`,()=>exec([{p:0,s:dsq},{p:1,s:dsq}],true),true,{type:'exec',moves:[{p:0,s:dsq},{p:1,s:dsq}],isPairMove:true});
@@ -1142,74 +1160,89 @@ function mkBtn(label,handler,bonus=false,meta=null){
 }
 
 /* ═══════════════════════════════════════════
+   SINGLE-STEP MOVE HELPER
+═══════════════════════════════════════════ */
+async function execOneStep(pi,steps,isPairMove){
+  const from=G.pieces[G.cur][pi];
+  const name=['A','B'][pi];
+  if(from===144){log(`${NAMES[G.cur]} Piece ${name} already home.`); return;}
+
+  let raw=from+steps;
+
+  if(raw>144){
+    const excess=raw-144, to=144-excess;
+    log(`${NAMES[G.cur]} Piece ${name}: ${from} → 144 ↩ bounces to ${to}`,'le-bounce');
+    await animateSteps(G.cur,pi,from,144,200);
+    await sleep(380);
+    await animateSteps(G.cur,pi,144,to,200);
+  } else {
+    log(`${NAMES[G.cur]} Piece ${name}: ${from} → ${raw}`);
+    await animateSteps(G.cur,pi,from,raw,200);
+  }
+
+  const landed=G.pieces[G.cur][pi];
+  if(landed===144) return;
+
+  const expelled=await resolveCapture(G.cur,pi,landed);
+  if(expelled) return;
+
+  if(SNAKES[landed]){
+    const dest=SNAKES[landed];
+    if(isPairMove){
+      log(`🔗 Immune pair passes sq ${landed} safely — no fall!`,'le-special');
+    } else {
+      let stay=false;
+      if(eduMode && QUESTIONS.length){
+        if(G.cur===computerPlayer){
+          stay=true;
+          log(`🤖 ${NAMES[G.cur]} Piece ${name} answers the challenge — stays on sq ${landed}!`,'le-special');
+        } else {
+          stay=await showQuiz(landed,dest);
+        }
+      }
+      if(stay){
+        if(G.cur!==computerPlayer)
+          log(`✅ Math challenge passed! ${NAMES[G.cur]} Piece ${name} stays on sq ${landed}.`,'le-special');
+      } else {
+        if(eduMode && QUESTIONS.length && G.cur!==computerPlayer) log(`❌ Challenge failed — `,'le-snake');
+        log(`  ⚠ Sq ${landed} is a dangerous prime! Piece ${name} falls to ${dest} 🛡`,'le-snake');
+        await flashCell(landed,'snake-in');
+        const ms=Math.max(60,Math.min(150,Math.floor(1400/Math.abs(dest-landed))));
+        await animateSteps(G.cur,pi,landed,dest,ms);
+        await flashCell(dest,'arrive');
+      }
+    }
+  } else if(LADDERS[landed]){
+    const dest=LADDERS[landed];
+    log(`  ✦ Sq ${landed} ÷5/6! Piece ${name} jumps to ${dest}.`,'le-ladder');
+    await flashCell(landed,'ladder-in');
+    const ms=Math.max(60,Math.min(150,Math.floor(1400/Math.abs(dest-landed))));
+    await animateSteps(G.cur,pi,landed,dest,ms);
+    await flashCell(dest,'arrive');
+  }
+}
+
+/* ═══════════════════════════════════════════
    EXECUTE NORMAL MOVES  (async — animated)
 ═══════════════════════════════════════════ */
 async function exec(moves,isPairMove=false){
   for(const{p:pi,s:steps}of moves){
-    const from=G.pieces[G.cur][pi];
-    const name=['A','B'][pi];
-    if(from===144){log(`${NAMES[G.cur]} Piece ${name} already home.`);continue;}
-
-    let raw=from+steps;
-
-    if(raw>144){
-      const excess=raw-144, to=144-excess;
-      log(`${NAMES[G.cur]} Piece ${name}: ${from} → 144 ↩ bounces to ${to}`,'le-bounce');
-      await animateSteps(G.cur,pi,from,144,200);
-      await sleep(380);
-      await animateSteps(G.cur,pi,144,to,200);
-    } else {
-      log(`${NAMES[G.cur]} Piece ${name}: ${from} → ${raw}`);
-      await animateSteps(G.cur,pi,from,raw,200);
-    }
-
-    const landed=G.pieces[G.cur][pi];
-    if(landed===144) continue;
-
-    // ── Capture check ──────────────────────────────────────────────
-    const expelled=await resolveCapture(G.cur,pi,landed);
-    if(expelled) continue;
-
-    // ── Snake / Ladder ─────────────────────────────────────────────
-    if(SNAKES[landed]){
-      const dest=SNAKES[landed];
-      if(isPairMove){
-        // Immune pair — dangerous primes are safe!
-        log(`🔗 Immune pair passes sq ${landed} safely — no fall!`,'le-special');
-      } else {
-        // Educational mode: offer quiz to stay on square
-        let stay=false;
-        if(eduMode && QUESTIONS.length){
-          if(G.cur===computerPlayer){
-            // Computer always answers correctly
-            stay=true;
-            log(`🤖 ${NAMES[G.cur]} Piece ${name} answers the challenge — stays on sq ${landed}!`,'le-special');
-          } else {
-            stay=await showQuiz(landed,dest);
-          }
-        }
-        if(stay){
-          if(G.cur!==computerPlayer)
-            log(`✅ Math challenge passed! ${NAMES[G.cur]} Piece ${name} stays on sq ${landed}.`,'le-special');
-        } else {
-          if(eduMode && QUESTIONS.length && G.cur!==computerPlayer) log(`❌ Challenge failed — `,'le-snake');
-          log(`  ⚠ Sq ${landed} is a dangerous prime! Piece ${name} falls to ${dest} 🛡`,'le-snake');
-          await flashCell(landed,'snake-in');
-          const ms=Math.max(60,Math.min(150,Math.floor(1400/Math.abs(dest-landed))));
-          await animateSteps(G.cur,pi,landed,dest,ms);
-          await flashCell(dest,'arrive');
-        }
-      }
-    } else if(LADDERS[landed]){
-      const dest=LADDERS[landed];
-      log(`  ✦ Sq ${landed} ÷5/6! Piece ${name} jumps to ${dest}.`,'le-ladder');
-      await flashCell(landed,'ladder-in');
-      const ms=Math.max(60,Math.min(150,Math.floor(1400/Math.abs(dest-landed))));
-      await animateSteps(G.cur,pi,landed,dest,ms);
-      await flashCell(dest,'arrive');
-    }
+    await execOneStep(pi,steps,isPairMove);
   }
+  syncUI();
+  checkWinAndNext();
+}
 
+/* ═══════════════════════════════════════════
+   EXECUTE SEQUENTIAL MOVE  (single piece, two dice)
+═══════════════════════════════════════════ */
+async function execSeq(pi,s1,s2){
+  const name=['A','B'][pi];
+  log(`${NAMES[G.cur]} Piece ${name}: sequential +${s1} then +${s2}`,'le-roll');
+  await execOneStep(pi,s1,false);
+  if(G.pieces[G.cur][pi]<144){
+    await execOneStep(pi,s2,false);
+  }
   syncUI();
   checkWinAndNext();
 }
