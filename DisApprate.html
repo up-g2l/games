@@ -16,19 +16,19 @@ header{text-align:center;padding:8px 0;background:rgba(0,0,0,.35);font-size:1.6e
 .board{display:grid;grid-template-columns:repeat(16,1fr);gap:2px;background:#3b1f0e;border:3px solid #8d6e3f;border-radius:6px;padding:3px;width:min(calc(100vh * 16/9 - 180px), calc(100vw - 280px));aspect-ratio:16/9}
 
 .cell{position:relative;border-radius:3px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:1px;overflow:visible;aspect-ratio:1}
-.cell.norm{background:#b09068}
-.cell.norm.alt{background:#987848}
-.cell.snake{background:#c03030}
-.cell.ladder{background:#267326}
-.cell.safe{background:#5a88b8;border:1.5px solid #3a6898}
-.cell.start{background:#e8e080;border:2px solid #c09800}
+.cell.norm{background:#c8a878}
+.cell.norm.alt{background:#b09060}
+.cell.snake{background:#d05050}
+.cell.ladder{background:#3d8f3d}
+.cell.safe{background:#6898c8;border:1.5px solid #4878a8}
+.cell.start{background:#f0e888;border:2px solid #c8a800}
 .cell.finish{background:#ffd700;border:2px solid #ff8c00}
 
-.cnum{font-size:.55em;font-weight:700;color:#f8e8c8;line-height:1;z-index:1}
-.cgfx{font-size:clamp(20px,calc((100vw - 320px)*0.038),58px);line-height:1;z-index:1;display:block;text-align:center}
-.cgfx.shield{font-size:clamp(18px,calc((100vw - 320px)*0.036),52px)}
-.cgfx.dragon{font-size:clamp(14px,calc((100vw - 320px)*0.028),42px);filter:drop-shadow(0 1px 3px rgba(255,60,0,.6))}
-.cgfx.eagle {font-size:clamp(14px,calc((100vw - 320px)*0.028),42px);filter:drop-shadow(0 1px 3px rgba(60,220,60,.6))}
+.cnum{font-size:.72em;font-weight:700;color:#f8e8c8;line-height:1;z-index:1}
+.cgfx{font-size:clamp(24px,calc((100vw - 320px)*0.0456),70px);line-height:1;z-index:1;display:block;text-align:center}
+.cgfx.shield{font-size:clamp(22px,calc((100vw - 320px)*0.0432),62px)}
+.cgfx.dragon{font-size:clamp(17px,calc((100vw - 320px)*0.0336),50px);filter:drop-shadow(0 1px 3px rgba(255,60,0,.6))}
+.cgfx.eagle {font-size:clamp(17px,calc((100vw - 320px)*0.0336),50px);filter:drop-shadow(0 1px 3px rgba(60,220,60,.6))}
 .cspec{font-size:.44em;font-weight:600;line-height:1;z-index:1}
 .snake .cspec{color:#ffaaaa}
 .ladder .cspec{color:#aaffaa}
@@ -254,18 +254,21 @@ header{text-align:center;padding:8px 0;background:rgba(0,0,0,.35);font-size:1.6e
 .btn-log{background:#3a3a3a;color:#bbb;border:1px solid #4a4a4a;font-size:.82em;width:100%;margin-top:4px}
 .btn-log:hover{background:#484848}
 
-/* ── VOICE MIC ────────────────────────────── */
+/* ── VOICE MIC + SOUND ────────────────────── */
 .mic-row{display:flex;gap:6px;align-items:center}
 .btn-mic{flex:1;background:#3a3a3a;color:#ccc;font-size:.82em;border:1px solid #555}
 .btn-mic:hover{background:#444}
 .btn-mic.listening{background:#c0392b !important;color:#fff !important;border-color:#e74c3c !important;animation:micPulse 1.4s infinite}
 @keyframes micPulse{0%,100%{box-shadow:0 0 0 0 rgba(231,76,60,.5)}65%{box-shadow:0 0 0 7px rgba(231,76,60,0)}}
 .voice-status{font-size:.66em;color:#888;text-align:center;min-height:14px;padding:2px 0;font-style:italic}
+.btn-sound{flex:0 0 auto;width:42px;background:#3a3a3a;color:#ccc;font-size:1.1em;border:1px solid #555;padding:0}
+.btn-sound:hover{background:#444}
+.btn-sound.muted{color:#555}
 
 /* ── SETUP MODAL ──────────────────────────── */
 .setup-modal{position:fixed;inset:0;background:rgba(0,0,0,.92);display:none;align-items:center;justify-content:center;z-index:480;padding:12px}
 .setup-modal.open{display:flex}
-.setup-box{background:#1a1a2e;border:3px solid #ffd700;border-radius:18px;padding:22px 28px 20px;width:min(98vw,620px);max-height:92vh;overflow-y:auto;box-shadow:0 20px 80px rgba(0,0,0,.95)}
+.setup-box{background:#1a1a2e;border:3px solid #ffd700;border-radius:18px;padding:22px 28px 20px;width:min(98vw,744px);max-height:92vh;overflow-y:auto;box-shadow:0 20px 80px rgba(0,0,0,.95)}
 .setup-box::-webkit-scrollbar{width:5px}.setup-box::-webkit-scrollbar-thumb{background:#555;border-radius:3px}
 .setup-title{text-align:center;font-size:1.45em;font-weight:900;color:#ffd700;letter-spacing:4px;margin-bottom:18px;text-shadow:0 0 16px rgba(255,215,0,.4)}
 .setup-section{margin-bottom:16px}
@@ -397,6 +400,7 @@ header{text-align:center;padding:8px 0;background:rgba(0,0,0,.35);font-size:1.6e
       </div>
 
       <div class="mic-row">
+        <button class="btn btn-sound" id="soundBtn" onclick="toggleSound()" title="Toggle sound">🔊</button>
         <button class="btn btn-mic" id="micBtn" onclick="toggleMic()">🎤 Voice: Off</button>
       </div>
       <div class="voice-status" id="voiceStatus"></div>
@@ -411,16 +415,16 @@ header{text-align:center;padding:8px 0;background:rgba(0,0,0,.35);font-size:1.6e
       <div id="moveOpts"></div>
 
       <div class="legend">
-        <div class="lg"><div class="lgsq" style="background:#c03030"></div>⚠ Prime ≥11 → falls to prev 🛡</div>
-        <div class="lg"><div class="lgsq" style="background:#267326"></div>÷5 or ÷6 → jumps ahead</div>
-        <div class="lg"><div class="lgsq" style="background:#5a88b8;border:1px solid #3a6898"></div>🛡 Perfect square — safe house</div>
         <div class="lg"><div class="lgsq" style="background:#fffacd;border:1px solid #c9a700"></div>🏠 Start</div>
         <div class="lg"><div class="lgsq" style="background:#ffd700;border:1px solid #ff8c00"></div>🏰 Finish</div>
+        <div class="lg"><div class="lgsq" style="background:#6898c8;border:1px solid #4878a8"></div>🛡 Perfect square — safe house</div>
+        <div class="lg"><div class="lgsq" style="background:#d05050"></div>⚠ Prime ≥11 → falls to prev 🛡</div>
+        <div class="lg"><div class="lgsq" style="background:#3d8f3d"></div>÷5 or ÷6 → jumps ahead</div>
+        <div class="lg" style="color:#ffd700">🏠 Leave home: both dice even or doubles</div>
         <div class="lg" style="color:#c39aff">✦ doubles on 🏠 → jump d rows up</div>
         <div class="lg" style="color:#c39aff">✦ doubles on 🛡 → +d² move</div>
         <div class="lg" style="color:#c39aff">= doubles (both active) → each +sum option</div>
         <div class="lg" style="color:#c39aff">1 piece left → sum or ↪ d₁→d₂ sequence</div>
-        <div class="lg" style="color:#ffd700">🏠 Leave home: need even sum or doubles</div>
         <div class="lg" style="color:#ff69b4">⚔ land on foe → foe to 🏠</div>
         <div class="lg" style="color:#ff69b4">🛡 foe on safe → you to 🏠</div>
         <div class="lg" style="color:#7ddfff">🔗 same sq → immune pair</div>
@@ -447,66 +451,69 @@ header{text-align:center;padding:8px 0;background:rgba(0,0,0,.35);font-size:1.6e
 
     <div class="rules-body">
 
-      <!-- ── Column 1: Objective + Rolling + Doubles ── -->
+      <!-- ── Column 1: Objective + Rolling & Moving + Board Colours ── -->
       <div class="rules-col">
         <div class="rules-section">🎯 Objective</div>
-        <div class="rules-rule"><span class="rules-icon">🏁</span><span>Move <strong>both</strong> pieces sq 1→144 before your opponent.</span></div>
+        <div class="rules-rule"><span class="rules-icon">🏁</span><span>Move <strong>both</strong> pieces from sq 1 to sq 144 before your opponent does.</span></div>
 
         <div class="rules-section">🎲 Rolling &amp; Moving</div>
-        <div class="rules-rule"><span class="rules-icon">≠</span><span><strong>Different dice</strong> — move both pieces (one per die). Player chooses which die goes to which piece.</span></div>
-        <div class="rules-rule"><span class="rules-icon">=</span><span><strong>Doubles</strong> — move one piece by sum (2d) <em>or</em> move <strong>both</strong> pieces by sum (2d each).</span></div>
-        <div class="rules-rule"><span class="rules-icon">🏠</span><span><strong>Leaving home (sq 1)</strong> — piece needs <em>even sum</em> or <em>doubles</em> to move out. Odd sum with both pieces home skips your turn.</span></div>
-        <div class="rules-rule"><span class="rules-icon">↩</span><span>Overshoot sq 144 → piece bounces back by the excess.</span></div>
-        <div class="rules-rule"><span class="rules-icon">1</span><span><strong>One piece finished</strong> — doubles: +d² or +d→+d sequence; other roll: +sum, +d₁→+d₂, or +d₂→+d₁.</span></div>
-        <div class="rules-rule"><span class="rules-icon">↪</span><span><strong>Sequence move</strong> — each die resolved separately: snake/ladder effects apply <em>after each step</em>.</span></div>
-
-        <div class="rules-section">✦ Doubles Bonuses</div>
-        <div class="rules-rule"><span class="rules-icon">🏠</span><span><strong>Doubles on sq 1</strong> → jump piece <em>d rows</em> up same column. <em>(1,1→32 · 3,3→64)</em></span></div>
-        <div class="rules-rule"><span class="rules-icon">🛡</span><span><strong>Doubles on safe house</strong> → option +d² move. <em>(3,3→+9)</em></span></div>
+        <div class="rules-rule"><span class="rules-icon">≠</span><span><strong>Different dice</strong> — move both pieces, one per die. Player freely assigns which die to which piece.</span></div>
+        <div class="rules-rule"><span class="rules-icon">🏠</span><span><strong>Leaving home (sq 1)</strong> — need <em>both dice even</em> or <em>doubles (d,d)</em>. Otherwise: both at home → turn skipped; one at home → only the free piece moves.</span></div>
+        <div class="rules-rule"><span class="rules-icon">↩</span><span><strong>Overshoot</strong> sq 144 → piece bounces back by the excess.</span></div>
+        <div class="rules-rule"><span class="rules-icon">1</span><span><strong>One piece finished</strong> — doubles: +d² or +d→+d in sequence; other roll: +sum, or +d₁→+d₂ / +d₂→+d₁ in sequence.</span></div>
+        <div class="rules-rule"><span class="rules-icon">↪</span><span><strong>Sequence move</strong> — each die resolves separately; snake/ladder fires after every individual step.</span></div>
+        <div class="rules-rule"><span class="rules-icon">🛡</span><span><strong>Shield → Red</strong> — a piece moving off a safe house onto a prime bounces <em>back</em> to that safe house.</span></div>
 
         <div class="rules-section">🗝 Board Colours</div>
-        <div class="rules-rule"><span class="rules-icon" style="background:#ffaaaa;border-radius:2px">&nbsp;</span><span style="color:#ff9999">Red — dangerous prime (≥11) → falls to nearest 🛡</span></div>
-        <div class="rules-rule"><span class="rules-icon" style="background:#aae8aa;border-radius:2px">&nbsp;</span><span style="color:#7dff7d">Green — ÷5 or ÷6 → jumps to bonus square</span></div>
-        <div class="rules-rule"><span class="rules-icon" style="background:#dce8ff;border:1px solid #7ab0e8;border-radius:2px">&nbsp;</span><span style="color:#aad4ff">Blue — perfect square 🛡 safe house</span></div>
-        <div class="rules-rule"><span class="rules-icon">ℹ</span><span>Primes 2, 3, 5, 7 are safe. Special: 131 &amp; 139 → sq 49.</span></div>
+        <div class="rules-rule"><span class="rules-icon" style="background:#d05050;border-radius:2px">&nbsp;</span><span style="color:#ff9999">🐉 Red — dangerous prime (≥11) → falls per snake table</span></div>
+        <div class="rules-rule"><span class="rules-icon" style="background:#3d8f3d;border-radius:2px">&nbsp;</span><span style="color:#7dff7d">🦅 Green — ÷5 or ÷6 → jumps to bonus square</span></div>
+        <div class="rules-rule"><span class="rules-icon" style="background:#6898c8;border:1px solid #4878a8;border-radius:2px">&nbsp;</span><span style="color:#aad4ff">🛡 Blue — perfect square · safe house</span></div>
+        <div class="rules-rule"><span class="rules-icon">ℹ</span><span>Primes 2, 3, 5, 7 are <em>not</em> dangerous. Special falls: 131 &amp; 139 → 49 · 11 &amp; 13 → 1.</span></div>
       </div>
 
-      <!-- ── Column 2: Immune Pair + Capture ── -->
+      <!-- ── Column 2: Doubles Bonuses (top) + Immune Pair + Capture ── -->
       <div class="rules-col">
+        <div class="rules-section">✦ Doubles Bonuses</div>
+        <div class="rules-rule"><span class="rules-icon">🏠</span><span><strong>Doubles on sq 1</strong> → jump piece <em>d rows</em> up same column. <em>(2,2 → +2 rows · 4,4 → +4 rows)</em></span></div>
+        <div class="rules-rule"><span class="rules-icon">🛡</span><span><strong>Doubles on safe house</strong> → bonus option: move piece by +d². <em>(3,3 → +9)</em></span></div>
+        <div class="rules-rule"><span class="rules-icon">=</span><span><strong>Doubles on normal square</strong> → move piece <em>d then d in sequence</em> (not by 2d).</span></div>
+        <div class="rules-rule"><span class="rules-icon">🔗</span><span><strong>Immune pair + doubles</strong> → both pieces move by d² (not at home sq 1).</span></div>
+
         <div class="rules-section">🔗 Immune Pair</div>
-        <div class="rules-rule"><span class="rules-icon">🔗</span><span>Both your pieces on the <strong>same square</strong> = immune pair — invulnerable to capture.</span></div>
-        <div class="rules-rule"><span class="rules-icon">🔗</span><span><strong>Even sum</strong> → move both pieces by the full sum. <em>(4+6 → +10 each)</em></span></div>
-        <div class="rules-rule"><span class="rules-icon">🔗</span><span><strong>Doubles (d,d)</strong> → move both pieces by d². <em>(3,3 → +9 each)</em></span></div>
-        <div class="rules-rule"><span class="rules-icon">🛡</span><span><strong>Immune pair move</strong> — dangerous primes are <em>completely skipped</em>!</span></div>
+        <div class="rules-rule"><span class="rules-icon">🔗</span><span>Both your pieces on the <strong>same square</strong> (not sq 1) = immune pair.</span></div>
+        <div class="rules-rule"><span class="rules-icon">🔗</span><span><strong>Different dice + even sum</strong> → both pieces move by the full sum. <em>(2+4 → +6 each)</em></span></div>
+        <div class="rules-rule"><span class="rules-icon">🛡</span><span><strong>Immune pair moves bypass dangerous primes</strong> — no fall!</span></div>
+        <div class="rules-rule"><span class="rules-icon">🏠</span><span>No immune pair privilege when both pieces are on sq 1 (home).</span></div>
 
         <div class="rules-section">⚔ Capture</div>
-        <div class="rules-rule"><span class="rules-icon">⚔</span><span>Land on lone opponent piece → it goes back to 🏠 sq 1.</span></div>
-        <div class="rules-rule"><span class="rules-icon">🛡</span><span>Land on opponent on a <strong>safe house</strong> → <em>you</em> go back to 🏠.</span></div>
-        <div class="rules-rule"><span class="rules-icon">🔗</span><span>Attack an immune pair → blocked, nothing happens.</span></div>
-        <div class="rules-rule"><span class="rules-icon">🔒</span><span>Sq 1 and sq 144 are always capture-free.</span></div>
-
-        <div class="rules-section">📚 Educational Mode</div>
-        <div class="rules-rule"><span class="rules-icon">📚</span><span>Land on a dangerous prime → answer a math question to <strong>stay</strong> instead of falling!</span></div>
-        <div class="rules-rule"><span class="rules-icon">🤖</span><span>Computer always answers correctly in Educational Mode.</span></div>
+        <div class="rules-rule"><span class="rules-icon">⚔</span><span>Land on a <strong>lone</strong> opponent piece → it goes back to 🏠 sq 1.</span></div>
+        <div class="rules-rule"><span class="rules-icon">🛡</span><span>Land on opponent piece on a <strong>safe house</strong> → <em>you</em> go back to 🏠.</span></div>
+        <div class="rules-rule"><span class="rules-icon">🔗</span><span>Land on opponent's <strong>immune pair</strong> → <em>you</em> are sent home.</span></div>
+        <div class="rules-rule"><span class="rules-icon">🔒</span><span>Sq 1 and sq 144 are always capture-free zones.</span></div>
       </div>
 
-      <!-- ── Column 3: AI + Voice ── -->
+      <!-- ── Column 3: Educational Mode (top) + AI + Voice + Quick Ref ── -->
       <div class="rules-col">
+        <div class="rules-section">📚 Educational Mode</div>
+        <div class="rules-rule"><span class="rules-icon">📚</span><span>Land on a dangerous prime → a math challenge appears. Answer correctly to <strong>stay</strong> on the square instead of falling!</span></div>
+        <div class="rules-rule"><span class="rules-icon">📊</span><span><strong>📊 Basic Math</strong> — arithmetic, algebra, geometry questions.</span></div>
+        <div class="rules-rule"><span class="rules-icon">🎓</span><span><strong>🎓 AP Algebra</strong> — harder: functions, logs, sequences, complex numbers.</span></div>
+        <div class="rules-rule"><span class="rules-icon">🌐</span><span>Online: if <em>either</em> player enables edu mode (or AP level), both play with it.</span></div>
+        <div class="rules-rule"><span class="rules-icon">🤖</span><span>Computer opponent always answers correctly.</span></div>
+
         <div class="rules-section">🤖 Computer Opponent</div>
         <div class="rules-rule"><span class="rules-icon">🤖</span><span><strong>Grandmaster</strong> — always picks the best available move.</span></div>
         <div class="rules-rule"><span class="rules-icon">🎲</span><span><strong>Random</strong> — picks any valid move at random.</span></div>
-        <div class="rules-rule"><span class="rules-icon">🐌</span><span><strong>Easy</strong> — always picks the worst possible move.</span></div>
-        <div class="rules-rule"><span class="rules-icon">⚙</span><span>Select in Game Setup (after closing this screen).</span></div>
+        <div class="rules-rule"><span class="rules-icon">😈</span><span><strong>Mean</strong> — hunts your pieces; captures whenever possible, otherwise picks the worst move.</span></div>
 
-        <div class="rules-section">🎤 Voice Commands</div>
-        <div class="rules-rule"><span class="rules-icon">🎤</span><span><strong>"Roll"</strong> → rolls the dice.</span></div>
-        <div class="rules-rule"><span class="rules-icon">🎤</span><span><strong>"Option 1…5"</strong> / <strong>"One"…"First"</strong> → picks that move.</span></div>
-        <div class="rules-rule"><span class="rules-icon">🎤</span><span><strong>"New game"</strong> → restarts · <strong>"Rules"</strong> → this screen.</span></div>
+        <div class="rules-section">🎤 Voice &amp; Sound</div>
+        <div class="rules-rule"><span class="rules-icon">🎤</span><span><strong>"Roll"</strong> → rolls · <strong>"Option 1…5"</strong> / <strong>"First"…</strong> → picks move · <strong>"New game"</strong> → restart.</span></div>
+        <div class="rules-rule"><span class="rules-icon">🔊</span><span><strong>🔊 / 🔇</strong> button — toggle all game sounds &amp; background music.</span></div>
 
         <div class="rules-section">⌨ Quick Ref</div>
-        <div class="rules-rule"><span class="rules-icon">🏠</span><span>Sq 1 — Start &nbsp;·&nbsp; 🏰 Sq 144 — Finish</span></div>
-        <div class="rules-rule"><span class="rules-icon">📜</span><span><strong>Move History</strong> button — review all past moves.</span></div>
-        <div class="rules-rule"><span class="rules-icon">🎮</span><span>After setup: roll to begin, choose your move, first to get <em>both</em> pieces to 144 wins!</span></div>
+        <div class="rules-rule"><span class="rules-icon">🏠</span><span>Sq 1 — Start &nbsp;·&nbsp; 🏰 Sq 144 — Finish &nbsp;·&nbsp; 2 players · 2 pieces each</span></div>
+        <div class="rules-rule"><span class="rules-icon">🌐</span><span><strong>Online</strong> — create or join a room via the 🌐 Online option in Game Setup.</span></div>
+        <div class="rules-rule"><span class="rules-icon">📋</span><span><strong>Rules</strong> button — this screen &nbsp;·&nbsp; <strong>📜 Move History</strong> — review all past moves.</span></div>
       </div>
 
     </div><!-- /rules-body -->
@@ -552,9 +559,9 @@ header{text-align:center;padding:8px 0;background:rgba(0,0,0,.35);font-size:1.6e
             <div class="ai-desc">Completely unpredictable</div>
           </div>
           <div class="ai-level-card" id="ai3" onclick="setAI(3)">
-            <div class="ai-icon">🐌</div>
-            <div class="ai-name">Easy</div>
-            <div class="ai-desc">Always picks the worst move</div>
+            <div class="ai-icon">😈</div>
+            <div class="ai-name">Mean</div>
+            <div class="ai-desc">Hunts your pieces — captures when possible</div>
           </div>
         </div>
       </div>
@@ -585,6 +592,7 @@ header{text-align:center;padding:8px 0;background:rgba(0,0,0,.35);font-size:1.6e
           <div class="edu-level-row" id="p2EduLevelRow">
             <button class="edu-lvl-btn active" id="p2EduBasicBtn" onclick="setEduLevel('basic','p2')">📊 Basic Math</button>
             <button class="edu-lvl-btn" id="p2EduApBtn" onclick="setEduLevel('ap','p2')">🎓 AP Algebra</button>
+            <button class="edu-lvl-btn" id="p2EduTrigBtn" onclick="setEduLevel('trig','p2')">🔺 Trigonometry</button>
           </div>
           <div class="online-status" id="onlineJoinStatus"></div>
         </div>
@@ -603,6 +611,7 @@ header{text-align:center;padding:8px 0;background:rgba(0,0,0,.35);font-size:1.6e
     <div class="edu-level-row" id="eduLevelRow">
       <button class="edu-lvl-btn active" id="eduBasicBtn" onclick="setEduLevel('basic')">📊 Basic Math</button>
       <button class="edu-lvl-btn" id="eduApBtn" onclick="setEduLevel('ap')">🎓 AP Algebra</button>
+      <button class="edu-lvl-btn" id="eduTrigBtn" onclick="setEduLevel('trig')">🔺 Trigonometry</button>
     </div>
 
     <button class="setup-start" onclick="setupGame()">▶ Start Game!</button>
@@ -697,7 +706,11 @@ SNAKES[131]=49;
 SNAKES[139]=49;
 // Custom snake destinations (override auto-generated)
 SNAKES[11]=1;  SNAKES[13]=1;
+SNAKES[17]=11; SNAKES[19]=11; SNAKES[23]=11;
 SNAKES[29]=16; SNAKES[31]=16;
+SNAKES[37]=25; SNAKES[41]=25;
+SNAKES[53]=36;
+SNAKES[83]=64; SNAKES[89]=64;
 SNAKES[101]=81; SNAKES[103]=81;
 
 /* ── LADDERS: curated destinations ──────────────────────────
@@ -705,7 +718,7 @@ SNAKES[101]=81; SNAKES[103]=81;
 const LADDERS={
   6:51,  12:28, 18:38, 24:46,
   30:57, 42:69, 48:81, 54:86, 60:92,
-  72:99, 78:111, 96:121, 102:135, 108:129, 120:133
+  72:99, 78:111, 96:121, 102:135, 108:129, 120:133, 132:142
 };
 
 /* ── Safe houses for capture: all perfect squares ── */
@@ -743,8 +756,8 @@ function verticalUpByRows(sq, rows){
    AVATARS & PLAYER CONFIG
 ═══════════════════════════════════════════ */
 const AVATAR_LIST=['🦁','🐯','🦊','🐺','🧙','🧑‍🚀','🥷','👑','🐸','🦄','🐲','🦈'];
-const AI_AVATARS={1:'🤖',2:'🎲',3:'🐌'};
-const AI_NAMES={1:'Grandmaster',2:'Random Bot',3:'Easy Mode'};
+const AI_AVATARS={1:'🤖',2:'🎲',3:'😈'};
+const AI_NAMES={1:'Grandmaster',2:'Random Bot',3:'Mean Mode'};
 let playerAvatars=['🦁','🐯'];
 
 // selected indices in setup modal
@@ -900,14 +913,60 @@ function scoreOption(meta){
   return 50;
 }
 
+/* Returns true if a simulated move would capture a lone opponent piece. */
+function wouldCapture(meta){
+  if(!meta) return false;
+  const opp=1-G.cur;
+  const oppPs=G.pieces[opp];
+  const ps=G.pieces[G.cur].slice();
+
+  function checkSq(sq){
+    if(sq<=1||sq>=144) return false;
+    const hits=[0,1].filter(i=>oppPs[i]===sq);
+    return hits.length===1 && !SAFE_HOUSES.has(sq);
+  }
+  function sim(pos,s){
+    let r=pos+s;
+    if(r>144) r=144-(r-144);
+    r=Math.max(1,Math.min(144,r));
+    if(SNAKES[r]) r=SNAKES[r]; else if(LADDERS[r]) r=LADDERS[r];
+    return r;
+  }
+
+  if(meta.type==='exec'){
+    for(const{p,s}of meta.moves){
+      if(checkSq(sim(ps[p],s))) return true;
+    }
+  } else if(meta.type==='seq'){
+    const r1=sim(ps[meta.pi],meta.s1);
+    if(checkSq(r1)) return true;
+    if(r1<144 && checkSq(sim(r1,meta.s2))) return true;
+  } else if(meta.type==='vertical'){
+    if(checkSq(meta.dest)) return true;
+  }
+  return false;
+}
+
 function aiPickMove(){
   if(!moveQueue.length) return;
   let chosen;
   if(aiLevel===2){
+    // Random
     chosen=moveQueue[Math.floor(Math.random()*moveQueue.length)];
+  } else if(aiLevel===3){
+    // Mean: capture opponent pieces whenever possible; otherwise pick worst move
+    const capturing=moveQueue.filter(o=>wouldCapture(o.meta));
+    if(capturing.length){
+      chosen=capturing[Math.floor(Math.random()*capturing.length)];
+    } else {
+      const scored=moveQueue.map(o=>({o,score:scoreOption(o.meta)}));
+      scored.sort((a,b)=>a.score-b.score); // worst first
+      chosen=scored[0].o;
+    }
   } else {
+    // Grandmaster (level 1): best move
     const scored=moveQueue.map(opt=>({opt,score:scoreOption(opt.meta)}));
-    scored.sort((a,b)=>aiLevel===1?b.score-a.score:a.score-b.score);
+    scored.sort((a,b)=>b.score-a.score);
     chosen=scored[0].opt;
   }
   document.getElementById('moveOpts').innerHTML='';
@@ -925,9 +984,8 @@ let confettiRAF=null;
    EDUCATIONAL MODE
 ═══════════════════════════════════════════ */
 let eduMode=false;
-let questionLevel='basic'; // 'basic' | 'ap'
-let QUESTIONS=[];
-let AP_QUESTIONS=[];
+let questionLevel='basic'; // 'basic' | 'ap' | 'trig'
+const Q_CACHE={};  // populated by preloadQuestions()
 let usedQIdx=new Set();
 let quizTimerTO=null;
 
@@ -942,16 +1000,40 @@ function setEduLevel(level,panel){
   if(!panel||panel==='p1'){
     document.getElementById('eduBasicBtn').classList.toggle('active',level==='basic');
     document.getElementById('eduApBtn').classList.toggle('active',level==='ap');
+    document.getElementById('eduTrigBtn').classList.toggle('active',level==='trig');
   }
   if(panel==='p2'||!panel){
     const b=document.getElementById('p2EduBasicBtn');
     const a=document.getElementById('p2EduApBtn');
+    const t=document.getElementById('p2EduTrigBtn');
     if(b&&a){b.classList.toggle('active',level==='basic');a.classList.toggle('active',level==='ap');}
+    if(t) t.classList.toggle('active',level==='trig');
   }
 }
 
 function activeQ(){
-  return questionLevel==='ap' ? AP_QUESTIONS : QUESTIONS;
+  if(questionLevel==='ap')   return Q_CACHE.ap   || [];
+  if(questionLevel==='trig') return Q_CACHE.trig  || [];
+  return Q_CACHE.basic || [];
+}
+
+async function preloadQuestions(){
+  const base = (()=>{
+    const s=document.currentScript||[...document.querySelectorAll('script')].pop();
+    if(s&&s.src) return s.src.replace(/[^/]*$/,'');
+    return './';
+  })();
+  const files={basic:'questions_basic.json',ap:'questions_ap.json',trig:'questions_trig.json'};
+  await Promise.all(Object.entries(files).map(async([key,file])=>{
+    try{
+      const r=await fetch(base+file);
+      if(!r.ok) throw new Error(r.status);
+      Q_CACHE[key]=await r.json();
+    }catch(e){
+      console.warn('Could not load',file,e);
+      Q_CACHE[key]=[];
+    }
+  }));
 }
 
 function showQuiz(sq, fallDest){
@@ -966,9 +1048,11 @@ function showQuiz(sq, fallDest){
     usedQIdx.add(idx);
     const q=bank[idx];
 
+    sfx('quizAlert');
     // Populate modal
     document.getElementById('quizLabel').textContent=
-      questionLevel==='ap'?'🎓 AP Algebra Challenge!':'🧮 Math Challenge!';
+      questionLevel==='ap'?'🎓 AP Algebra Challenge!':
+      questionLevel==='trig'?'🔺 Trig Challenge!':'🧮 Math Challenge!';
     document.getElementById('quizSq').textContent=`Square ${sq} — Fall to ${fallDest} if wrong!`;
     document.getElementById('quizQ').textContent=q.q;
     document.getElementById('quizResult').textContent='';
@@ -1030,9 +1114,11 @@ function selectAnswer(chosen, correct, correctText, resolve, optsEl){
   if(passed){
     res.textContent='✅ Correct! You stay on this square.';
     res.className='quiz-result ok';
+    sfx('quizCorrect');
   } else {
     res.textContent=`❌ Wrong! The answer was: "${correctText}"`;
     res.className='quiz-result fail';
+    sfx('quizWrong');
   }
 
   setTimeout(()=>{ closeQuizModal(); resolve(passed); }, 1800);
@@ -1054,7 +1140,8 @@ function newGame(){
   document.getElementById('deq').textContent='?';
   renderPieces(); syncUI();
   log(`Game started! ${NAMES[0]}'s turn.`,'le-roll');
-  // Push initial state to Firebase if P1 in online mode
+  sfx('newGame');
+  startBgMusic();
   if(isOnlineMode && myPlayerIdx===0) pushGameState();
   // If P1 is computer, kick off its turn
   if(computerPlayer===0) setTimeout(()=>doRoll(),1000);
@@ -1163,6 +1250,7 @@ function doRoll(){
   renderDieEl(md0,1); renderDieEl(md1,1);
   md0.classList.add('die-rolling'); md1.classList.add('die-rolling');
   modal.style.display='flex';
+  sfx('diceRoll');
 
   let ticks=0;
   const iv=setInterval(()=>{
@@ -1178,6 +1266,7 @@ function doRoll(){
       document.getElementById('deq').textContent=d1===d2?'=':'≠';
       titleEl.textContent =d1===d2?'🎯 Doubles!':'🎲 Rolled!';
       resultEl.textContent=`${d1}  and  ${d2}${d1===d2?' — doubles!':''}`;
+      if(d1===d2) sfx('doubles');
       setTimeout(()=>{
         modal.style.display='none';
         log(`${NAMES[G.cur]} rolled ${d1} & ${d2}${d1===d2?' (doubles!)':''}`, 'le-roll');
@@ -1241,16 +1330,18 @@ async function resolveCapture(playerIdx, pieceIdx, sq){
   const oppOnSq=[0,1].filter(i=>G.pieces[opp][i]===sq);
 
   if(oppOnSq.length===2){
-    // Immune pair — attacker is blocked, nothing happens
-    await flashCell(sq,'vertical');
-    log(`🔗 ${NAMES[opp]}'s pieces are a paired immune duo on sq ${sq}! ${NAMES[playerIdx]} Piece ${pName} is blocked.`,'le-special');
-    return false;
+    // Immune pair — attacker is sent home (Rule 6)
+    sfx('capture');
+    log(`🔗 ${NAMES[opp]}'s immune pair on sq ${sq}! ${NAMES[playerIdx]} Piece ${pName} is repelled home!`,'le-capture');
+    await flyPiece(playerIdx,pieceIdx,sq,1,'snake');
+    return true;
   }
 
   if(oppOnSq.length===1){
     const opi=oppOnSq[0];
     if(SAFE_HOUSES.has(sq)){
       // Safe house with lone defender: attacker is expelled
+      sfx('capture');
       await flashCell(sq,'capture');
       log(`🛡 Safe house ${sq}! ${NAMES[playerIdx]} Piece ${pName} is expelled back to start!`,'le-capture');
       G.pieces[playerIdx][pieceIdx]=1;
@@ -1259,6 +1350,7 @@ async function resolveCapture(playerIdx, pieceIdx, sq){
     } else {
       // Normal square: defender is expelled
       const oName=['A','B'][opi];
+      sfx('capture');
       await flashCell(sq,'capture');
       log(`⚔ ${NAMES[playerIdx]} Piece ${pName} captures ${NAMES[opp]} Piece ${oName}! Sent to start.`,'le-capture');
       G.pieces[opp][opi]=1;
@@ -1328,84 +1420,67 @@ function buildMoveOptions(){
   }
 
   // ── Both pieces active ─────────────────────────────────────────────
+  // Rule: leave home (sq 1) only when BOTH dice are even.
   if(d1===d2){
     const d=d1, sum2=2*d, dsq=d*d;
+    const dEven=(d%2===0);
+
     for(let pi=0;pi<2;pi++){
       const pos=ps[pi];
       const lbl=['A','B'][pi];
-      mkBtn(`Move ${lbl} by ${sum2}`,()=>exec([{p:pi,s:sum2}]),false,{type:'exec',moves:[{p:pi,s:sum2}],isPairMove:false});
-      if(pos===1){
+      const onShield=SAFE_HOUSES.has(pos)&&pos!==1&&pos!==144;
+      const atHome=(pos===1);
+
+      if(atHome){
+        // At home with even doubles: vertical jump + move by 2d
         const up=verticalUpByRows(pos,d);
         if(up) mkBtn(`✦ ${lbl} ↑ ${d} row${d>1?'s':''} → sq ${up}  (doubles on 🏠)`,()=>execVertical(pi,up),true,{type:'vertical',pi,dest:up});
-      }
-      if(SAFE_HOUSES.has(pos)&&pos!==1&&dsq!==sum2){
-        mkBtn(`✦ Move ${lbl} by +${dsq}  (${d}² on 🛡)`,()=>exec([{p:pi,s:dsq}]),true,{type:'exec',moves:[{p:pi,s:dsq}],isPairMove:false});
+        mkBtn(`Move ${lbl} by ${sum2}`,()=>exec([{p:pi,s:sum2}]),false,{type:'exec',moves:[{p:pi,s:sum2}],isPairMove:false});
+      } else if(onShield){
+        // On shield: keep 2d + d² bonus (Rule 5 exception)
+        mkBtn(`Move ${lbl} by ${sum2}`,()=>exec([{p:pi,s:sum2}]),false,{type:'exec',moves:[{p:pi,s:sum2}],isPairMove:false});
+        if(dsq!==sum2) mkBtn(`✦ Move ${lbl} by +${dsq}  (${d}² on 🛡)`,()=>exec([{p:pi,s:dsq}]),true,{type:'exec',moves:[{p:pi,s:dsq}],isPairMove:false});
+      } else {
+        // Normal square (not home, not shield): Rule 5 → sequence d→d replaces 2d
+        mkBtn(`Move ${lbl}: +${d} → +${d}  (sequence)`,()=>execSeq(pi,d,d),false,{type:'seq',pi,s1:d,s2:d});
       }
     }
-    // Both pieces move by sum (new rule — always available on doubles)
-    mkBtn(`Move A+B by +${sum2}  (both, sum)`,()=>exec([{p:0,s:sum2},{p:1,s:sum2}]),false,{type:'exec',moves:[{p:0,s:sum2},{p:1,s:sum2}],isPairMove:false});
-    // Immune pair + doubles → both move by d²
-    if(immunePair){
+    // Immune pair d² — not at home (Rule 2: no immune pair privilege at home)
+    if(immunePair&&ps[0]!==1){
       mkBtn(`🔗 Move A+B by +${dsq}  (${d}² immune pair)`,()=>exec([{p:0,s:dsq},{p:1,s:dsq}],true),true,{type:'exec',moves:[{p:0,s:dsq},{p:1,s:dsq}],isPairMove:true});
     }
     maybeAI(); return;
   }
 
   // ── Different dice — both pieces active ─────────────────────────────
-  // Home-exit rule: a piece at sq 1 can only leave on even sum OR doubles.
-  // Doubles are handled above; here d1≠d2.
+  // Home-exit: BOTH dice must be even for a piece to leave sq 1 (Rule 1).
   const posA=ps[0], posB=ps[1];
   const atHomeA=(posA===1), atHomeB=(posB===1);
+  const bothDiceEven=(d1%2===0&&d2%2===0);
 
-  if(sum%2===1){ // ── Odd sum ──────────────────────────────────────────
+  if(!bothDiceEven){
     if(atHomeA&&atHomeB){
-      // Both at home — odd sum blocks ALL movement → skip turn
-      log(`${NAMES[G.cur]} rolled odd sum (${d1}+${d2}=${sum}) — both pieces need even sum or doubles to leave home. Turn skipped.`,'le-roll');
+      log(`${NAMES[G.cur]} rolled (${d1},${d2}) — need both dice even to leave home. Turn skipped.`,'le-roll');
       nextTurn(); return;
     }
     if(atHomeA||atHomeB){
-      // One piece locked at home — only the free piece moves (player picks which die)
       const freeP=atHomeA?1:0;
       const lockP=1-freeP;
       const fLbl=['A','B'][freeP], kLbl=['A','B'][lockP];
-      log(`${NAMES[G.cur]} Piece ${kLbl} needs even sum or doubles to leave home. Move Piece ${fLbl} only.`,'le-roll');
+      log(`${NAMES[G.cur]} Piece ${kLbl} needs both dice even to leave home. Move Piece ${fLbl} only.`,'le-roll');
       mkBtn(`Move ${fLbl} by ${d1}`,()=>exec([{p:freeP,s:d1}]),false,{type:'exec',moves:[{p:freeP,s:d1}],isPairMove:false});
       mkBtn(`Move ${fLbl} by ${d2}`,()=>exec([{p:freeP,s:d2}]),false,{type:'exec',moves:[{p:freeP,s:d2}],isPairMove:false});
       maybeAI(); return;
     }
-    // Neither piece at home — both move normally (no forced assignment)
-    mkBtn(`A +${d1} · B +${d2}`,()=>exec([{p:0,s:d1},{p:1,s:d2}]),false,{type:'exec',moves:[{p:0,s:d1},{p:1,s:d2}],isPairMove:false});
-    mkBtn(`A +${d2} · B +${d1}`,()=>exec([{p:0,s:d2},{p:1,s:d1}]),false,{type:'exec',moves:[{p:0,s:d2},{p:1,s:d1}],isPairMove:false});
-    addShieldForgo(posA,posB,d1,d2);
-
-  } else { // ── Even sum ─────────────────────────────────────────────
-    // All pieces (including those at home) may move
-    mkBtn(`A +${d1} · B +${d2}`,()=>exec([{p:0,s:d1},{p:1,s:d2}]),false,{type:'exec',moves:[{p:0,s:d1},{p:1,s:d2}],isPairMove:false});
-    mkBtn(`A +${d2} · B +${d1}`,()=>exec([{p:0,s:d2},{p:1,s:d1}]),false,{type:'exec',moves:[{p:0,s:d2},{p:1,s:d1}],isPairMove:false});
-    // Immune pair + even sum → both move by full sum
-    if(immunePair){
-      mkBtn(`🔗 Move A+B by +${sum}  (even sum, immune pair)`,()=>exec([{p:0,s:sum},{p:1,s:sum}],true),true,{type:'exec',moves:[{p:0,s:sum},{p:1,s:sum}],isPairMove:true});
-    }
-    addShieldForgo(posA,posB,d1,d2);
+  }
+  // Both dice even, or neither piece at home: normal two-piece movement
+  mkBtn(`A +${d1} · B +${d2}`,()=>exec([{p:0,s:d1},{p:1,s:d2}]),false,{type:'exec',moves:[{p:0,s:d1},{p:1,s:d2}],isPairMove:false});
+  mkBtn(`A +${d2} · B +${d1}`,()=>exec([{p:0,s:d2},{p:1,s:d1}]),false,{type:'exec',moves:[{p:0,s:d2},{p:1,s:d1}],isPairMove:false});
+  // Immune pair even-sum bonus — not at home (Rule 2)
+  if(sum%2===0&&immunePair&&ps[0]!==1){
+    mkBtn(`🔗 Move A+B by +${sum}  (even sum, immune pair)`,()=>exec([{p:0,s:sum},{p:1,s:sum}],true),true,{type:'exec',moves:[{p:0,s:sum},{p:1,s:sum}],isPairMove:true});
   }
   maybeAI();
-}
-
-/* ── Shield safety: in a two-piece different-dice roll,
-   a piece resting on a safe house may stay put.
-   The other piece then uses one die (player picks which). ── */
-function addShieldForgo(posA,posB,d1,d2){
-  const fin=[G.pieces[G.cur][0]===144, G.pieces[G.cur][1]===144];
-  const safeA = !fin[0] && posA!==1 && posA!==144 && SAFE_HOUSES.has(posA);
-  const safeB = !fin[1] && posB!==1 && posB!==144 && SAFE_HOUSES.has(posB);
-  if(safeA){
-    mkBtn(`🛡 A stays on sq ${posA}  ·  B +${d1}`,()=>exec([{p:1,s:d1}]),true,{type:'exec',moves:[{p:1,s:d1}],isPairMove:false});
-    mkBtn(`🛡 A stays on sq ${posA}  ·  B +${d2}`,()=>exec([{p:1,s:d2}]),true,{type:'exec',moves:[{p:1,s:d2}],isPairMove:false});
-  }
-  if(safeB){
-    mkBtn(`A +${d1}  ·  🛡 B stays on sq ${posB}`,()=>exec([{p:0,s:d1}]),true,{type:'exec',moves:[{p:0,s:d1}],isPairMove:false});
-    mkBtn(`A +${d2}  ·  🛡 B stays on sq ${posB}`,()=>exec([{p:0,s:d2}]),true,{type:'exec',moves:[{p:0,s:d2}],isPairMove:false});
-  }
 }
 
 function maybeAI(){
@@ -1480,6 +1555,7 @@ async function flyPiece(playerIdx,pieceIdx,from,to,type){
 
   await sleep(isSnake?750:610);
   flyer.remove();
+  sfx('arrive');
   await flashCell(to,'arrive');
 }
 
@@ -1504,6 +1580,7 @@ async function execOneStep(pi,steps,isPairMove){
     await animateSteps(G.cur,pi,144,to,200);
   } else {
     log(`${NAMES[G.cur]} Piece ${name}: ${from} → ${raw}`);
+    sfx('step');
     await animateSteps(G.cur,pi,from,raw,200);
   }
 
@@ -1534,14 +1611,22 @@ async function execOneStep(pi,steps,isPairMove){
           log(`✅ Math challenge passed! ${NAMES[G.cur]} Piece ${name} stays on sq ${landed}.`,'le-special');
       } else {
         if(eduMode && activeQ().length && G.cur!==computerPlayer) log(`❌ Challenge failed — `,'le-snake');
-        log(`  💥 Sq ${landed} is a dangerous prime! Piece ${name} falls to ${dest} 🛡`,'le-snake');
+        // Rule 3: if piece started from a shield, it bounces back to that shield
+        const actualDest=(SAFE_HOUSES.has(from)&&from!==1)?from:dest;
+        if(actualDest===from){
+          log(`  🛡 Piece ${name} moved from shield sq ${from} to prime ${landed} — bounced back to shield!`,'le-snake');
+        } else {
+          log(`  💥 Sq ${landed} is a dangerous prime! Piece ${name} falls to ${actualDest} 🛡`,'le-snake');
+        }
+        sfx('dragonFall');
         await flashCell(landed,'explode');
-        await flyPiece(G.cur,pi,landed,dest,'snake');
+        await flyPiece(G.cur,pi,landed,actualDest,'snake');
       }
     }
   } else if(LADDERS[landed]){
     const dest=LADDERS[landed];
     log(`  ✦ Sq ${landed} ÷5/6! Piece ${name} launches to ${dest} 🚀`,'le-ladder');
+    sfx('eagleLaunch');
     await flashCell(landed,'liftOff');
     await flyPiece(G.cur,pi,landed,dest,'ladder');
   }
@@ -1586,9 +1671,9 @@ async function execVertical(pieceIdx, destSq){
   const from=G.pieces[G.cur][pieceIdx];
   const name=['A','B'][pieceIdx];
   log(`${NAMES[G.cur]} Piece ${name} ↑ jumps vertically: ${from} → ${destSq}`,'le-special');
-  await flashCell(from,'vertical');
-  await animateSteps(G.cur,pieceIdx,from,destSq,160);
-  await flashCell(destSq,'arrive');
+  sfx('verticalJump');
+  await flashCell(from,'liftOff');
+  await flyPiece(G.cur,pieceIdx,from,destSq,'ladder');
 
   const expelled=await resolveCapture(G.cur,pieceIdx,destSq);
   if(expelled){ syncUI(); checkWinAndNext(); if(isOnlineMode) pushGameState(); return; }
@@ -1606,8 +1691,8 @@ function nextTurn(){
   renderDie('d0',0); renderDie('d1',0);
   document.getElementById('deq').textContent='?';
   document.getElementById('rollBtn').disabled=false;
+  sfx('turnChange');
   syncUI();
-  // Auto-roll for computer
   if(G.cur===computerPlayer) setTimeout(()=>doRoll(),1000);
 }
 
@@ -1650,6 +1735,8 @@ function log(msg,cls=''){
 function showWinScreen(playerIdx){
   document.getElementById('winTitle').textContent=`${NAMES[playerIdx]} Wins!`;
   document.getElementById('winModal').style.display='flex';
+  stopBgMusic();
+  sfx('win');
   launchConfetti();
 }
 
@@ -1817,6 +1904,166 @@ function toggleMic(){
 }
 
 /* ═══════════════════════════════════════════
+   SOUND ENGINE  (Web Audio API — no files needed)
+═══════════════════════════════════════════ */
+let _actx=null, soundOn=true, _bgActive=false, _bgTO=null;
+
+function aCtx(){
+  if(!_actx) _actx=new(window.AudioContext||window.webkitAudioContext)();
+  if(_actx.state==='suspended') _actx.resume();
+  return _actx;
+}
+
+/* single oscillator tone */
+function _tone(freq,dur,type,vol,t,atk){
+  if(!soundOn) return;
+  try{
+    const c=aCtx(), o=c.createOscillator(), g=c.createGain();
+    o.connect(g); g.connect(c.destination);
+    o.type=type||'sine';
+    o.frequency.setValueAtTime(freq, c.currentTime+(t||0));
+    g.gain.setValueAtTime(0, c.currentTime+(t||0));
+    g.gain.linearRampToValueAtTime(vol||0.2, c.currentTime+(t||0)+(atk||0.01));
+    g.gain.exponentialRampToValueAtTime(0.001, c.currentTime+(t||0)+dur);
+    o.start(c.currentTime+(t||0));
+    o.stop(c.currentTime+(t||0)+dur+0.05);
+  }catch(e){}
+}
+
+/* white/pink noise burst */
+function _noise(dur,vol,t){
+  if(!soundOn) return;
+  try{
+    const c=aCtx(), sr=c.sampleRate;
+    const buf=c.createBuffer(1,Math.ceil(sr*dur),sr);
+    const d=buf.getChannelData(0);
+    for(let i=0;i<d.length;i++) d[i]=Math.random()*2-1;
+    const src=c.createBufferSource(), g=c.createGain();
+    src.buffer=buf; src.connect(g); g.connect(c.destination);
+    g.gain.setValueAtTime(vol||0.15, c.currentTime+(t||0));
+    g.gain.exponentialRampToValueAtTime(0.001, c.currentTime+(t||0)+dur);
+    src.start(c.currentTime+(t||0));
+    src.stop(c.currentTime+(t||0)+dur+0.05);
+  }catch(e){}
+}
+
+/* frequency glide */
+function _glide(f0,f1,dur,type,vol,t){
+  if(!soundOn) return;
+  try{
+    const c=aCtx(), o=c.createOscillator(), g=c.createGain();
+    o.connect(g); g.connect(c.destination);
+    o.type=type||'sawtooth';
+    o.frequency.setValueAtTime(f0, c.currentTime+(t||0));
+    o.frequency.exponentialRampToValueAtTime(f1, c.currentTime+(t||0)+dur);
+    g.gain.setValueAtTime(vol||0.25, c.currentTime+(t||0));
+    g.gain.linearRampToValueAtTime((vol||0.25)*1.1, c.currentTime+(t||0)+0.1);
+    g.gain.exponentialRampToValueAtTime(0.001, c.currentTime+(t||0)+dur+0.05);
+    o.start(c.currentTime+(t||0));
+    o.stop(c.currentTime+(t||0)+dur+0.1);
+  }catch(e){}
+}
+
+/* ── Individual sound events ── */
+const SFX={
+  newGame(){
+    [261,329,392,523,392,523,659].forEach((f,i)=>
+      _tone(f,0.22,'triangle',0.2,i*0.09,0.01)
+    );
+  },
+  diceRoll(){
+    _noise(0.32,0.1);
+    for(let i=0;i<6;i++) _tone(180+Math.random()*300,0.04,'square',0.07,i*0.05);
+  },
+  doubles(){
+    [392,494,587].forEach((f,i)=>_tone(f,0.28,'triangle',0.18,i*0.06,0.01));
+    _tone(784,0.35,'triangle',0.12,0.2,0.01);
+  },
+  step(){          // subtle movement click
+    _tone(380,0.03,'square',0.04,0,0.002);
+  },
+  dragonFall(){    // roar + descent
+    _glide(420,55,0.95,'sawtooth',0.28);
+    _noise(0.5,0.09,0.05);
+    [110,165,220].forEach((f,i)=>_tone(f,0.55,'square',0.09,i*0.08));
+  },
+  eagleLaunch(){   // ascending fanfare
+    [261,330,392,494,587,698,880].forEach((f,i)=>
+      _tone(f,0.2,'triangle',0.2,i*0.07,0.01)
+    );
+    _glide(300,1200,0.5,'triangle',0.06,0.05);
+  },
+  verticalJump(){
+    [392,494,587,740].forEach((f,i)=>_tone(f,0.15,'triangle',0.18,i*0.06,0.01));
+  },
+  arrive(){
+    _tone(659,0.18,'sine',0.18,0,0.01);
+    _tone(784,0.12,'sine',0.1,0.12,0.01);
+  },
+  capture(){
+    _noise(0.18,0.3);
+    _glide(280,90,0.3,'sawtooth',0.2);
+    _tone(120,0.28,'square',0.15,0.04);
+  },
+  win(){
+    const f=[261,329,392,523,659,523,659,784,523,659,784,1047];
+    const d=[0.15,0.15,0.15,0.15,0.15,0.1,0.1,0.4,0.1,0.1,0.1,0.7];
+    let t=0;
+    f.forEach((n,i)=>{_tone(n,d[i],'triangle',0.22,t,0.01);t+=d[i]+0.02;});
+    // chord sustain underneath
+    [261,329,392,523].forEach((n,i)=>_tone(n,1.5,'sine',0.06,0.5));
+  },
+  quizAlert(){
+    [330,415,523].forEach((f,i)=>_tone(f,0.25,'sine',0.2,i*0.09,0.02));
+    _tone(659,0.3,'sine',0.15,0.3,0.02);
+  },
+  quizCorrect(){
+    [523,659,784,1047].forEach((f,i)=>_tone(f,0.2,'triangle',0.22,i*0.08,0.01));
+  },
+  quizWrong(){
+    _glide(250,100,0.45,'square',0.2);
+    _noise(0.2,0.06,0.1);
+  },
+  turnChange(){
+    _tone(660,0.12,'sine',0.14,0,0.01);
+    _tone(880,0.08,'sine',0.08,0.11,0.01);
+  },
+  shieldStay(){    // forgo move on shield
+    _tone(523,0.15,'sine',0.18,0,0.01);
+    _tone(523,0.12,'sine',0.12,0.18,0.01);
+  }
+};
+
+function sfx(name){ if(soundOn) try{SFX[name]?.();}catch(e){} }
+
+/* ── Background music (gentle pentatonic loop) ── */
+const _BG=[261,329,392,440,523,440,392,329,294,392,329,261];
+function _bgPlay(){
+  if(!soundOn||!_bgActive) return;
+  _BG.forEach((f,i)=>_tone(f,0.3,'triangle',0.045,i*0.42,0.04));
+  _bgTO=setTimeout(_bgPlay, _BG.length*420+300);
+}
+function startBgMusic(){
+  if(_bgActive) return;
+  _bgActive=true;
+  _bgPlay();
+}
+function stopBgMusic(){
+  _bgActive=false;
+  if(_bgTO){clearTimeout(_bgTO);_bgTO=null;}
+}
+
+function toggleSound(){
+  soundOn=!soundOn;
+  const btn=document.getElementById('soundBtn');
+  btn.textContent=soundOn?'🔊':'🔇';
+  btn.classList.toggle('muted',!soundOn);
+  btn.title=soundOn?'Mute all sounds':'Unmute sounds';
+  if(soundOn) startBgMusic();
+  else stopBgMusic();
+}
+
+/* ═══════════════════════════════════════════
    INIT
    (Setup modal shown directly on load.
     Rules accessible via the Rules button.)
@@ -1825,211 +2072,7 @@ buildBoard();
 G={pieces:[[1,1],[1,1]],cur:0,dice:[0,0],phase:'roll'};
 renderPieces(); syncUI();
 openSetup();
-QUESTIONS=[
-  {"q":"Solve for x:  2x + 5 = 13","options":["x = 3","x = 4","x = 5","x = 6"],"answer":1},
-  {"q":"What is the LCM of 4 and 6?","options":["8","12","16","24"],"answer":1},
-  {"q":"What is the GCD of 24 and 36?","options":["4","8","12","18"],"answer":2},
-  {"q":"Which of these is a prime number?","options":["15","21","23","27"],"answer":2},
-  {"q":"What is 15% of 80?","options":["10","12","15","20"],"answer":1},
-  {"q":"Express 0.375 as a fraction.","options":["3/8","3/7","5/12","5/16"],"answer":0},
-  {"q":"What is 2⁸?","options":["128","256","512","1024"],"answer":1},
-  {"q":"What is the sum of the first 10 natural numbers?","options":["45","50","55","60"],"answer":2},
-  {"q":"How many factors does 36 have?","options":["7","8","9","10"],"answer":2},
-  {"q":"What is (−3)²?","options":["−9","−6","6","9"],"answer":3},
-  {"q":"What is the remainder when 100 is divided by 7?","options":["1","2","3","4"],"answer":1},
-  {"q":"Which of these is NOT a perfect square?","options":["81","100","121","130"],"answer":3},
-  {"q":"What is 5! (5 factorial)?","options":["60","100","120","150"],"answer":2},
-  {"q":"What is 5! ÷ 3!?","options":["10","15","20","25"],"answer":2},
-  {"q":"What is 2³ × 3²?","options":["48","54","72","96"],"answer":2},
-  {"q":"If n is odd, which expression is always even?","options":["n + 1","n + 2","2n + 1","n²"],"answer":0},
-  {"q":"What is 12.5% expressed as a fraction?","options":["1/6","1/7","1/8","1/9"],"answer":2},
-  {"q":"What is √0.25?","options":["0.05","0.5","2.5","5"],"answer":1},
-  {"q":"What is the 7th prime number?","options":["13","15","17","19"],"answer":2},
-  {"q":"How many prime numbers are between 10 and 30?","options":["4","5","6","7"],"answer":1},
-  {"q":"What is 2/3 + 3/4?","options":["5/7","11/12","13/12","17/12"],"answer":3},
-  {"q":"Solve for x:  3x − 7 = 14","options":["5","6","7","8"],"answer":2},
-  {"q":"If 5x = 45, then x = ?","options":["7","8","9","10"],"answer":2},
-  {"q":"Simplify:  3(2x − 4)","options":["5x − 4","6x − 4","6x − 12","6x + 12"],"answer":2},
-  {"q":"Expand  (x + 3)²","options":["x² + 9","x² + 3x + 9","x² + 6x + 9","x² + 9x + 9"],"answer":2},
-  {"q":"Factor:  x² − 9","options":["(x − 3)²","(x + 3)²","(x + 3)(x − 3)","(x − 9)(x + 1)"],"answer":2},
-  {"q":"Solve  x² = 64  (positive root only)","options":["6","7","8","9"],"answer":2},
-  {"q":"If  2x + 3y = 12  and  x = 3,  what is y?","options":["1","2","3","4"],"answer":1},
-  {"q":"What is the slope of  y = 3x − 7?","options":["−7","−3","3","7"],"answer":2},
-  {"q":"Solve:  x / 4 = 5","options":["1.25","5/4","20","25"],"answer":2},
-  {"q":"If  f(x) = 2x + 1,  what is  f(3)?","options":["5","6","7","8"],"answer":2},
-  {"q":"Solve:  |x| = 5","options":["x = 5 only","x = −5 only","x = ±5","No solution"],"answer":2},
-  {"q":"What is the y-intercept of  y = 4x + 7?","options":["4","7","−4","−7"],"answer":1},
-  {"q":"Simplify:  (x³)²","options":["x⁵","x⁶","x⁸","x⁹"],"answer":1},
-  {"q":"Solve:  2(x − 3) = 10","options":["5","7","8","11"],"answer":2},
-  {"q":"Which is equivalent to  x⁻²?","options":["−x²","1/x","1/x²","x/2"],"answer":2},
-  {"q":"If  y = x²  and  x = −3,  then  y = ?","options":["−9","−6","6","9"],"answer":3},
-  {"q":"Solve the inequality:  3x + 2 > 11","options":["x > 2","x > 3","x > 4","x > 5"],"answer":1},
-  {"q":"Find the value of  (2 + 3)² − 2²","options":["17","19","21","25"],"answer":2},
-  {"q":"If  2^x = 16,  then  x = ?","options":["2","3","4","8"],"answer":2},
-  {"q":"If  x + y = 8  and  x − y = 2,  then  x = ?","options":["3","4","5","6"],"answer":2},
-  {"q":"The roots of  x² − 5x + 6 = 0  are:","options":["1 and 6","2 and 3","−2 and −3","−1 and −6"],"answer":1},
-  {"q":"Simplify:  (3x²y)(2xy³)","options":["5x³y⁴","6x³y⁴","5x²y³","6x²y³"],"answer":1},
-  {"q":"If  a : b = 3 : 4  and  a = 12,  then  b = ?","options":["9","12","16","18"],"answer":2},
-  {"q":"What is the sum of roots of  x² − 7x + 10 = 0?","options":["−7","7","10","−10"],"answer":1},
-  {"q":"Area of a triangle with base 8 and height 6?","options":["14","24","48","96"],"answer":1},
-  {"q":"Perimeter of a rectangle with sides 5 and 8?","options":["13","26","40","80"],"answer":1},
-  {"q":"Area of a circle with radius 7?  (use π = 22/7)","options":["22","44","154","308"],"answer":2},
-  {"q":"Sum of interior angles in a triangle?","options":["90°","180°","270°","360°"],"answer":1},
-  {"q":"In a right triangle with legs 3 and 4, the hypotenuse is?","options":["5","6","7","8"],"answer":0},
-  {"q":"Sum of interior angles of a hexagon?","options":["360°","540°","720°","900°"],"answer":2},
-  {"q":"Volume of a cube with side length 4?","options":["16","32","64","128"],"answer":2},
-  {"q":"Two angles of a triangle are 60° and 80°. The third angle is?","options":["30°","40°","50°","60°"],"answer":1},
-  {"q":"Area of a square whose diagonal is 10?","options":["25","50","100","200"],"answer":1},
-  {"q":"Circumference of a circle with diameter 14?  (use π = 22/7)","options":["22","44","88","154"],"answer":1},
-  {"q":"How many sides does a decagon have?","options":["8","9","10","12"],"answer":2},
-  {"q":"What is the exterior angle of a regular hexagon?","options":["30°","45°","60°","90°"],"answer":2},
-  {"q":"Volume of a cylinder with r = 7 and h = 10?  (use π = 22/7)","options":["220","1540","3080","4400"],"answer":1},
-  {"q":"Corresponding angles formed by parallel lines and a transversal are:","options":["Supplementary","Complementary","Equal","Perpendicular"],"answer":2},
-  {"q":"A rhombus has diagonals of length 10 and 24. Its area is?","options":["60","120","240","480"],"answer":1},
-  {"q":"In a 30-60-90 triangle, if the shortest side is 5, the hypotenuse is?","options":["5√2","10","5√3","15"],"answer":1},
-  {"q":"Area of a trapezoid with parallel sides 6 and 10, and height 4?","options":["16","24","32","64"],"answer":2},
-  {"q":"Distance between points (0, 0) and (3, 4)?","options":["3","4","5","7"],"answer":2},
-  {"q":"How many diagonals does a pentagon have?","options":["4","5","6","7"],"answer":1},
-  {"q":"What is the slope of  y = −2x + 5?","options":["−5","−2","2","5"],"answer":1},
-  {"q":"A shirt costs $80 after a 20% discount. What was the original price?","options":["$88","$96","$100","$120"],"answer":2},
-  {"q":"60 is what percent of 240?","options":["20%","25%","30%","40%"],"answer":1},
-  {"q":"The mean of {5, 8, x, 12} is 9. Find x.","options":["9","10","11","12"],"answer":2},
-  {"q":"What is the median of {3, 7, 5, 2, 8}?","options":["3","5","6","7"],"answer":1},
-  {"q":"What is the mode of {2, 3, 3, 4, 5, 3, 6}?","options":["2","3","4","5"],"answer":1},
-  {"q":"Population increased from 20,000 to 25,000. Percentage increase?","options":["20%","25%","30%","40%"],"answer":1},
-  {"q":"What is the average of the first 5 odd numbers: 1, 3, 5, 7, 9?","options":["5","6","7","8"],"answer":0},
-  {"q":"Ratio 3:5 — if the total is 80, the larger part is?","options":["30","40","48","50"],"answer":3},
-  {"q":"Simple interest on $500 at 4% per year for 3 years?","options":["$20","$40","$60","$80"],"answer":2},
-  {"q":"P(A) = 0.4 and P(B) = 0.5; A and B are independent. P(A and B) = ?","options":["0.20","0.40","0.45","0.90"],"answer":0},
-  {"q":"A fair die is rolled once. Probability of getting a prime number?","options":["1/6","1/3","1/2","2/3"],"answer":2},
-  {"q":"What is the range of {4, 9, 2, 16, 7}?","options":["12","13","14","15"],"answer":2},
-  {"q":"Boys : Girls = 3 : 2 and total students = 50. How many girls?","options":["15","20","25","30"],"answer":1},
-  {"q":"A price rises by 10% then falls by 10%. The net change is?","options":["0%","−1%","−2%","+1%"],"answer":1},
-  {"q":"Compound interest on $1000 at 10% per year for 2 years?","options":["$100","$200","$210","$220"],"answer":2},
-  {"q":"Next term in:  2, 6, 18, 54, ___","options":["108","162","216","324"],"answer":1},
-  {"q":"Sum of  1 + 2 + 3 + ⋯ + 20 = ?","options":["190","200","210","220"],"answer":2},
-  {"q":"What is the 10th Fibonacci number?  (sequence: 1, 1, 2, 3, 5, 8, …)","options":["34","55","89","144"],"answer":1},
-  {"q":"Next term in:  1, 4, 9, 16, 25, ___","options":["30","36","42","49"],"answer":1},
-  {"q":"10th term of the arithmetic sequence  3, 7, 11, 15, …?","options":["37","38","39","40"],"answer":2},
-  {"q":"Sum of the first 4 terms of  2, 6, 18, 54, …?","options":["54","78","80","84"],"answer":2},
-  {"q":"In how many ways can 4 different books be arranged on a shelf?","options":["12","16","24","32"],"answer":2},
-  {"q":"How many ways can 2 items be chosen from 5?  (C(5,2) = ?)","options":["5","10","20","25"],"answer":1},
-  {"q":"If  log₂(8) = x,  then  x = ?","options":["2","3","4","6"],"answer":1},
-  {"q":"What is  log₁₀(1000)?","options":["2","3","4","5"],"answer":1},
-  {"q":"What is  sin(30°)?","options":["1/4","1/3","1/2","√3/2"],"answer":2},
-  {"q":"What is  cos(60°)?","options":["0","1/4","1/2","√3/2"],"answer":2},
-  {"q":"What is  tan(45°)?","options":["0","1/2","1","√3"],"answer":2},
-  {"q":"For any angle θ,  sin²θ + cos²θ = ?","options":["0","1/2","1","2"],"answer":2},
-  {"q":"Which of these numbers is divisible by 11?","options":["123","132","143","152"],"answer":2},
-  {"q":"What is  (−2)⁵?","options":["−32","−16","16","32"],"answer":0},
-  {"q":"What is  √(3² + 4²)?","options":["3.5","4","5","7"],"answer":2},
-  {"q":"Which of these is an irrational number?","options":["√4","√9","√16","√2"],"answer":3},
-  {"q":"How many integers from 1 to 100 are divisible by both 3 and 5?","options":["5","6","7","8"],"answer":1},
-  {"q":"What is the product of roots of  x² − 7x + 10 = 0?","options":["−7","7","10","−10"],"answer":2}
-];
-
-AP_QUESTIONS=[
-  {"q":"Solve:  x² − 5x + 6 = 0","options":["x = 1 and x = 6","x = 2 and x = 3","x = −2 and x = −3","x = −1 and x = −6"],"answer":1},
-  {"q":"Which expression is equivalent to  (x² − 9)/(x² + x − 6)?","options":["(x + 3)/(x + 2)","(x − 3)/(x − 2)","(x + 3)/(x − 2)","(x − 3)/(x + 2)"],"answer":1},
-  {"q":"If  f(x) = 3x − 7,  what is  f⁻¹(x)?","options":["(x − 7)/3","(x + 7)/3","3x + 7","1/(3x − 7)"],"answer":1},
-  {"q":"Solve:  2^(x+1) = 32","options":["3","4","5","6"],"answer":1},
-  {"q":"What is the discriminant of  3x² + 2x + 1 = 0?","options":["−8","8","−4","4"],"answer":0},
-  {"q":"What is the vertex of  f(x) = x² − 4x + 7?","options":["(−2, 3)","(2, 3)","(2, −3)","(4, 7)"],"answer":1},
-  {"q":"Solve:  log₃(x + 2) = 3","options":["25","27","7","9"],"answer":0},
-  {"q":"If  f(x) = 2x + 1  and  g(x) = x² − 3,  find  (f∘g)(2):","options":["3","5","7","9"],"answer":0},
-  {"q":"What is the axis of symmetry of  y = 3x² − 12x + 7?","options":["x = 2","x = −2","x = 4","x = 6"],"answer":0},
-  {"q":"Simplify:  log₂(64)","options":["4","5","6","8"],"answer":2},
-  {"q":"What is the sum of the roots of  2x² − 7x + 3 = 0?","options":["3/2","7/2","−7/2","3"],"answer":1},
-  {"q":"Factor completely:  x³ + 8","options":["(x + 2)(x² + 2x + 4)","(x + 2)(x² − 2x + 4)","(x − 2)(x² + 2x + 4)","(x + 2)²(x − 4)"],"answer":1},
-  {"q":"What is the domain of  f(x) = √(2x − 6)?","options":["x > 3","x ≥ 3","x ≤ 3","x > −3"],"answer":1},
-  {"q":"Solve the system:  2x + 3y = 12,  x − y = 1","options":["x = 2, y = 1","x = 3, y = 2","x = 4, y = 3","x = 1, y = 2"],"answer":1},
-  {"q":"Which is equivalent to  x² + 6x + 9?","options":["(x − 3)²","(x + 3)²","(x + 3)(x − 3)","x² − 9"],"answer":1},
-  {"q":"If  log(a) = 2  and  log(b) = 3,  what is  log(a²b)?","options":["5","6","7","8"],"answer":2},
-  {"q":"Solve:  3/(x − 1) = 6/(x + 2)","options":["2","3","4","5"],"answer":2},
-  {"q":"The product of the roots of  3x² − 5x + 2 = 0  is:","options":["5/3","2/3","−2/3","3/2"],"answer":1},
-  {"q":"Solve:  e^(2x) = e^(x+3)","options":["1","2","3","6"],"answer":2},
-  {"q":"What is  f(2)  if  f(x) = x³ − 4x² + x + 6?","options":["0","2","−2","6"],"answer":0},
-  {"q":"Find the inverse of  f(x) = (2x − 1)/(x + 3)","options":["(3x + 1)/(2 − x)","(x + 1)/(2x − 3)","(2x − 1)/(x + 3)","(3x − 1)/(x + 2)"],"answer":0},
-  {"q":"What is the horizontal asymptote of  f(x) = (3x² + 1)/(x² − 4)?","options":["y = 0","y = 1","y = 3","y = −4"],"answer":2},
-  {"q":"Solve:  |2x − 3| = 7","options":["x = 5 only","x = 5 or x = −2","x = 2 or x = −5","x = −2 only"],"answer":1},
-  {"q":"If  f(x) = x + 2  and  g(x) = x² − 1,  find  (g∘f)(−1):","options":["0","1","2","3"],"answer":0},
-  {"q":"What is  log₅(25) + log₅(5)?","options":["2","3","4","5"],"answer":1},
-  {"q":"What are the vertical asymptotes of  f(x) = (x+1)/((x−2)(x+3))?","options":["x = −1 only","x = 2 and x = −3","x = −2 and x = 3","x = 2 only"],"answer":1},
-  {"q":"Solve  x + y = 5  and  xy = 6","options":["x = 1, y = 6","x = 2, y = 3","x = 4, y = 1","x = 3, y = 3"],"answer":1},
-  {"q":"Which polynomial has roots  x = 3  and  x = −5?","options":["x² + 2x + 15","x² + 2x − 15","x² − 2x − 15","x² − 8x + 15"],"answer":1},
-  {"q":"Solve:  log(x) + log(x − 3) = 1","options":["2","5","10","−2"],"answer":1},
-  {"q":"For exactly one real solution to  x² + kx + 16 = 0,  k = ?","options":["±4","±6","±8","±16"],"answer":2},
-  {"q":"Solve:  2^x = 8^(x−1)","options":["1/2","3/2","2","3"],"answer":1},
-  {"q":"Expand:  (x + 2)⁴","options":["x⁴ + 4x³ + 6x² + 4x + 1","x⁴ + 8x³ + 24x² + 32x + 16","x⁴ + 4x³ + 16x² + 8x + 4","x⁴ + 6x³ + 12x² + 8x + 1"],"answer":1},
-  {"q":"Simplify:  (x² − 16)/(x² + 3x − 4)","options":["(x + 4)/(x − 1)","(x − 4)/(x − 1)","(x + 4)/(x + 1)","(x − 4)/(x + 1)"],"answer":1},
-  {"q":"What is the range of  f(x) = −2(x − 1)² + 5?","options":["y ≥ 5","y ≤ 5","y ≥ −5","all real numbers"],"answer":1},
-  {"q":"The graph of  y = 2^x  shifted 3 units left is:","options":["y = 2^(x − 3)","y = 2^(x + 3)","y = 2^x − 3","y = 2^x + 3"],"answer":1},
-  {"q":"Solve:  4x² − 12x + 9 = 0","options":["x = 3/4","x = 3/2","x = 2/3","x = 4/3"],"answer":1},
-  {"q":"Which of the following is an odd function?","options":["f(x) = x² + 1","f(x) = x³ − x","f(x) = x² − x","f(x) = |x| + x"],"answer":1},
-  {"q":"Solve:  3x − 4 = 2(x + 5)","options":["10","12","14","16"],"answer":2},
-  {"q":"What is the 8th term of the geometric sequence  3, 6, 12, …?","options":["192","256","384","512"],"answer":2},
-  {"q":"Solve the inequality:  x² − x − 6 < 0","options":["x < −2 or x > 3","−2 < x < 3","x > 3","x < −2"],"answer":1},
-  {"q":"If  f(x) = 2x² − 3,  then  f(a + 1) = ?","options":["2a² + 4a − 1","2a² + 4a + 1","2a² − 4a − 1","2a² + 2a − 1"],"answer":0},
-  {"q":"What is  log₄(1/16)?","options":["−4","−2","2","4"],"answer":1},
-  {"q":"What is the 20th term of the arithmetic sequence  5, 8, 11, 14, …?","options":["56","59","62","65"],"answer":2},
-  {"q":"Solve:  2/(x − 1) + 1/(x + 1) = 3/(x² − 1)","options":["x = 1/3","x = 2/3","x = 3/2","x = −2/3"],"answer":1},
-  {"q":"Which value satisfies  4^(x−1) = 32?","options":["5/2","3","7/2","4"],"answer":2},
-  {"q":"Sum of the first 6 terms of  2 + 6 + 18 + …","options":["364","486","728","1458"],"answer":2},
-  {"q":"If  f(x) = x² + 1  and  g(x) = √x,  find  (g∘f)(2):","options":["√3","√5","√7","3"],"answer":1},
-  {"q":"The system  2x − 3y = 7  and  4x − 6y = 14  has:","options":["no solution","exactly one solution","infinitely many solutions","two solutions"],"answer":2},
-  {"q":"Sum of first 10 terms of  4 + 7 + 10 + …","options":["145","160","175","190"],"answer":2},
-  {"q":"Simplify:  (3x²y)(−2xy³)","options":["−6x²y³","−6x³y⁴","6x³y⁴","−6x³y³"],"answer":1},
-  {"q":"What is  i²?","options":["1","−1","i","−i"],"answer":1},
-  {"q":"Simplify:  (3 + 2i)(3 − 2i)","options":["9 − 4i","13","5","9 + 4i"],"answer":1},
-  {"q":"What is  (2 + 3i) + (5 − i)?","options":["7 + 2i","7 + 4i","3 + 2i","7 − 2i"],"answer":0},
-  {"q":"What is  i⁴?","options":["−1","1","i","−i"],"answer":1},
-  {"q":"Multiply:  (1 + 2i)(3 − i)","options":["3 + 5i","5 + 5i","5 − 5i","1 + 5i"],"answer":1},
-  {"q":"How many complex solutions does  x² + 4 = 0  have?","options":["0","1","2","4"],"answer":2},
-  {"q":"Solve:  2x² + x = 0","options":["x = 0 only","x = 0 or x = 1/2","x = 0 or x = −1/2","x = 1/2 or x = −1/2"],"answer":2},
-  {"q":"A quadratic has vertex (3, −4) and passes through (5, 0). Its equation is:","options":["f(x) = (x − 3)² − 4","f(x) = (x + 3)² + 4","f(x) = (x − 3)² + 4","f(x) = −(x − 3)² − 4"],"answer":0},
-  {"q":"The sum of roots of  x³ − 2x² − 5x + 6 = 0  is:","options":["−2","2","5","6"],"answer":1},
-  {"q":"If  f(x) = √(x + 3)  and  g(x) = x² − 3,  then  f(g(x)) = ?","options":["|x|","x","x² + 3","√(x² + 3)"],"answer":0},
-  {"q":"Remainder when  x³ − 2x² + 3x − 1  is divided by  (x − 2):","options":["1","3","5","7"],"answer":2},
-  {"q":"Factor:  6x² + 7x − 3","options":["(3x + 1)(2x − 3)","(3x − 1)(2x + 3)","(6x + 1)(x − 3)","(2x − 1)(3x + 3)"],"answer":1},
-  {"q":"If  g(x) = 4x − 5,  solve  g(2a + 1) = 3","options":["1/4","1/2","1","3/4"],"answer":1},
-  {"q":"Solve the inequality:  2x + 3 > 7","options":["x > 2","x < 2","x > 5","x > −2"],"answer":0},
-  {"q":"Solve:  2log₂(x) = 6","options":["4","6","8","12"],"answer":2},
-  {"q":"If  h(x) = 2^(x+1),  then  h(3) = ?","options":["8","12","16","32"],"answer":2},
-  {"q":"What are the zeros of  f(x) = x³ − x² − 4x + 4?","options":["x = 1, 2, −2","x = 1, 4, −4","x = −1, 2, −2","x = 2, −2 only"],"answer":0},
-  {"q":"3rd term of arithmetic sequence  a₁ = 7,  d = −3:","options":["1","4","10","13"],"answer":0},
-  {"q":"Solve:  x² − 2x − 35 < 0","options":["x < −5 or x > 7","−5 < x < 7","x > 7","x < −5"],"answer":1},
-  {"q":"If  f(x) = x + 2,  find  f(f(3)):","options":["5","7","9","11"],"answer":1},
-  {"q":"nth-term formula for  3, 7, 11, 15, …:","options":["4n − 1","4n + 1","3n + 1","3n − 1"],"answer":0},
-  {"q":"The system  3x + ay = 2  and  6x + 4y = b  has no solution when:","options":["a = 2 and b ≠ 4","a = 4 and b = 2","a = 2 and b = 4","a = 3 and b = 6"],"answer":0},
-  {"q":"Evaluate:  (2 − i)/(1 + i)","options":["(1 − 3i)/2","(3 − i)/2","(1 + 3i)/2","(3 + i)/2"],"answer":0},
-  {"q":"Domain of  f(x) = ln(x − 5):","options":["x > 0","x > 5","x ≥ 5","x > −5"],"answer":1},
-  {"q":"Which represents exponential decay?","options":["f(x) = 3^x","f(x) = (1/3)^x","f(x) = e^x","f(x) = 2^(x+1)"],"answer":1},
-  {"q":"Solve:  5^(2x−1) = 125","options":["1","2","3","4"],"answer":1},
-  {"q":"If  (x + 3)  is a factor of  x³ + kx² − 4x + 6,  then  k = ?","options":["−1","1","2","3"],"answer":1},
-  {"q":"What is  4^(3/2)?","options":["4","6","8","16"],"answer":2},
-  {"q":"Sum of the infinite geometric series  1 + 1/2 + 1/4 + …:","options":["1","3/2","2","3"],"answer":2},
-  {"q":"Center of the circle  x² + y² + 4x − 6y + 4 = 0:","options":["(2, −3)","(−2, 3)","(4, −6)","(−4, 6)"],"answer":1},
-  {"q":"Simplify:  (4x³y⁻²)/(2x⁻¹y³)","options":["2x²y⁻⁵","2x⁴/y⁵","2x⁴y⁵","4x²/y"],"answer":1},
-  {"q":"Solve:  3|x − 2| = 9","options":["x = 5 only","x = −1 only","x = 5 or x = −1","x = 1 or x = 5"],"answer":2},
-  {"q":"5th term in the expansion of  (x + 2)⁷:","options":["280x³","560x³","70x³","112x³"],"answer":1},
-  {"q":"Which quadratic has exactly one real solution?","options":["x² + x + 1 = 0","x² − 6x + 9 = 0","x² + 2x − 3 = 0","x² − 5x + 4 = 0"],"answer":1},
-  {"q":"Solve:  ln(2x + 3) = ln(x + 7)","options":["2","3","4","5"],"answer":2},
-  {"q":"Find  f(3)  if  f(x) = x²/(x − 1):","options":["3","9/2","6","9"],"answer":1},
-  {"q":"Solve  y = x²  and  y = x + 2  simultaneously:","options":["(1,1) and (2,4)","(−1,1) and (2,4)","(1,3) and (−2,0)","(0,2) and (2,4)"],"answer":1},
-  {"q":"All values of  x  for which  (x − 1)/(x + 3) ≤ 0:","options":["x < −3 or x > 1","−3 < x ≤ 1","−3 ≤ x ≤ 1","x ≤ 1"],"answer":1},
-  {"q":"Sum of first 4 terms of geometric sequence  a₁ = 4,  r = 3:","options":["120","160","240","324"],"answer":1},
-  {"q":"Solve:  2^(x−1) = 16","options":["3","4","5","6"],"answer":2},
-  {"q":"200 g sample, half-life 5 yr. Amount after 15 yr:","options":["12.5 g","25 g","50 g","100 g"],"answer":1},
-  {"q":"Simplify:  log₆(216)","options":["2","3","4","6"],"answer":1},
-  {"q":"Value of the determinant  |2 3 / 1 4|  (2×2 matrix):","options":["2","5","8","11"],"answer":1},
-  {"q":"Evaluate:  ∑(k=1 to 5) (2k + 1)","options":["25","30","35","40"],"answer":2},
-  {"q":"Solve:  3^(x+2) = 27","options":["0","1","2","3"],"answer":1},
-  {"q":"If  f(x) = ax² + bx + c  opens downward, then:","options":["a > 0","a = 0","a < 0","a = 1"],"answer":2},
-  {"q":"Solution set of  |3x + 1| < 5:","options":["−2 < x < 4/3","x < −2 or x > 4/3","−4/3 < x < 2","x < 4/3"],"answer":0},
-  {"q":"All real solutions of  x⁴ − 5x² + 4 = 0:","options":["x = ±1 only","x = ±2 only","x = ±1 or x = ±2","x = ±4"],"answer":2},
-  {"q":"If  f(x) = x/(x + 1),  what is  f(f(x))?","options":["x/(x + 1)","x/(2x + 1)","2x/(x + 1)","(x + 1)/(2x + 1)"],"answer":1},
-  {"q":"Solve:  x² + 4x = 21","options":["x = 3 or x = −7","x = 7 or x = −3","x = 3 or x = 7","x = −3 or x = −7"],"answer":0}
-];
+preloadQuestions();
 
 /* ═══════════════════════════════════════════
    ONLINE MULTIPLAYER — functions
@@ -2182,10 +2225,13 @@ function applyRemoteState(data){
     eduMode=data.eduMode||eduMode;
     if(eduMode&&!wasEdu) log('📚 Educational Mode enabled by your opponent!','le-special');
   }
-  // Question level: AP takes priority (if either player chose AP, both get AP)
-  if(data.questionLevel&&data.questionLevel==='ap'&&questionLevel!=='ap'){
-    questionLevel='ap';
-    log('🎓 AP Algebra questions activated by your opponent!','le-special');
+  // Question level sync — higher difficulty wins (AP > Trig > Basic)
+  const lvlPriority={basic:0,trig:1,ap:2};
+  const remoteLvl=data.questionLevel||'basic';
+  if((lvlPriority[remoteLvl]||0)>(lvlPriority[questionLevel]||0)){
+    questionLevel=remoteLvl;
+    const label=remoteLvl==='ap'?'🎓 AP Algebra':remoteLvl==='trig'?'🔺 Trigonometry':'📊 Basic Math';
+    log(`${label} questions activated by your opponent!`,'le-special');
   }
 
   // Apply
