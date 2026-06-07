@@ -1012,34 +1012,53 @@ function setEduLevel(level,panel){
 }
 
 function activeQ(){
-  if(questionLevel==='ap')   return Q_CACHE.ap   || [];
-  if(questionLevel==='trig') return Q_CACHE.trig  || [];
-  return Q_CACHE.basic || [];
+  if(questionLevel==='ap')   return Q_CACHE.ap   ?? [];
+  if(questionLevel==='trig') return Q_CACHE.trig  ?? [];
+  return Q_CACHE.basic ?? [];
+}
+// Returns true if questions for the current level failed to fetch (null = fetch error)
+function qLoadFailed(){
+  const key = questionLevel==='ap'?'ap':questionLevel==='trig'?'trig':'basic';
+  return Q_CACHE[key]===null;
 }
 
 async function preloadQuestions(){
-  const base = (()=>{
-    const s=document.currentScript||[...document.querySelectorAll('script')].pop();
-    if(s&&s.src) return s.src.replace(/[^/]*$/,'');
-    return './';
-  })();
+  // Derive base URL from the page's own URL — works on any server including GitHub Pages
+  const href=window.location.href;
+  const base=href.substring(0,href.lastIndexOf('/')+1);
   const files={basic:'questions_basic.json',ap:'questions_ap.json',trig:'questions_trig.json'};
   await Promise.all(Object.entries(files).map(async([key,file])=>{
     try{
       const r=await fetch(base+file);
-      if(!r.ok) throw new Error(r.status);
+      if(!r.ok) throw new Error('HTTP '+r.status);
       Q_CACHE[key]=await r.json();
+      console.log(`✅ Loaded ${Q_CACHE[key].length} ${key} questions`);
     }catch(e){
-      console.warn('Could not load',file,e);
-      Q_CACHE[key]=[];
+      console.error(`❌ Could not load ${file}: ${e.message}`);
+      Q_CACHE[key]=null; // null = failed (distinct from [] = empty)
     }
   }));
 }
 
 function showQuiz(sq, fallDest){
-  return new Promise(resolve=>{
+  return new Promise(async resolve=>{
+    await _qReady; // ensure fetch has finished before checking the bank
     const bank=activeQ();
-    if(!bank.length){ resolve(false); return; }
+    if(!bank.length){
+      if(qLoadFailed()){
+        // JSON file didn't load — show an error in the quiz box so it's visible
+        const label=questionLevel==='ap'?'🎓 AP Algebra':questionLevel==='trig'?'🔺 Trig':'📊 Basic Math';
+        document.getElementById('quizLabel').textContent='⚠️ Questions not loaded';
+        document.getElementById('quizSq').textContent='';
+        document.getElementById('quizQ').textContent=
+          `Could not fetch the ${label} question file.\nEnsure questions_${questionLevel==='ap'?'ap':questionLevel==='trig'?'trig':'basic'}.json is deployed alongside the game, then reload.`;
+        document.getElementById('quizOpts').innerHTML=
+          '<button class="quiz-opt" onclick="document.getElementById(\'quizModal\').classList.remove(\'open\')">Close</button>';
+        document.getElementById('quizResult').textContent='';
+        document.getElementById('quizModal').classList.add('open');
+      }
+      resolve(false); return;
+    }
 
     // Pick a random unused question; reset pool if all used
     let available=[...Array(bank.length).keys()].filter(i=>!usedQIdx.has(i));
@@ -2072,7 +2091,7 @@ buildBoard();
 G={pieces:[[1,1],[1,1]],cur:0,dice:[0,0],phase:'roll'};
 renderPieces(); syncUI();
 openSetup();
-preloadQuestions();
+const _qReady=preloadQuestions(); // store promise so showQuiz can await it
 
 /* ═══════════════════════════════════════════
    ONLINE MULTIPLAYER — functions
