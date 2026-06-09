@@ -224,6 +224,24 @@ header{text-align:center;padding:8px 0;background:rgba(0,0,0,.35);font-size:1.6e
 @keyframes trophyBounce{0%{transform:scale(0) rotate(-15deg)}70%{transform:scale(1.25) rotate(6deg)}100%{transform:scale(1) rotate(0deg)}}
 .win-title{font-size:2em;font-weight:900;color:#ffd700;letter-spacing:3px;margin-bottom:6px;text-shadow:0 0 20px rgba(255,215,0,.7)}
 .win-sub{font-size:1em;color:#aee8c8;margin-bottom:4px}
+.btn-review{background:#8e44ad;color:#fff;font-size:.95em;padding:10px 22px;border-radius:10px;width:auto;margin-top:10px;border:none;cursor:pointer;font-weight:700}
+.btn-review:hover{background:#6c3483}
+
+/* ── REVIEW MODAL ─────────────────────────── */
+.review-modal{position:fixed;inset:0;background:rgba(0,0,0,.88);display:none;align-items:center;justify-content:center;z-index:600;padding:12px}
+.review-modal.open{display:flex}
+.review-box{background:#18182e;border:2px solid #8e44ad;border-radius:16px;padding:22px 26px;width:min(98vw,680px);max-height:90vh;overflow-y:auto;box-shadow:0 12px 48px rgba(0,0,0,.95)}
+.review-title{font-size:1.3em;font-weight:900;color:#c39bd3;margin-bottom:16px;text-align:center}
+.review-item{background:#22223a;border-radius:10px;padding:14px 16px;margin-bottom:12px;border-left:4px solid #8e44ad}
+.review-q{font-size:.95em;color:#f0f0f0;margin-bottom:10px;font-weight:600;line-height:1.4}
+.review-opts{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px}
+.review-opt{padding:7px 10px;border-radius:7px;font-size:.82em;font-weight:600;border:2px solid #38385a;color:#ccc;background:#1c1c38;display:flex;gap:7px;align-items:flex-start}
+.review-opt.correct{border-color:#27ae60;background:rgba(39,174,96,.18);color:#7dff7d}
+.review-opt.wrong{border-color:#e74c3c;background:rgba(231,76,60,.18);color:#ff9999}
+.review-opt.timeout{border-color:#e67e22;background:rgba(230,126,34,.18);color:#f0a87a}
+.review-footer{font-size:.75em;color:#888;margin-top:4px}
+.review-close{display:block;margin:18px auto 0;background:#555;color:#fff;border:none;border-radius:9px;padding:9px 28px;font-size:.95em;font-weight:700;cursor:pointer}
+.review-close:hover{background:#777}
 
 /* ── RULES MODAL (landscape) ──────────────── */
 .rules-modal{position:fixed;inset:0;background:rgba(0,0,0,.92);display:none;align-items:center;justify-content:center;z-index:500;padding:8px}
@@ -393,12 +411,6 @@ header{text-align:center;padding:8px 0;background:rgba(0,0,0,.35);font-size:1.6e
 
   <div class="panel">
     <div class="panel-top">
-
-      <!-- Online status — visible only during online play -->
-      <div class="online-panel-status" id="onlinePanelStatus">
-        <div><span class="online-panel-dot"></span><span class="online-panel-code" id="onlinePanelCode">Room: ------</span></div>
-        <div class="online-panel-role" id="onlinePanelRole"></div>
-      </div>
 
       <div class="mic-row">
         <button class="btn btn-sound" id="soundBtn" onclick="toggleSound()" title="Toggle sound">🔊</button>
@@ -584,17 +596,6 @@ header{text-align:center;padding:8px 0;background:rgba(0,0,0,.35);font-size:1.6e
             <input type="text" class="join-input" id="joinCodeInput" placeholder="ROOM CODE" maxlength="6" oninput="this.value=this.value.toUpperCase()">
             <button class="join-go" onclick="onlineJoin()">Join →</button>
           </div>
-          <div class="edu-toggle-row" style="margin-top:8px">
-            <label class="edu-toggle">
-              <input type="checkbox" id="p2EduCheck" onchange="toggleEduLevelRow('p2EduLevelRow',this.checked)">
-              <span>📚 <strong>Educational Mode</strong> — answer math questions to survive dangerous primes!</span>
-            </label>
-          </div>
-          <div class="edu-level-row" id="p2EduLevelRow">
-            <button class="edu-lvl-btn active" id="p2EduBasicBtn" onclick="setEduLevel('basic','p2')">📊 Basic Math</button>
-            <button class="edu-lvl-btn" id="p2EduApBtn" onclick="setEduLevel('ap','p2')">🎓 AP Algebra</button>
-            <button class="edu-lvl-btn" id="p2EduTrigBtn" onclick="setEduLevel('trig','p2')">🔺 Trigonometry</button>
-          </div>
           <div class="online-status" id="onlineJoinStatus"></div>
         </div>
       </div>
@@ -662,6 +663,17 @@ header{text-align:center;padding:8px 0;background:rgba(0,0,0,.35);font-size:1.6e
     <div class="win-title" id="winTitle">Player 1 Wins!</div>
     <div class="win-sub">Both pieces made it home!</div>
     <button class="btn btn-new" onclick="newGame()">🎮 New Game</button>
+    <br>
+    <button class="btn-review" id="reviewBtn" style="display:none" onclick="showReview()">📋 Review Missed Questions</button>
+  </div>
+</div>
+
+<!-- Review missed questions modal -->
+<div class="review-modal" id="reviewModal">
+  <div class="review-box">
+    <div class="review-title">📋 Questions to Review</div>
+    <div id="reviewList"></div>
+    <button class="review-close" onclick="document.getElementById('reviewModal').classList.remove('open')">Close</button>
   </div>
 </div>
 
@@ -821,7 +833,7 @@ function setupGame(){
     computerPlayer=-1;
     NAMES[0]='Player 1'; NAMES[1]='Player 2';
     eduMode=document.getElementById('eduCheck').checked;
-    if(eduMode) setEduLevel(questionLevel,'p1');
+    if(eduMode) setEduLevel(questionLevel);
     document.getElementById('av0disp').textContent=playerAvatars[0];
     document.getElementById('av1disp').textContent='🌐';
     document.getElementById('pname0').textContent=NAMES[0];
@@ -848,7 +860,7 @@ function setupGame(){
 
   // Read edu mode + level
   eduMode=document.getElementById('eduCheck').checked;
-  if(eduMode) setEduLevel(questionLevel,'p1'); // keep current level; already set by button
+  if(eduMode) setEduLevel(questionLevel); // keep current level; already set by button
 
   // Update player bar display
   document.getElementById('av0disp').textContent=playerAvatars[0];
@@ -989,27 +1001,18 @@ let questionLevel='basic'; // 'basic' | 'ap' | 'trig'
 const Q_CACHE={};  // populated by preloadQuestions()
 let usedQIdx=new Set();
 let quizTimerTO=null;
+let missedQuestions=[]; // {q, options, answer, chosen} — chosen=-1 means timed out
 
 function toggleEduLevelRow(rowId,show){
   const row=document.getElementById(rowId);
   if(row) row.classList.toggle('visible',show);
 }
 
-function setEduLevel(level,panel){
+function setEduLevel(level){
   questionLevel=level;
-  // Update button states — handle both setup modal and P2 join panel
-  if(!panel||panel==='p1'){
-    document.getElementById('eduBasicBtn').classList.toggle('active',level==='basic');
-    document.getElementById('eduApBtn').classList.toggle('active',level==='ap');
-    document.getElementById('eduTrigBtn').classList.toggle('active',level==='trig');
-  }
-  if(panel==='p2'||!panel){
-    const b=document.getElementById('p2EduBasicBtn');
-    const a=document.getElementById('p2EduApBtn');
-    const t=document.getElementById('p2EduTrigBtn');
-    if(b&&a){b.classList.toggle('active',level==='basic');a.classList.toggle('active',level==='ap');}
-    if(t) t.classList.toggle('active',level==='trig');
-  }
+  document.getElementById('eduBasicBtn').classList.toggle('active',level==='basic');
+  document.getElementById('eduApBtn').classList.toggle('active',level==='ap');
+  document.getElementById('eduTrigBtn').classList.toggle('active',level==='trig');
 }
 
 function activeQ(){
@@ -1085,7 +1088,7 @@ function showQuiz(sq, fallDest){
       const btn=document.createElement('button');
       btn.className='quiz-opt';
       btn.textContent=opt;
-      btn.onclick=()=>selectAnswer(i, q.answer, q.options[q.answer], resolve, optsEl);
+      btn.onclick=()=>selectAnswer(i, q, resolve, optsEl);
       optsEl.appendChild(btn);
     });
 
@@ -1106,6 +1109,7 @@ function showQuiz(sq, fallDest){
       const res=document.getElementById('quizResult');
       res.textContent=`⏰ Time's up! The answer was: "${q.options[q.answer]}"`;
       res.className='quiz-result fail';
+      missedQuestions.push({q:q.q, options:q.options, answer:q.answer, chosen:-1});
       setTimeout(()=>{ closeQuizModal(); resolve(false); }, 2000);
     }, 25000);
 
@@ -1114,7 +1118,8 @@ function showQuiz(sq, fallDest){
   });
 }
 
-function selectAnswer(chosen, correct, correctText, resolve, optsEl){
+function selectAnswer(chosen, q, resolve, optsEl){
+  const correct=q.answer, correctText=q.options[q.answer];
   if(quizTimerTO){ clearTimeout(quizTimerTO); quizTimerTO=null; }
 
   // Stop timer bar
@@ -1139,6 +1144,7 @@ function selectAnswer(chosen, correct, correctText, resolve, optsEl){
     res.textContent=`❌ Wrong! The answer was: "${correctText}"`;
     res.className='quiz-result fail';
     sfx('quizWrong');
+    missedQuestions.push({q:q.q, options:q.options, answer:q.answer, chosen});
   }
 
   setTimeout(()=>{ closeQuizModal(); resolve(passed); }, 1800);
@@ -1151,6 +1157,8 @@ function closeQuizModal(){
 function newGame(){
   if(confettiRAF){cancelAnimationFrame(confettiRAF);confettiRAF=null;}
   document.getElementById('winModal').style.display='none';
+  document.getElementById('reviewModal').classList.remove('open');
+  missedQuestions=[];
   G={pieces:[[1,1],[1,1]],cur:0,dice:[0,0],phase:'roll',seq:0};
   _lastAppliedSeq=0;
   usedQIdx.clear(); moveQueue=[];
@@ -1755,9 +1763,46 @@ function log(msg,cls=''){
 /* ═══════════════════════════════════════════
    WIN SCREEN
 ═══════════════════════════════════════════ */
+function showReview(){
+  const list=document.getElementById('reviewList');
+  list.innerHTML='';
+  missedQuestions.forEach((m,i)=>{
+    const item=document.createElement('div');
+    item.className='review-item';
+    const qDiv=document.createElement('div');
+    qDiv.className='review-q';
+    qDiv.textContent=`${i+1}. ${m.q}`;
+    item.appendChild(qDiv);
+    const grid=document.createElement('div');
+    grid.className='review-opts';
+    m.options.forEach((opt,oi)=>{
+      const d=document.createElement('div');
+      const letter='ABCD'[oi];
+      let cls='review-opt';
+      if(oi===m.answer) cls+=' correct';
+      else if(oi===m.chosen) cls+=' wrong';
+      d.className=cls;
+      d.innerHTML=`<span style="font-weight:900;flex-shrink:0">${letter}.</span> ${opt}`;
+      grid.appendChild(d);
+    });
+    item.appendChild(grid);
+    const footer=document.createElement('div');
+    footer.className='review-footer';
+    footer.textContent=m.chosen===-1
+      ? '⏰ Timed out — correct answer shown in green'
+      : '✓ Correct answer in green · ✗ Your answer in red';
+    item.appendChild(footer);
+    list.appendChild(item);
+  });
+  document.getElementById('reviewModal').classList.add('open');
+}
+
 function showWinScreen(playerIdx){
   document.getElementById('winTitle').textContent=`${NAMES[playerIdx]} Wins!`;
   document.getElementById('winModal').style.display='flex';
+  // Show review button only in edu mode with at least one missed question
+  document.getElementById('reviewBtn').style.display=
+    (eduMode && missedQuestions.length>0) ? '' : 'none';
   stopBgMusic();
   sfx('win');
   launchConfetti();
@@ -2203,9 +2248,9 @@ async function onlineJoin(){
   isOnlineMode=true;
   computerPlayer=-1;
 
-  // Apply P2's own edu preference and level immediately
-  eduMode=document.getElementById('p2EduCheck').checked;
-  // questionLevel already set by p2 level buttons (or defaults to 'basic')
+  // Apply P2's own edu preference and level immediately (uses same edu section as P1)
+  eduMode=document.getElementById('eduCheck').checked;
+  // questionLevel already set by the shared level buttons (or defaults to 'basic')
 
   statusEl.textContent='✅ Connected! Waiting for Player 1 to start…';
   statusEl.className='online-status ok';
@@ -2294,11 +2339,6 @@ function showOnlineBanner(){
   el.style.display='flex';
   document.getElementById('onlineBannerCode').textContent='🌐 Room: '+roomCode;
   document.getElementById('onlineBannerRole').textContent='You are Player '+(myPlayerIdx+1);
-  // Panel status (right side, above mic)
-  const ps=document.getElementById('onlinePanelStatus');
-  ps.classList.add('visible');
-  document.getElementById('onlinePanelCode').textContent='Room: '+roomCode;
-  document.getElementById('onlinePanelRole').textContent='You are Player '+(myPlayerIdx+1);
 }
 </script>
 
