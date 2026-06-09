@@ -1416,7 +1416,7 @@ function buildMoveOptions(){
   // Immune pair: both pieces on the same square (and not both finished)
   const immunePair = !fin[0]&&!fin[1] && ps[0]===ps[1];
 
-  if(fin[0]&&fin[1]){nextTurn();return;}
+  if(fin[0]&&fin[1]){nextTurn(true);return;}
 
   // ── One piece finished ─────────────────────────────────────────────
   //   Doubles (d,d)  → move by d²  OR  move d then d in sequence
@@ -1481,7 +1481,7 @@ function buildMoveOptions(){
   if(!bothDiceEven){
     if(atHomeA&&atHomeB){
       log(`${NAMES[G.cur]} rolled (${d1},${d2}) — need both dice even to leave home. Turn skipped.`,'le-roll');
-      nextTurn(); return;
+      nextTurn(true); return;
     }
     if(atHomeA||atHomeB){
       const freeP=atHomeA?1:0;
@@ -1706,13 +1706,16 @@ async function execVertical(pieceIdx, destSq){
 /* ═══════════════════════════════════════════
    TURN & UI
 ═══════════════════════════════════════════ */
-function nextTurn(){
+function nextTurn(pushOnline=false){
+  const oldCur=G.cur;
   G.cur=1-G.cur; G.phase='roll'; G.dice=[0,0];
   renderDie('d0',0); renderDie('d1',0);
   document.getElementById('deq').textContent='?';
   document.getElementById('rollBtn').disabled=false;
   sfx('turnChange');
   syncUI();
+  // Push when this is an auto-skip (no exec caller to push for us)
+  if(pushOnline && isOnlineMode && oldCur===myPlayerIdx) pushGameState();
   if(G.cur===computerPlayer) setTimeout(()=>doRoll(),1000);
 }
 
