@@ -397,13 +397,6 @@ header{text-align:center;padding:8px 0;background:rgba(0,0,0,.35);font-size:1.6e
     </div>
   </div>
 </div>
-<!-- Online game status banner -->
-<div class="online-banner" id="onlineBanner">
-  <div class="online-banner-dot"></div>
-  <span class="online-banner-code" id="onlineBannerCode">🌐 Room: ------</span>
-  <span class="online-banner-role" id="onlineBannerRole"></span>
-</div>
-
 <div class="game">
   <div class="board-wrap">
     <div class="board" id="board"></div>
@@ -411,6 +404,11 @@ header{text-align:center;padding:8px 0;background:rgba(0,0,0,.35);font-size:1.6e
 
   <div class="panel">
     <div class="panel-top">
+
+      <div class="online-panel-status" id="onlinePanelStatus">
+        <div><span class="online-panel-dot"></span><span class="online-panel-code" id="onlinePanelCode">🌐 Room: ------</span></div>
+        <div class="online-panel-role" id="onlinePanelRole"></div>
+      </div>
 
       <div class="mic-row">
         <button class="btn btn-sound" id="soundBtn" onclick="toggleSound()" title="Toggle sound">🔊</button>
@@ -2335,10 +2333,9 @@ function applyRemoteState(data){
 }
 
 function showOnlineBanner(){
-  const el=document.getElementById('onlineBanner');
-  el.style.display='flex';
-  document.getElementById('onlineBannerCode').textContent='🌐 Room: '+roomCode;
-  document.getElementById('onlineBannerRole').textContent='You are Player '+(myPlayerIdx+1);
+  document.getElementById('onlinePanelStatus').classList.add('visible');
+  document.getElementById('onlinePanelCode').textContent='🌐 Room: '+roomCode;
+  document.getElementById('onlinePanelRole').textContent='You are Player '+(myPlayerIdx+1);
 }
 </script>
 
