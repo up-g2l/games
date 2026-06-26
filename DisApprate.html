@@ -1000,6 +1000,8 @@ let missedQuestions=[]; // {q, options, answer, chosen} — chosen=-1 means time
 function toggleEduLevelRow(rowId,show){
   const row=document.getElementById(rowId);
   if(row) row.classList.toggle('visible',show);
+  // Pre-load questions as soon as edu mode is switched on
+  if(show) ensureTopicLoaded(questionLevel);
 }
 
 // ── Topic helpers ──────────────────────────────────────────────────────────
@@ -1007,6 +1009,8 @@ function setEduTopic(topicId){
   questionLevel=topicId;
   const sel=document.getElementById('topicSelect');
   if(sel&&sel.value!==topicId) sel.value=topicId;
+  // Eagerly pre-load so questions are ready before the first quiz fires
+  ensureTopicLoaded(topicId);
 }
 function activeQ(){ return Q_CACHE[questionLevel]??[]; }
 function qLoadFailed(){ return Q_CACHE[questionLevel]===null; }
@@ -1071,6 +1075,7 @@ function showQuiz(sq, fallDest){
     const bank=activeQ();
     if(!bank.length){
       if(qLoadFailed()){
+        // Show a visible error but don't penalise — load failure is not the player's fault
         const label=topicLabel(questionLevel);
         const topic=topicsManifest.find(t=>t.id===questionLevel);
         document.getElementById('quizLabel').textContent='⚠️ Questions not loaded';
@@ -1083,7 +1088,7 @@ function showQuiz(sq, fallDest){
         document.getElementById('quizResult').textContent='';
         document.getElementById('quizModal').classList.add('open');
       }
-      resolve(false); return;
+      resolve(true); return; // no fall — questions unavailable through no fault of the player
     }
 
     // Pick a random unused question; reset pool if all used
@@ -1646,7 +1651,8 @@ async function execOneStep(pi,steps,isPairMove){
       log(`🔗 Immune pair passes sq ${landed} safely — no fall!`,'le-special');
     } else {
       let stay=false;
-      if(eduMode && activeQ().length){
+      // Trigger quiz if edu mode is on and questions haven't explicitly failed to load (null)
+      if(eduMode && Q_CACHE[questionLevel]!==null){
         if(G.cur===computerPlayer){
           stay=true;
           log(`🤖 ${NAMES[G.cur]} Piece ${name} answers the challenge — stays on sq ${landed}!`,'le-special');
@@ -1658,7 +1664,7 @@ async function execOneStep(pi,steps,isPairMove){
         if(G.cur!==computerPlayer)
           log(`✅ Math challenge passed! ${NAMES[G.cur]} Piece ${name} stays on sq ${landed}.`,'le-special');
       } else {
-        if(eduMode && activeQ().length && G.cur!==computerPlayer) log(`❌ Challenge failed — `,'le-snake');
+        if(eduMode && Q_CACHE[questionLevel]!==null && G.cur!==computerPlayer) log(`❌ Challenge failed — `,'le-snake');
         // Rule 3: if piece started from a shield, it bounces back to that shield
         const actualDest=(SAFE_HOUSES.has(from)&&from!==1)?from:dest;
         if(actualDest===from){
