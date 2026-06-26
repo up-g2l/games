@@ -371,6 +371,14 @@ header{text-align:center;padding:8px 0;background:rgba(0,0,0,.35);font-size:1.6e
 .dragon-modal-msg{font-size:2.1em;font-weight:900;color:#ff9000;letter-spacing:.06em;text-align:center;white-space:pre-line;text-shadow:0 0 22px #ff6600,0 0 50px #ff2200;animation:msgGlow .85s ease-in-out infinite alternate}
 @keyframes msgGlow{from{color:#ff8800;text-shadow:0 0 14px #ff5500}to{color:#ffcc44;text-shadow:0 0 32px #ffaa00,0 0 72px #ff4400}}
 
+/* ── BOARD EAGLE (green-square carry) ────────────────────────── */
+.board-eagle{position:fixed;font-size:3em;z-index:5000;pointer-events:none;
+  filter:drop-shadow(0 4px 18px rgba(0,0,0,.65)) drop-shadow(0 0 20px rgba(80,220,80,.55));
+  transform-origin:center center;
+  will-change:left,top,transform}
+@keyframes eagleAppear{0%{transform:scale(0) rotate(-30deg);opacity:0}70%{transform:scale(1.2) rotate(5deg)}100%{transform:scale(1) rotate(0deg);opacity:1}}
+@keyframes eagleLand{0%{transform:scale(1)}50%{transform:scale(1.25) rotate(-8deg)}100%{transform:scale(0.85) rotate(0deg);opacity:0}}
+
 /* ── BOARD DRAGON & FIRE ──────────────────────────────────────── */
 .board-dragon{position:fixed;font-size:2.5em;z-index:4000;pointer-events:none;filter:drop-shadow(0 0 10px #ff6600);transform-origin:center bottom;animation:boardDragonPop .35s cubic-bezier(.18,.89,.32,1.28) forwards}
 @keyframes boardDragonPop{0%{transform:scale(0) rotate(-20deg);opacity:0}100%{transform:scale(1) rotate(0deg);opacity:1}}
@@ -1697,6 +1705,100 @@ function mkBtn(label,handler,bonus=false,meta=null){
 }
 
 /* ═══════════════════════════════════════════
+   EAGLE CARRY — green square advance animation
+   Eagle circles the board once then lands at dest.
+   Orientation flips left/right with direction of travel.
+═══════════════════════════════════════════ */
+function sqToCol(sq){
+  // Returns 0-based x-column (0=left, 15=right) regardless of row direction
+  const row=Math.floor((sq-1)/16);
+  const pos=(sq-1)%16;
+  return row%2===0 ? pos : 15-pos;
+}
+
+async function eagleMoveToPoint(eagle,x,y,durationMs,faceLeft){
+  eagle.style.transition=`left ${durationMs}ms linear, top ${durationMs}ms linear, transform ${Math.min(200,durationMs*0.4)}ms ease`;
+  eagle.style.left=x+'px';
+  eagle.style.top=y+'px';
+  eagle.style.transform=`translate(-50%,-50%) scaleX(${faceLeft?-1:1})`;
+  await sleep(durationMs);
+}
+
+async function playEagleCarry(playerIdx,pieceIdx,from,to){
+  const fromCell=document.getElementById('sq'+from);
+  const toCell=document.getElementById('sq'+to);
+  const board=document.getElementById('board');
+
+  // Move piece in data model so it renders at destination immediately
+  G.pieces[playerIdx][pieceIdx]=to;
+  renderPieces();
+
+  if(!fromCell||!toCell||!board){
+    // No DOM cells — skip visual, just flash arrival
+    sfx('arrive'); await flashCell(to,'arrive'); return;
+  }
+
+  const fr=fromCell.getBoundingClientRect();
+  const tr=toCell.getBoundingClientRect();
+  const br=board.getBoundingClientRect();
+
+  const sx=fr.left+fr.width/2, sy=fr.top+fr.height/2;
+  const dx=tr.left+tr.width/2, dy=tr.top+tr.height/2;
+
+  // Final-leg direction: face left if destination is visually to the left
+  const finalFaceLeft = sqToCol(to) < sqToCol(from);
+
+  // Create eagle at source position
+  const eagle=document.createElement('div');
+  eagle.className='board-eagle';
+  eagle.textContent='🦅';
+  eagle.style.cssText=`left:${sx}px;top:${sy}px;transform:translate(-50%,-50%);opacity:0`;
+  document.body.appendChild(eagle);
+
+  // Pop-in burst
+  eagle.style.animation='eagleAppear .4s cubic-bezier(.18,.89,.32,1.28) forwards';
+  await sleep(440);
+
+  // Perimeter waypoints — one clockwise loop around the board
+  const PAD=38;
+  const corners={
+    bl:{x:br.left -PAD, y:br.bottom+PAD},
+    br:{x:br.right+PAD, y:br.bottom+PAD},
+    tr:{x:br.right+PAD, y:br.top   -PAD},
+    tl:{x:br.left -PAD, y:br.top   -PAD},
+  };
+
+  const SPD=480; // px per second
+  function legMs(x1,y1,x2,y2){ return Math.max(220,Math.round(Math.hypot(x2-x1,y2-y1)/SPD*1000)); }
+
+  // Circuit: source → bottom-right → top-right → top-left → bottom-left → destination
+  // Eagle flips to face the direction of horizontal travel on each leg
+  const legs=[
+    {x:corners.br.x, y:corners.br.y, faceLeft:false},  // right along bottom
+    {x:corners.tr.x, y:corners.tr.y, faceLeft:false},  // up right side
+    {x:corners.tl.x, y:corners.tl.y, faceLeft:true },  // left across top
+    {x:corners.bl.x, y:corners.bl.y, faceLeft:true },  // down left side
+    {x:dx,           y:dy,           faceLeft:finalFaceLeft}, // home to destination
+  ];
+
+  let cx=sx, cy=sy;
+  for(const leg of legs){
+    const ms=legMs(cx,cy,leg.x,leg.y);
+    await eagleMoveToPoint(eagle,leg.x,leg.y,ms,leg.faceLeft);
+    cx=leg.x; cy=leg.y;
+  }
+
+  // Landing flourish then fade
+  eagle.style.transition='';
+  eagle.style.animation='eagleLand .55s ease-in-out forwards';
+  await sleep(580);
+  eagle.remove();
+
+  sfx('arrive');
+  await flashCell(to,'arrive');
+}
+
+/* ═══════════════════════════════════════════
    FLYING PIECE ANIMATION
    Visually moves a piece from `from` to `to`
    using a fixed-position overlay element that
@@ -1836,7 +1938,7 @@ async function execOneStep(pi,steps,isPairMove){
     log(`  ✦ Sq ${landed} ÷5/6! Piece ${name} launches to ${dest} 🚀`,'le-ladder');
     sfx('eagleLaunch');
     await flashCell(landed,'liftOff');
-    await flyPiece(G.cur,pi,landed,dest,'ladder');
+    await playEagleCarry(G.cur,pi,landed,dest);
   }
 }
 
