@@ -656,16 +656,16 @@ header{text-align:center;padding:8px 0;background:rgba(0,0,0,.35);font-size:1.6e
         <svg class="dragon-fire-svg" viewBox="0 0 420 160" preserveAspectRatio="none"
              xmlns="http://www.w3.org/2000/svg">
           <defs>
-            <!-- Outer flame: deep red → orange → yellow, fades to transparent -->
-            <linearGradient id="dfOuter" x1="0" y1="0" x2="1" y2="0">
+            <!-- Outer flame: deep red → orange → yellow (bright at right/base, fades left to tip) -->
+            <linearGradient id="dfOuter" x1="1" y1="0" x2="0" y2="0">
               <stop offset="0%"   stop-color="#cc1100"/>
               <stop offset="22%"  stop-color="#ff4400"/>
               <stop offset="50%"  stop-color="#ff8800" stop-opacity="0.9"/>
               <stop offset="78%"  stop-color="#ffcc00" stop-opacity="0.55"/>
               <stop offset="100%" stop-color="#ffee44" stop-opacity="0"/>
             </linearGradient>
-            <!-- Inner hot core: bright orange → yellow → near-white -->
-            <linearGradient id="dfInner" x1="0" y1="0" x2="1" y2="0">
+            <!-- Inner hot core: bright orange → yellow → near-white (bright at right/base, fades left) -->
+            <linearGradient id="dfInner" x1="1" y1="0" x2="0" y2="0">
               <stop offset="0%"   stop-color="#ff6600"/>
               <stop offset="35%"  stop-color="#ffbb00"/>
               <stop offset="65%"  stop-color="#ffee88" stop-opacity="0.75"/>
@@ -689,11 +689,11 @@ header{text-align:center;padding:8px 0;background:rgba(0,0,0,.35);font-size:1.6e
                                  scale="34" xChannelSelector="R" yChannelSelector="G"/>
             </filter>
           </defs>
-          <!-- Four triangular flame tongues: base on left (dragon mouth), tip pointing right -->
-          <polygon points="20,0   420,80  20,160" fill="url(#dfOuter)" filter="url(#dfFilt)" opacity="0.88"/>
-          <polygon points="20,18  405,80  20,142" fill="url(#dfOuter)" filter="url(#dfFilt)" opacity="0.72"/>
-          <polygon points="20,40  335,80  20,120" fill="url(#dfInner)" filter="url(#dfFilt)" opacity="0.82"/>
-          <polygon points="20,58  255,80  20,102" fill="url(#dfInner)" filter="url(#dfFilt)" opacity="0.65"/>
+          <!-- Four triangular flame tongues: base on right (bright/hot), tip pointing left -->
+          <polygon points="420,0   30,80  420,160" fill="url(#dfOuter)" filter="url(#dfFilt)" opacity="0.88"/>
+          <polygon points="405,18  30,80  405,142" fill="url(#dfOuter)" filter="url(#dfFilt)" opacity="0.72"/>
+          <polygon points="335,40  30,80  335,120" fill="url(#dfInner)" filter="url(#dfFilt)" opacity="0.82"/>
+          <polygon points="255,58  30,80  255,102" fill="url(#dfInner)" filter="url(#dfFilt)" opacity="0.65"/>
         </svg>
       </div>
     </div>
