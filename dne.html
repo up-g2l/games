@@ -1,0 +1,2858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Play2Learn</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎲</text></svg>">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{background:#2b2b2b;font-family:'Segoe UI',Arial,sans-serif;color:#f0f0f0;display:flex;flex-direction:column}
+header{text-align:center;padding:8px 0;background:rgba(0,0,0,.35);font-size:1.6em;font-weight:900;letter-spacing:6px;color:#ffd700;text-shadow:0 2px 8px #000;flex-shrink:0}
+.game{display:flex;flex:1;gap:8px;padding:8px;min-height:0;overflow:hidden}
+
+/* ── BOARD ────────────────────────────────── */
+.board-wrap{flex:1;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.board{display:grid;grid-template-columns:repeat(16,1fr);gap:2px;background:#3b1f0e;border:3px solid #8d6e3f;border-radius:6px;padding:3px;width:min(calc(100vh * 16/9 - 180px), calc(100vw - 280px));aspect-ratio:16/9}
+
+.cell{position:relative;border-radius:3px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:1px;overflow:visible;aspect-ratio:1}
+.cell.norm{background:#c8a878}
+.cell.norm.alt{background:#b09060}
+.cell.snake{background:#d05050}
+.cell.ladder{background:#3d8f3d}
+.cell.safe{background:#6898c8;border:1.5px solid #4878a8}
+.cell.start{background:#f0e888;border:2px solid #c8a800}
+.cell.finish{background:#ffd700;border:2px solid #ff8c00}
+
+.cnum{font-size:.72em;font-weight:700;color:#f8e8c8;line-height:1;z-index:1}
+.cgfx{font-size:clamp(24px,calc((100vw - 320px)*0.0456),70px);line-height:1;z-index:1;display:block;text-align:center}
+.cgfx.shield{font-size:clamp(22px,calc((100vw - 320px)*0.0432),62px)}
+.cgfx.dragon{font-size:clamp(17px,calc((100vw - 320px)*0.0336),50px);filter:drop-shadow(0 1px 3px rgba(255,60,0,.6))}
+.cgfx.eagle {font-size:clamp(17px,calc((100vw - 320px)*0.0336),50px);filter:drop-shadow(0 1px 3px rgba(60,220,60,.6))}
+.cspec{font-size:.44em;font-weight:600;line-height:1;z-index:1}
+.snake .cspec{color:#ffaaaa}
+.ladder .cspec{color:#aaffaa}
+.safe .cspec{color:#c8e8ff}
+.safe .cnum{color:#c8e8ff}
+
+/* Pieces: fixed corners so all 4 coexist cleanly */
+.cpieces{position:absolute;inset:0;z-index:3;pointer-events:none}
+.piece{
+  position:absolute;
+  width:clamp(20px,2.5vw,32px);
+  height:clamp(20px,2.5vw,32px);
+  border-radius:50%;
+  border:2.5px solid rgba(255,255,255,.92);
+  box-shadow:0 3px 8px rgba(0,0,0,.7);
+  display:flex;align-items:center;justify-content:center;
+  font-size:clamp(10px,1.2vw,16px);
+  font-weight:900;color:#fff;
+  text-shadow:0 1px 4px rgba(0,0,0,.9);
+}
+.piece.p1a{top:2px;left:2px}
+.piece.p1b{bottom:2px;left:2px}
+.piece.p2a{top:2px;right:2px}
+.piece.p2b{bottom:2px;right:2px}
+/* Paired-piece badge shown at cell centre */
+.pair-badge{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:clamp(8px,1.4vw,15px);z-index:5;pointer-events:none;line-height:1;opacity:.9}
+
+/* ── PORTAL / SPECIAL ANIMATIONS ─────────── */
+.portal-flash{position:absolute;inset:0;border-radius:3px;z-index:6;pointer-events:none}
+.portal-flash.snake-in {animation:snakeIn  .85s ease-out forwards}
+.portal-flash.ladder-in{animation:ladderIn .85s ease-out forwards}
+.portal-flash.arrive   {animation:arriveFlash .65s ease-out forwards}
+.portal-flash.capture  {animation:captureFlash .7s ease-out forwards}
+.portal-flash.vertical {animation:verticalFlash .6s ease-out forwards}
+.portal-flash.explode  {animation:explodeOut .9s ease-out forwards;z-index:7}
+.portal-flash.liftOff  {animation:liftOffAnim .75s ease-out forwards;z-index:7}
+
+@keyframes snakeIn{
+  0%  {background:rgba(255,60,60,0);transform:scale(1) rotate(0deg)}
+  20% {background:rgba(255,60,60,.85);transform:scale(1.1) rotate(6deg)}
+  50% {background:rgba(255,60,60,.6);transform:scale(.9) rotate(-8deg)}
+  80% {background:rgba(255,60,60,.3);transform:scale(1) rotate(4deg)}
+  100%{background:rgba(255,60,60,0);transform:scale(1) rotate(0deg)}
+}
+@keyframes ladderIn{
+  0%  {background:rgba(30,220,90,0);transform:scale(1)}
+  20% {background:rgba(30,220,90,.85);transform:scale(1.12)}
+  55% {background:rgba(30,220,90,.5);transform:scale(1.06)}
+  80% {background:rgba(30,220,90,.2);transform:scale(1.02)}
+  100%{background:rgba(30,220,90,0);transform:scale(1)}
+}
+@keyframes arriveFlash{
+  0%  {background:rgba(255,255,220,.9);transform:scale(1.12)}
+  50% {background:rgba(255,255,220,.4);transform:scale(1.03)}
+  100%{background:rgba(255,255,220,0);transform:scale(1)}
+}
+@keyframes captureFlash{
+  0%  {background:rgba(255,0,120,.0);transform:scale(1)}
+  25% {background:rgba(255,0,120,.9);transform:scale(1.15)}
+  60% {background:rgba(255,0,120,.5);transform:scale(.95)}
+  100%{background:rgba(255,0,120,.0);transform:scale(1)}
+}
+@keyframes verticalFlash{
+  0%  {background:rgba(130,80,255,.0);transform:scaleY(1)}
+  30% {background:rgba(130,80,255,.85);transform:scaleY(1.1)}
+  70% {background:rgba(130,80,255,.4);transform:scaleY(1.03)}
+  100%{background:rgba(130,80,255,.0);transform:scaleY(1)}
+}
+@keyframes explodeOut{
+  0%  {background:rgba(255,80,0,0);transform:scale(1)}
+  10% {background:rgba(255,80,0,.95);transform:scale(1.5);box-shadow:0 0 32px rgba(255,120,0,1)}
+  25% {background:rgba(255,200,0,.88);transform:scale(1.3) rotate(9deg);box-shadow:0 0 22px rgba(255,200,0,.9)}
+  45% {background:rgba(255,60,0,.55);transform:scale(1.15) rotate(-7deg)}
+  70% {background:rgba(255,40,0,.22);transform:scale(1.04) rotate(3deg)}
+  100%{background:rgba(255,40,0,0);box-shadow:none;transform:scale(1)}
+}
+@keyframes liftOffAnim{
+  0%  {background:rgba(40,230,90,0);transform:scale(1)}
+  20% {background:rgba(40,230,90,.92);transform:scale(1.25) translateY(-5px);box-shadow:0 0 26px rgba(60,255,100,.9)}
+  45% {background:rgba(100,255,150,.7);transform:scale(1.12) translateY(-3px)}
+  70% {background:rgba(40,230,90,.3);transform:scale(1.04) translateY(-1px)}
+  100%{background:rgba(40,230,90,0);box-shadow:none;transform:scale(1)}
+}
+
+/* ── FLYING PIECE (snake/ladder travel animation) ─ */
+.piece-flyer{
+  border-radius:50%;
+  border:2.5px solid rgba(255,255,255,.92);
+  display:flex;align-items:center;justify-content:center;
+  font-weight:900;color:#fff;
+  text-shadow:0 1px 4px rgba(0,0,0,.9);
+}
+@keyframes snakeSpin{
+  0%  {transform:rotate(0deg) scale(1.1)}
+  40% {transform:rotate(200deg) scale(1.35)}
+  100%{transform:rotate(390deg) scale(1)}
+}
+@keyframes ladderBurst{
+  0%,100%{box-shadow:0 3px 8px rgba(0,0,0,.7)}
+  50%    {box-shadow:0 6px 32px rgba(60,255,100,.95),0 0 50px rgba(100,255,120,.6)}
+}
+.piece-flyer.snake-fly{
+  animation:snakeSpin .72s ease-in;
+  box-shadow:0 3px 24px rgba(255,80,0,.9);
+}
+.piece-flyer.ladder-fly{
+  animation:ladderBurst .28s ease-in-out 2;
+  box-shadow:0 3px 14px rgba(60,220,60,.75);
+}
+
+/* ── ONLINE PANEL STATUS ──────────────────── */
+.online-panel-status{background:rgba(79,195,247,.1);border:1px solid rgba(79,195,247,.3);border-radius:6px;padding:5px 8px;font-size:.72em;display:none;flex-direction:column;gap:1px}
+.online-panel-status.visible{display:flex}
+.online-panel-code{color:#4fc3f7;font-weight:900;letter-spacing:.08em}
+.online-panel-role{color:#888;font-size:.88em}
+.online-panel-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#27ae60;margin-right:4px;animation:onlinePulse 1.6s infinite;vertical-align:middle}
+
+/* ── RULES MODAL ──────────────────────────── */
+.btn-rules{background:#3a3a3a;color:#bbb;border:1px solid #4a4a4a;font-size:.82em;width:100%;margin-top:4px}
+.btn-rules:hover{background:#484848}
+
+/* ── PLAYER BAR (above board) ─────────────── */
+.player-bar{display:flex;align-items:stretch;gap:8px;padding:4px 8px;background:rgba(0,0,0,.25);flex-shrink:0}
+.player-bar .pcard{flex:1}
+.player-bar .status{flex:0 0 auto;min-width:140px;align-self:center;font-size:.9em}
+
+/* ── PANEL ────────────────────────────────── */
+.panel{width:260px;display:flex;flex-direction:column;gap:8px;flex-shrink:0;overflow:hidden;align-self:stretch}
+.panel-top{flex:0 0 auto;display:flex;flex-direction:column;gap:8px}
+.pcard{border-radius:8px;padding:8px 11px;border:2px solid transparent;transition:border-color .3s}
+.pcard h3{font-size:.88em;font-weight:700;margin-bottom:4px;letter-spacing:1px}
+.pcard.active{border-color:#ffd700;box-shadow:0 0 8px rgba(255,215,0,.4)}
+.pstatus{display:flex;gap:10px}
+.ppiece{display:flex;align-items:center;gap:4px;font-size:.78em}
+.pdot{width:15px;height:15px;border-radius:50%;border:1.5px solid rgba(255,255,255,.6);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.65em;font-weight:900;color:#fff}
+
+/* ── DICE ─────────────────────────────────── */
+.dice-wrap{display:flex;gap:10px;justify-content:center;align-items:center}
+.die{width:56px;height:56px;background:#fff;border-radius:9px;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);padding:7px;gap:4px;box-shadow:2px 3px 8px rgba(0,0,0,.5);flex-shrink:0}
+.dot{background:#1a1a1a;border-radius:50%;visibility:hidden}
+.dot.on{visibility:visible}
+.dice-eq{font-size:1.3em;font-weight:700;color:#ffd700;line-height:56px}
+
+/* ── BUTTONS ──────────────────────────────── */
+.btn{padding:7px 14px;border:none;border-radius:7px;cursor:pointer;font-size:.88em;font-weight:700;transition:background .2s,opacity .2s;width:100%}
+.btn-p1{background:#e74c3c;color:#fff}
+.btn-p1:hover:not(:disabled){background:#c0392b}
+.btn-p2{background:#3498db;color:#fff}
+.btn-p2:hover:not(:disabled){background:#2471a3}
+.btn-roll{margin-top:2px}
+.btn-move{margin:3px 0}
+.btn-bonus{border:2px solid #ffd700 !important;background:rgba(255,215,0,.15) !important;color:#ffd700 !important}
+.btn-bonus:hover:not(:disabled){background:rgba(255,215,0,.3) !important}
+.btn-new{background:#27ae60;color:#fff;font-size:1.1em;padding:12px 28px;border-radius:10px;width:auto;margin-top:12px}
+.btn-new:hover{background:#1e8449}
+.btn:disabled{opacity:.42;cursor:not-allowed}
+
+/* ── STATUS / LOG ─────────────────────────── */
+.status{text-align:center;font-size:1em;font-weight:700;padding:7px;background:rgba(255,255,255,.1);border-radius:6px;letter-spacing:1px}
+.log{flex:1 1 0;min-height:0;background:rgba(0,0,0,.35);border-radius:5px;padding:7px;font-size:.72em;overflow-y:auto;line-height:1.7}
+.log div{margin-bottom:1px}
+.le-snake  {color:#ff9999}
+.le-ladder {color:#7dff7d}
+.le-bounce {color:#ffb347}
+.le-capture{color:#ff69b4;font-weight:700}
+.le-special{color:#c39aff;font-weight:700}
+.le-win    {color:#ffd700;font-weight:700;font-size:1.15em}
+.le-roll   {color:#add8e6}
+
+/* ── LEGEND ───────────────────────────────── */
+.legend{display:flex;flex-wrap:wrap;gap:4px;font-size:.68em}
+.lg{display:flex;align-items:center;gap:3px}
+.lgsq{width:11px;height:11px;border-radius:2px;flex-shrink:0}
+
+/* ── DICE ROLL MODAL ──────────────────────── */
+.dice-modal{position:fixed;inset:0;background:rgba(0,0,0,.78);display:flex;align-items:center;justify-content:center;z-index:200}
+.dice-modal-box{background:#1a3d2b;border:3px solid #8d6e3f;border-radius:18px;padding:36px 52px;text-align:center;box-shadow:0 12px 48px rgba(0,0,0,.9)}
+.modal-title{font-size:1.5em;font-weight:900;color:#ffd700;letter-spacing:4px;margin-bottom:24px}
+.modal-dice-row{display:flex;gap:28px;justify-content:center}
+.modal-die{width:96px;height:96px;background:#fff;border-radius:14px;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);padding:13px;gap:7px;box-shadow:3px 5px 16px rgba(0,0,0,.6)}
+.modal-die .dot{background:#1a1a1a;border-radius:50%;visibility:hidden}
+.modal-die .dot.on{visibility:visible}
+.modal-result{margin-top:20px;font-size:1.1em;font-weight:700;color:#fff;min-height:28px;letter-spacing:1px}
+@keyframes dieShake{0%,100%{transform:rotate(0deg) scale(1)}25%{transform:rotate(-9deg) scale(1.06)}75%{transform:rotate(9deg) scale(1.06)}}
+.die-rolling{animation:dieShake .18s infinite}
+
+/* ── WIN MODAL ────────────────────────────── */
+.win-modal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:300}
+.win-canvas{position:absolute;inset:0;pointer-events:none}
+.win-box{position:relative;z-index:1;background:rgba(10,40,25,.9);border:3px solid #ffd700;border-radius:22px;padding:48px 64px;text-align:center;box-shadow:0 16px 64px rgba(0,0,0,.95)}
+.win-trophy{font-size:4em;display:block;margin-bottom:8px;animation:trophyBounce .7s ease-out}
+@keyframes trophyBounce{0%{transform:scale(0) rotate(-15deg)}70%{transform:scale(1.25) rotate(6deg)}100%{transform:scale(1) rotate(0deg)}}
+.win-title{font-size:2em;font-weight:900;color:#ffd700;letter-spacing:3px;margin-bottom:6px;text-shadow:0 0 20px rgba(255,215,0,.7)}
+.win-sub{font-size:1em;color:#aee8c8;margin-bottom:4px}
+.btn-review{background:#8e44ad;color:#fff;font-size:.95em;padding:10px 22px;border-radius:10px;width:auto;margin-top:10px;border:none;cursor:pointer;font-weight:700}
+.btn-review:hover{background:#6c3483}
+
+/* ── REVIEW MODAL ─────────────────────────── */
+.review-modal{position:fixed;inset:0;background:rgba(0,0,0,.88);display:none;align-items:center;justify-content:center;z-index:600;padding:12px}
+.review-modal.open{display:flex}
+.review-box{background:#18182e;border:2px solid #8e44ad;border-radius:16px;padding:22px 26px;width:min(98vw,680px);max-height:90vh;overflow-y:auto;box-shadow:0 12px 48px rgba(0,0,0,.95)}
+.review-title{font-size:1.3em;font-weight:900;color:#c39bd3;margin-bottom:16px;text-align:center}
+.review-item{background:#22223a;border-radius:10px;padding:14px 16px;margin-bottom:12px;border-left:4px solid #8e44ad}
+.review-q{font-size:.95em;color:#f0f0f0;margin-bottom:10px;font-weight:600;line-height:1.4}
+.review-opts{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px}
+.review-opt{padding:7px 10px;border-radius:7px;font-size:.82em;font-weight:600;border:2px solid #38385a;color:#ccc;background:#1c1c38;display:flex;gap:7px;align-items:flex-start}
+.review-opt.correct{border-color:#27ae60;background:rgba(39,174,96,.18);color:#7dff7d}
+.review-opt.wrong{border-color:#e74c3c;background:rgba(231,76,60,.18);color:#ff9999}
+.review-opt.timeout{border-color:#e67e22;background:rgba(230,126,34,.18);color:#f0a87a}
+.review-footer{font-size:.75em;color:#888;margin-top:4px}
+.review-close{display:block;margin:18px auto 0;background:#555;color:#fff;border:none;border-radius:9px;padding:9px 28px;font-size:.95em;font-weight:700;cursor:pointer}
+.review-close:hover{background:#777}
+
+/* ── RULES MODAL (landscape) ──────────────── */
+.rules-modal{position:fixed;inset:0;background:rgba(0,0,0,.92);display:none;align-items:center;justify-content:center;z-index:500;padding:8px}
+.rules-modal.open{display:flex}
+.rules-box{background:#1e1e1e;border:3px solid #ffd700;border-radius:16px;padding:14px 20px 12px;width:min(99vw,1100px);max-height:96vh;overflow-y:auto;box-shadow:0 20px 80px rgba(0,0,0,.95)}
+.rules-box::-webkit-scrollbar{width:5px}.rules-box::-webkit-scrollbar-thumb{background:#555;border-radius:3px}
+.rules-head{text-align:center;margin-bottom:8px}
+.rules-gametitle{font-size:1.35em;font-weight:900;color:#ffd700;letter-spacing:5px;text-shadow:0 0 14px rgba(255,215,0,.5)}
+.rules-tagline{color:#aaa;font-size:.72em;margin-top:2px}
+/* 3-column landscape grid */
+.rules-body{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0 16px;align-items:start}
+.rules-col{}
+.rules-section{font-size:.66em;font-weight:800;color:#ffd700;letter-spacing:2px;margin:7px 0 3px;padding-bottom:2px;border-bottom:1px solid rgba(255,215,0,.25);text-transform:uppercase}
+.rules-rule{display:flex;gap:5px;margin-bottom:3px;font-size:.72em;line-height:1.35;color:#ddd}
+.rules-icon{flex-shrink:0;width:18px;text-align:center}
+.rules-start{display:block;margin:10px auto 0;background:#27ae60;color:#fff;border:none;border-radius:10px;padding:8px 52px;font-size:.95em;font-weight:800;cursor:pointer;letter-spacing:2px;transition:background .2s}
+.rules-start:hover{background:#1e8449}
+
+/* ── LOG HISTORY MODAL ────────────────────── */
+.log-modal{position:fixed;inset:0;background:rgba(0,0,0,.75);display:none;align-items:center;justify-content:center;z-index:250;padding:16px}
+.log-modal.open{display:flex}
+.log-box{background:#1a1a1a;border:2px solid #555;border-radius:14px;padding:18px 22px;width:min(520px,92vw);max-height:78vh;display:flex;flex-direction:column;box-shadow:0 12px 48px rgba(0,0,0,.9)}
+.log-box-title{font-size:1em;font-weight:800;color:#ffd700;letter-spacing:2px;margin-bottom:10px;text-align:center;flex-shrink:0}
+.log-content{flex:1;overflow-y:auto;font-size:.74em;line-height:1.7}
+.log-content::-webkit-scrollbar{width:4px}.log-content::-webkit-scrollbar-thumb{background:#444;border-radius:2px}
+.log-content div{margin-bottom:1px}
+.log-close{margin-top:10px;background:#3a3a3a;color:#ccc;border:1px solid #555;border-radius:7px;padding:7px;width:100%;cursor:pointer;font-weight:700;font-size:.85em;flex-shrink:0}
+.log-close:hover{background:#484848}
+.btn-log{background:#3a3a3a;color:#bbb;border:1px solid #4a4a4a;font-size:.82em;width:100%;margin-top:4px}
+.btn-log:hover{background:#484848}
+
+/* ── VOICE MIC + SOUND ────────────────────── */
+.mic-row{display:flex;gap:6px;align-items:center}
+.btn-mic{flex:1;background:#3a3a3a;color:#ccc;font-size:.82em;border:1px solid #555}
+.btn-mic:hover{background:#444}
+.btn-mic.listening{background:#c0392b !important;color:#fff !important;border-color:#e74c3c !important;animation:micPulse 1.4s infinite}
+@keyframes micPulse{0%,100%{box-shadow:0 0 0 0 rgba(231,76,60,.5)}65%{box-shadow:0 0 0 7px rgba(231,76,60,0)}}
+.voice-status{font-size:.66em;color:#888;text-align:center;min-height:14px;padding:2px 0;font-style:italic}
+.btn-sound{flex:0 0 auto;width:42px;background:#3a3a3a;color:#ccc;font-size:1.1em;border:1px solid #555;padding:0}
+.btn-sound:hover{background:#444}
+.btn-sound.muted{color:#555}
+
+/* ── SETUP MODAL ──────────────────────────── */
+.setup-modal{position:fixed;inset:0;background:rgba(0,0,0,.92);display:none;align-items:center;justify-content:center;z-index:480;padding:12px}
+.setup-modal.open{display:flex}
+.setup-box{background:#1a1a2e;border:3px solid #ffd700;border-radius:18px;padding:22px 28px 20px;width:min(98vw,744px);max-height:92vh;overflow-y:auto;box-shadow:0 20px 80px rgba(0,0,0,.95)}
+.setup-box::-webkit-scrollbar{width:5px}.setup-box::-webkit-scrollbar-thumb{background:#555;border-radius:3px}
+.setup-title{text-align:center;font-size:1.45em;font-weight:900;color:#ffd700;letter-spacing:4px;margin-bottom:18px;text-shadow:0 0 16px rgba(255,215,0,.4)}
+.setup-section{margin-bottom:16px}
+.setup-plabel{font-size:.88em;font-weight:800;letter-spacing:2px;margin-bottom:8px;text-transform:uppercase}
+.setup-avatars{display:flex;flex-wrap:wrap;gap:7px;margin-top:6px}
+.av-btn{width:44px;height:44px;font-size:1.45em;border:2px solid rgba(255,255,255,.18);border-radius:10px;background:rgba(255,255,255,.07);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:border-color .15s,background .15s;padding:0}
+.av-btn:hover{border-color:#ffd700;background:rgba(255,215,0,.15)}
+.av-btn.selected{border-color:#ffd700;background:rgba(255,215,0,.25);box-shadow:0 0 8px rgba(255,215,0,.5)}
+.setup-p2-toggle{display:flex;gap:8px;margin-bottom:10px}
+.p2-mode-btn{flex:1;padding:8px;border:2px solid rgba(255,255,255,.2);border-radius:8px;background:rgba(255,255,255,.07);color:#ccc;cursor:pointer;font-size:.84em;font-weight:700;transition:all .15s}
+.p2-mode-btn:hover{border-color:#ffd700;color:#fff}
+.p2-mode-btn.active{border-color:#ffd700;background:rgba(255,215,0,.18);color:#ffd700}
+.ai-levels{display:flex;gap:8px;margin-top:4px}
+.ai-level-card{flex:1;padding:10px 8px;border:2px solid rgba(255,255,255,.15);border-radius:10px;background:rgba(255,255,255,.05);cursor:pointer;text-align:center;transition:all .15s}
+.ai-level-card:hover{border-color:#ffd700;background:rgba(255,215,0,.1)}
+.ai-level-card.selected{border-color:#ffd700;background:rgba(255,215,0,.2)}
+.ai-icon{font-size:1.8em;margin-bottom:4px}
+.ai-name{font-size:.78em;font-weight:800;color:#ffd700;margin-bottom:2px}
+.ai-desc{font-size:.66em;color:#aaa;line-height:1.3}
+.setup-divider{border:none;border-top:1px solid rgba(255,255,255,.1);margin:14px 0}
+.setup-start{display:block;margin:14px auto 0;background:#27ae60;color:#fff;border:none;border-radius:10px;padding:11px 56px;font-size:1em;font-weight:800;cursor:pointer;letter-spacing:2px;transition:background .2s;width:100%}
+.setup-start:hover{background:#1e8449}
+
+/* ── PLAYER AVATAR IN CARD ─────────────────── */
+.player-av{font-size:1.6em;line-height:1;margin-right:5px;vertical-align:middle}
+
+/* ── ONLINE MODE UI ───────────────────────── */
+.online-section{margin-top:10px}
+.online-opt-row{display:flex;gap:8px;margin-bottom:10px}
+.online-opt-btn{flex:1;padding:9px 6px;border:2px solid rgba(255,255,255,.2);border-radius:8px;background:rgba(255,255,255,.07);color:#ccc;cursor:pointer;font-size:.84em;font-weight:700;transition:all .15s}
+.online-opt-btn:hover:not(:disabled){border-color:#4fc3f7;color:#fff}
+.online-opt-btn.active{border-color:#4fc3f7;background:rgba(79,195,247,.18);color:#4fc3f7}
+.online-opt-btn:disabled{opacity:.45;cursor:default}
+.room-code-wrap{text-align:center;margin:8px 0}
+.room-code-label{font-size:.72em;color:#aaa;letter-spacing:1px;margin-bottom:4px}
+.room-code-display{font-size:2.1em;font-weight:900;letter-spacing:.22em;color:#4fc3f7;background:rgba(79,195,247,.1);border:2px dashed rgba(79,195,247,.4);border-radius:10px;padding:6px 14px;display:inline-block;user-select:all;cursor:copy;text-shadow:0 0 14px rgba(79,195,247,.5)}
+.room-code-display:active{background:rgba(79,195,247,.25)}
+.online-status{font-size:.74em;color:#aaa;text-align:center;min-height:18px;margin-top:6px;font-style:italic}
+.online-status.ok{color:#27ae60;font-style:normal;font-weight:700}
+.online-status.err{color:#e74c3c;font-style:normal;font-weight:700}
+.join-row{display:flex;gap:6px;margin-top:6px}
+.join-input{flex:1;background:#22223a;border:2px solid rgba(255,255,255,.2);border-radius:7px;color:#f0f0f0;font-size:.92em;font-weight:700;padding:7px 10px;letter-spacing:.12em;text-transform:uppercase;outline:none}
+.join-input:focus{border-color:#4fc3f7}
+.join-go{background:#4fc3f7;color:#111;border:none;border-radius:7px;padding:7px 14px;font-weight:800;cursor:pointer;font-size:.86em;transition:background .15s}
+.join-go:hover{background:#81d4fa}
+@keyframes onlinePulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* ── EDUCATIONAL MODE TOGGLE ──────────────── */
+.edu-toggle-row{background:rgba(255,215,0,.07);border:1px solid rgba(255,215,0,.28);border-radius:8px;padding:11px 14px;margin-top:14px}
+.edu-toggle{display:flex;align-items:flex-start;gap:9px;cursor:pointer;color:#ddd;font-size:.82em;line-height:1.45;user-select:none}
+.edu-toggle input[type=checkbox]{width:17px;height:17px;margin-top:1px;flex-shrink:0;cursor:pointer;accent-color:#ffd700}
+.edu-badge{display:inline-block;background:#ffd700;color:#1a1a1a;font-size:.65em;font-weight:800;padding:1px 6px;border-radius:4px;letter-spacing:1px;vertical-align:middle;margin-left:4px}
+/* ── EDU LEVEL SELECTOR ──────────────────── */
+.edu-level-row{display:none;gap:7px;margin-top:9px}
+.edu-level-row.visible{display:flex}
+.topic-select{flex:1;padding:8px 10px;border:2px solid rgba(255,215,0,.45);border-radius:8px;background:#2a2a2a;color:#ffd700;font-size:.84em;font-weight:700;cursor:pointer;outline:none;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23ffd700' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px}
+.topic-select:focus{border-color:#ffd700;box-shadow:0 0 0 2px rgba(255,215,0,.2)}
+.topic-select option{background:#2a2a2a;color:#eee;font-weight:600}
+
+/* ── QUIZ MODAL ───────────────────────────── */
+.quiz-modal{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;z-index:400;padding:16px}
+.quiz-modal.open{display:flex}
+.quiz-box{background:#12122a;border:3px solid var(--qcol,#ffd700);border-radius:16px;padding:22px 26px;width:min(580px,94vw);box-shadow:0 16px 64px rgba(0,0,0,.95);position:relative;overflow:hidden}
+
+/* ── DRAGON JUDGMENT MODAL (full-screen) ──────────────────────── */
+.dragon-modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:600;background:rgba(0,0,0,.70);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+.dragon-modal.open{display:flex;animation:dragonModalFadeIn .35s ease-out forwards}
+@keyframes dragonModalFadeIn{from{opacity:0}to{opacity:1}}
+.dragon-modal-box{width:90vw;max-width:1200px;padding:52px 56px 48px;border-radius:28px;background:radial-gradient(ellipse at 28% 38%,rgba(32,0,64,.97) 0%,rgba(8,0,18,.99) 100%);box-shadow:0 0 120px rgba(255,60,0,.32),0 0 260px rgba(160,0,0,.22),inset 0 0 100px rgba(10,0,32,.7);display:flex;flex-direction:column;align-items:center;gap:36px}
+.dragon-fire-scene{display:flex;align-items:center;width:100%;justify-content:center;position:relative;height:180px}
+.dragon-big{font-size:9.5em;flex-shrink:0;position:relative;z-index:1;filter:drop-shadow(0 0 36px #ff6600) drop-shadow(0 0 80px #ff2200);animation:dragonBreathe .78s ease-in-out infinite alternate}
+@keyframes dragonBreathe{
+  from{transform:scaleX(-1) scale(1)    translateY(0)    rotate(-3deg)}
+  to  {transform:scaleX(-1) scale(1.09) translateY(-10px) rotate(2deg)}
+}
+.fire-exhale{position:relative;z-index:2;flex:1;max-width:540px;height:160px;margin-left:-48px;margin-top:-16px;overflow:visible}
+.dragon-fire-svg{display:block;width:100%;height:100%;overflow:visible}
+.dragon-modal-msg{font-size:2.1em;font-weight:900;color:#ff9000;letter-spacing:.06em;text-align:center;white-space:pre-line;text-shadow:0 0 22px #ff6600,0 0 50px #ff2200;animation:msgGlow .85s ease-in-out infinite alternate}
+@keyframes msgGlow{from{color:#ff8800;text-shadow:0 0 14px #ff5500}to{color:#ffcc44;text-shadow:0 0 32px #ffaa00,0 0 72px #ff4400}}
+
+/* ── BOARD EAGLE (green-square carry) ────────────────────────── */
+.board-eagle{position:fixed;font-size:3em;z-index:5000;pointer-events:none;
+  filter:drop-shadow(0 4px 18px rgba(0,0,0,.65)) drop-shadow(0 0 20px rgba(80,220,80,.55));
+  transform-origin:center center;
+  will-change:left,top,transform}
+@keyframes eagleAppear{
+  0%  {transform:translate(-50%,-50%) scale(0)    rotate(-30deg);opacity:0}
+  70% {transform:translate(-50%,-50%) scale(1.22) rotate(5deg);  opacity:1}
+  100%{transform:translate(-50%,-50%) scale(1)    rotate(0deg);  opacity:1}
+}
+
+/* ── BOARD DRAGON & FIRE ──────────────────────────────────────── */
+.board-dragon{position:fixed;font-size:2.5em;z-index:4000;pointer-events:none;filter:drop-shadow(0 0 10px #ff6600);transform-origin:center bottom;animation:boardDragonPop .35s cubic-bezier(.18,.89,.32,1.28) forwards}
+@keyframes boardDragonPop{0%{transform:scale(0) rotate(-20deg);opacity:0}100%{transform:scale(1) rotate(0deg);opacity:1}}
+.fire-stream-particle{position:fixed;border-radius:50%;pointer-events:none;z-index:3999;background:radial-gradient(circle,#fff8 20%,#ff8800 60%,transparent 100%)}
+.fire-blast{position:fixed;width:0;height:0;border-radius:50%;pointer-events:none;z-index:4001;animation:fireBlastExpand .55s ease-out forwards}
+@keyframes fireBlastExpand{0%{box-shadow:0 0 0 0 rgba(255,200,0,1),0 0 0 0 rgba(255,100,0,.8)}60%{box-shadow:0 0 0 30px rgba(255,100,0,.55),0 0 0 52px rgba(255,50,0,.28)}100%{box-shadow:0 0 0 52px rgba(255,60,0,0),0 0 0 80px rgba(255,0,0,0)}}
+.quiz-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.quiz-label{font-size:.8em;font-weight:800;color:var(--qcol,#ffd700);letter-spacing:2px;text-transform:uppercase}
+.quiz-sq{font-size:.72em;color:#999;text-align:right;max-width:55%}
+.quiz-q{font-size:.95em;font-weight:600;color:#f0f0f0;line-height:1.55;margin-bottom:14px;min-height:52px}
+.quiz-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.quiz-opt{padding:9px 11px;border:2px solid #38385a;border-radius:8px;background:#1c1c38;color:#ccc;cursor:pointer;font-size:.84em;font-weight:600;text-align:left;transition:border-color .15s,background .15s;display:flex;gap:8px;align-items:flex-start}
+.quiz-opt:hover:not(:disabled){border-color:var(--qcol,#ffd700);background:#22224a;color:#fff}
+.quiz-letter{flex-shrink:0;width:18px;height:18px;border-radius:50%;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;font-size:.78em;font-weight:800}
+.quiz-opt.correct{border-color:#27ae60 !important;background:rgba(39,174,96,.22) !important;color:#7dff7d !important}
+.quiz-opt.wrong  {border-color:#e74c3c !important;background:rgba(231,76,60,.22) !important;color:#ff9999 !important}
+.quiz-opt:disabled{cursor:default}
+.quiz-timer-wrap{height:5px;background:#2a2a44;border-radius:3px;overflow:hidden;margin-bottom:10px}
+.quiz-timer-bar{height:100%;background:var(--qcol,#ffd700);width:100%;border-radius:3px}
+.quiz-result{text-align:center;font-weight:800;font-size:.9em;min-height:20px}
+.quiz-result.ok  {color:#27ae60}
+.quiz-result.fail{color:#e74c3c}
+</style>
+</head>
+<body>
+<header>Play2Learn</header>
+
+<!-- PLAYER BAR — above the board -->
+<div class="player-bar">
+  <div class="pcard active" id="c0" style="background:rgba(231,76,60,.18)">
+    <h3 style="color:#ff8080"><span class="player-av" id="av0disp">🦁</span><span id="pname0">Player 1</span></h3>
+    <div class="pstatus">
+      <div class="ppiece"><div class="pdot" style="background:#e74c3c">A</div><span id="s0a">Sq 1</span></div>
+      <div class="ppiece"><div class="pdot" style="background:#e74c3c">B</div><span id="s0b">Sq 1</span></div>
+    </div>
+  </div>
+
+  <div class="status" id="status">Player 1's Turn</div>
+
+  <div class="pcard" id="c1" style="background:rgba(52,152,219,.18)">
+    <h3 style="color:#85c1e9"><span class="player-av" id="av1disp">🐯</span><span id="pname1">Player 2</span></h3>
+    <div class="pstatus">
+      <div class="ppiece"><div class="pdot" style="background:#3498db">A</div><span id="s1a">Sq 1</span></div>
+      <div class="ppiece"><div class="pdot" style="background:#3498db">B</div><span id="s1b">Sq 1</span></div>
+    </div>
+  </div>
+</div>
+<div class="game">
+  <div class="board-wrap">
+    <div class="board" id="board"></div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-top">
+
+      <div class="online-panel-status" id="onlinePanelStatus">
+        <div><span class="online-panel-dot"></span><span class="online-panel-code" id="onlinePanelCode">🌐 Room: ------</span></div>
+        <div class="online-panel-role" id="onlinePanelRole"></div>
+      </div>
+
+      <div class="mic-row">
+        <button class="btn btn-sound" id="soundBtn" onclick="toggleSound()" title="Toggle sound">🔊</button>
+        <button class="btn btn-mic" id="micBtn" onclick="toggleMic()">🎤 Voice: Off</button>
+      </div>
+      <div class="voice-status" id="voiceStatus"></div>
+
+      <div class="dice-wrap">
+        <div class="die" id="d0"></div>
+        <div class="dice-eq" id="deq">?</div>
+        <div class="die" id="d1"></div>
+      </div>
+
+      <button class="btn btn-roll btn-p1" id="rollBtn" onclick="doRoll()">🎲 Roll Dice</button>
+      <div id="moveOpts"></div>
+
+      <div class="legend">
+        <div class="lg"><div class="lgsq" style="background:#fffacd;border:1px solid #c9a700"></div>🏠 Start</div>
+        <div class="lg"><div class="lgsq" style="background:#ffd700;border:1px solid #ff8c00"></div>🏰 Finish</div>
+        <div class="lg"><div class="lgsq" style="background:#6898c8;border:1px solid #4878a8"></div>🛡 Perfect square — safe house</div>
+        <div class="lg"><div class="lgsq" style="background:#d05050"></div>⚠ Prime ≥11 → falls to prev 🛡</div>
+        <div class="lg"><div class="lgsq" style="background:#3d8f3d"></div>÷5 or ÷6 → jumps ahead</div>
+        <div class="lg" style="color:#ffd700">🏠 Leave home: both dice even or doubles</div>
+        <div class="lg" style="color:#c39aff">✦ doubles on 🏠 → jump d rows up</div>
+        <div class="lg" style="color:#c39aff">✦ doubles on 🛡 → +d² move</div>
+        <div class="lg" style="color:#c39aff">= doubles (both active) → each +sum option</div>
+        <div class="lg" style="color:#c39aff">1 piece left → sum or ↪ d₁→d₂ sequence</div>
+        <div class="lg" style="color:#ff69b4">⚔ land on foe → foe to 🏠</div>
+        <div class="lg" style="color:#ff69b4">🛡 foe on safe → you to 🏠</div>
+        <div class="lg" style="color:#7ddfff">🔗 same sq → immune pair</div>
+        <div class="lg" style="color:#7ddfff">🔗 even sum → both move by full sum</div>
+        <div class="lg" style="color:#7ddfff">🔗 doubles → both move by d²</div>
+        <div class="lg" style="color:#7ddfff">🔗 pair move → primes safe</div>
+      </div>
+
+      <button class="btn btn-rules" onclick="openRules()">📋 Rules</button>
+      <button class="btn btn-log" onclick="openLog()">📜 Move History</button>
+    </div>
+    <div class="log" id="log" style="display:none"></div>
+  </div>
+</div>
+
+<!-- RULES MODAL — landscape 3-column layout, shown on load -->
+<div class="rules-modal" id="rulesModal">
+  <div class="rules-box">
+
+    <div class="rules-head">
+      <div class="rules-gametitle">Play2Learn</div>
+      <div class="rules-tagline">A strategic twist on Snakes &amp; Ladders — 16×9 board · 144 squares · 2 players · 2 pieces each · First to land both on sq 144 wins!</div>
+    </div>
+
+    <div class="rules-body">
+
+      <!-- ── Column 1: Objective + Rolling & Moving + Board Colours ── -->
+      <div class="rules-col">
+        <div class="rules-section">🎯 Objective</div>
+        <div class="rules-rule"><span class="rules-icon">🏁</span><span>Move <strong>both</strong> pieces from sq 1 to sq 144 before your opponent does.</span></div>
+
+        <div class="rules-section">🎲 Rolling &amp; Moving</div>
+        <div class="rules-rule"><span class="rules-icon">≠</span><span><strong>Different dice</strong> — move both pieces, one per die. Player freely assigns which die to which piece.</span></div>
+        <div class="rules-rule"><span class="rules-icon">🏠</span><span><strong>Leaving home (sq 1)</strong> — need <em>both dice even</em> or <em>doubles (d,d)</em>. Otherwise: both at home → turn skipped; one at home → only the free piece moves.</span></div>
+        <div class="rules-rule"><span class="rules-icon">↩</span><span><strong>Overshoot</strong> sq 144 → piece bounces back by the excess.</span></div>
+        <div class="rules-rule"><span class="rules-icon">1</span><span><strong>One piece finished</strong> — doubles: +d² or +d→+d in sequence; other roll: +sum, or +d₁→+d₂ / +d₂→+d₁ in sequence.</span></div>
+        <div class="rules-rule"><span class="rules-icon">↪</span><span><strong>Sequence move</strong> — each die resolves separately; snake/ladder fires after every individual step.</span></div>
+        <div class="rules-rule"><span class="rules-icon">🛡</span><span><strong>Shield → Red</strong> — a piece moving off a safe house onto a prime bounces <em>back</em> to that safe house.</span></div>
+
+        <div class="rules-section">🗝 Board Colours</div>
+        <div class="rules-rule"><span class="rules-icon" style="background:#d05050;border-radius:2px">&nbsp;</span><span style="color:#ff9999">🐉 Red — dangerous prime (≥11) → falls per snake table</span></div>
+        <div class="rules-rule"><span class="rules-icon" style="background:#3d8f3d;border-radius:2px">&nbsp;</span><span style="color:#7dff7d">🦅 Green — ÷5 or ÷6 → jumps to bonus square</span></div>
+        <div class="rules-rule"><span class="rules-icon" style="background:#6898c8;border:1px solid #4878a8;border-radius:2px">&nbsp;</span><span style="color:#aad4ff">🛡 Blue — perfect square · safe house</span></div>
+        <div class="rules-rule"><span class="rules-icon">ℹ</span><span>Primes 2, 3, 5, 7 are <em>not</em> dangerous. Special falls: 131 &amp; 139 → 49 · 11 &amp; 13 → 1.</span></div>
+      </div>
+
+      <!-- ── Column 2: Doubles Bonuses (top) + Immune Pair + Capture ── -->
+      <div class="rules-col">
+        <div class="rules-section">✦ Doubles Bonuses</div>
+        <div class="rules-rule"><span class="rules-icon">🏠</span><span><strong>Doubles on sq 1</strong> → jump piece <em>d rows</em> up same column. <em>(2,2 → +2 rows · 4,4 → +4 rows)</em></span></div>
+        <div class="rules-rule"><span class="rules-icon">🛡</span><span><strong>Doubles on safe house</strong> → bonus option: move piece by +d². <em>(3,3 → +9)</em></span></div>
+        <div class="rules-rule"><span class="rules-icon">=</span><span><strong>Doubles on normal square</strong> → move piece <em>d then d in sequence</em> (not by 2d).</span></div>
+        <div class="rules-rule"><span class="rules-icon">🔗</span><span><strong>Immune pair + doubles</strong> → both pieces move by d² (not at home sq 1).</span></div>
+
+        <div class="rules-section">🔗 Immune Pair</div>
+        <div class="rules-rule"><span class="rules-icon">🔗</span><span>Both your pieces on the <strong>same square</strong> (not sq 1) = immune pair.</span></div>
+        <div class="rules-rule"><span class="rules-icon">🔗</span><span><strong>Different dice + even sum</strong> → both pieces move by the full sum. <em>(2+4 → +6 each)</em></span></div>
+        <div class="rules-rule"><span class="rules-icon">🛡</span><span><strong>Immune pair moves bypass dangerous primes</strong> — no fall!</span></div>
+        <div class="rules-rule"><span class="rules-icon">🏠</span><span>No immune pair privilege when both pieces are on sq 1 (home).</span></div>
+
+        <div class="rules-section">⚔ Capture</div>
+        <div class="rules-rule"><span class="rules-icon">⚔</span><span>Land on a <strong>lone</strong> opponent piece → it goes back to 🏠 sq 1.</span></div>
+        <div class="rules-rule"><span class="rules-icon">🛡</span><span>Land on opponent piece on a <strong>safe house</strong> → <em>you</em> go back to 🏠.</span></div>
+        <div class="rules-rule"><span class="rules-icon">🔗</span><span>Land on opponent's <strong>immune pair</strong> → <em>you</em> are sent home.</span></div>
+        <div class="rules-rule"><span class="rules-icon">🔒</span><span>Sq 1 and sq 144 are always capture-free zones.</span></div>
+      </div>
+
+      <!-- ── Column 3: Educational Mode (top) + AI + Voice + Quick Ref ── -->
+      <div class="rules-col">
+        <div class="rules-section">📚 Educational Mode</div>
+        <div class="rules-rule"><span class="rules-icon">📚</span><span>Land on a dangerous prime → a math challenge appears. Answer correctly to <strong>stay</strong> on the square instead of falling!</span></div>
+        <div class="rules-rule"><span class="rules-icon">📊</span><span><strong>📊 Basic Math</strong> — arithmetic, algebra, geometry questions.</span></div>
+        <div class="rules-rule"><span class="rules-icon">🎓</span><span><strong>🎓 AP Algebra</strong> — harder: functions, logs, sequences, complex numbers.</span></div>
+        <div class="rules-rule"><span class="rules-icon">🌐</span><span>Online: if <em>either</em> player enables edu mode (or AP level), both play with it.</span></div>
+        <div class="rules-rule"><span class="rules-icon">🤖</span><span>Computer opponent always answers correctly.</span></div>
+
+        <div class="rules-section">🤖 Computer Opponent</div>
+        <div class="rules-rule"><span class="rules-icon">🤖</span><span><strong>Grandmaster</strong> — always picks the best available move.</span></div>
+        <div class="rules-rule"><span class="rules-icon">🎲</span><span><strong>Random</strong> — picks any valid move at random.</span></div>
+        <div class="rules-rule"><span class="rules-icon">😈</span><span><strong>Mean</strong> — hunts your pieces; captures whenever possible, otherwise picks the worst move.</span></div>
+
+        <div class="rules-section">🎤 Voice &amp; Sound</div>
+        <div class="rules-rule"><span class="rules-icon">🎤</span><span><strong>"Roll"</strong> → rolls · <strong>"Option 1…5"</strong> / <strong>"First"…</strong> → picks move · <strong>"New game"</strong> → restart.</span></div>
+        <div class="rules-rule"><span class="rules-icon">🔊</span><span><strong>🔊 / 🔇</strong> button — toggle all game sounds &amp; background music.</span></div>
+
+        <div class="rules-section">⌨ Quick Ref</div>
+        <div class="rules-rule"><span class="rules-icon">🏠</span><span>Sq 1 — Start &nbsp;·&nbsp; 🏰 Sq 144 — Finish &nbsp;·&nbsp; 2 players · 2 pieces each</span></div>
+        <div class="rules-rule"><span class="rules-icon">🌐</span><span><strong>Online</strong> — create or join a room via the 🌐 Online option in Game Setup.</span></div>
+        <div class="rules-rule"><span class="rules-icon">📋</span><span><strong>Rules</strong> button — this screen &nbsp;·&nbsp; <strong>📜 Move History</strong> — review all past moves.</span></div>
+      </div>
+
+    </div><!-- /rules-body -->
+
+    <button class="rules-start" onclick="closeRules()">✕ Close Rules</button>
+  </div>
+</div>
+
+<!-- SETUP MODAL — player & AI configuration -->
+<div class="setup-modal" id="setupModal">
+  <div class="setup-box">
+    <div class="setup-title">🎮 Game Setup</div>
+
+    <!-- Player 1 -->
+    <div class="setup-section">
+      <div class="setup-plabel" style="color:#ff9999">🔴 Player 1 — Choose your avatar</div>
+      <div class="setup-avatars" id="av0"></div>
+    </div>
+
+    <hr class="setup-divider">
+
+    <!-- Player 2 -->
+    <div class="setup-section">
+      <div class="setup-plabel" style="color:#85c1e9">🔵 Player 2</div>
+      <div class="setup-p2-toggle">
+        <button class="p2-mode-btn" id="p2HumanBtn" onclick="setP2Mode('human')">👤 Human</button>
+        <button class="p2-mode-btn active" id="p2CpuBtn" onclick="setP2Mode('cpu')">🤖 Computer</button>
+        <button class="p2-mode-btn" id="p2OnlineBtn" onclick="setP2Mode('online')">🌐 Online</button>
+      </div>
+      <div id="p2HumanSec" style="display:none">
+        <div class="setup-avatars" id="av1"></div>
+      </div>
+      <div id="p2CpuSec">
+        <div class="ai-levels">
+          <div class="ai-level-card selected" id="ai1" onclick="setAI(1)">
+            <div class="ai-icon">🤖</div>
+            <div class="ai-name">Grandmaster</div>
+            <div class="ai-desc">Picks the best move every time</div>
+          </div>
+          <div class="ai-level-card" id="ai2" onclick="setAI(2)">
+            <div class="ai-icon">🎲</div>
+            <div class="ai-name">Random</div>
+            <div class="ai-desc">Completely unpredictable</div>
+          </div>
+          <div class="ai-level-card" id="ai3" onclick="setAI(3)">
+            <div class="ai-icon">😈</div>
+            <div class="ai-name">Mean</div>
+            <div class="ai-desc">Hunts your pieces — captures when possible</div>
+          </div>
+        </div>
+      </div>
+      <!-- Online section -->
+      <div id="p2OnlineSec" style="display:none" class="online-section">
+        <div class="online-opt-row">
+          <button class="online-opt-btn" id="onlineCreateBtn" onclick="onlineCreate()">🏠 Create Room</button>
+          <button class="online-opt-btn" id="onlineJoinBtn" onclick="onlineShowJoin()">🔗 Join Room</button>
+        </div>
+        <div id="onlineRoomDisplay" style="display:none">
+          <div class="room-code-wrap">
+            <div class="room-code-label">Share this code with your opponent:</div>
+            <div class="room-code-display" id="roomCodeDisplay" title="Click to copy">------</div>
+          </div>
+          <div class="online-status" id="onlineStatus">⏳ Waiting for opponent…</div>
+        </div>
+        <div id="onlineJoinPanel" style="display:none">
+          <div class="join-row">
+            <input type="text" class="join-input" id="joinCodeInput" placeholder="ROOM CODE" maxlength="6" oninput="this.value=this.value.toUpperCase()">
+            <button class="join-go" onclick="onlineJoin()">Join →</button>
+          </div>
+          <div class="online-status" id="onlineJoinStatus"></div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="setup-divider">
+
+    <!-- Educational Mode -->
+    <div class="edu-toggle-row" style="margin-top:0">
+      <label class="edu-toggle">
+        <input type="checkbox" id="eduCheck" onchange="toggleEduLevelRow('eduLevelRow',this.checked)">
+        <span>📚 <strong>Educational Mode</strong> — land on a dangerous prime? Answer a math question to stay! <span class="edu-badge">NEW</span></span>
+      </label>
+    </div>
+    <div class="edu-level-row" id="eduLevelRow">
+      <select id="topicSelect" class="topic-select" onchange="setEduTopic(this.value)">
+        <option value="basic">📊 Basic Math</option>
+      </select>
+    </div>
+
+    <button class="setup-start" onclick="setupGame()">▶ Start Game!</button>
+  </div>
+</div>
+
+<!-- DRAGON JUDGMENT MODAL -->
+<div class="dragon-modal" id="dragonModal">
+  <div class="dragon-modal-box">
+    <div class="dragon-fire-scene">
+      <div class="dragon-big">🐉</div>
+      <div class="fire-exhale">
+        <svg class="dragon-fire-svg" viewBox="0 0 420 160" preserveAspectRatio="none"
+             xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <!-- Outer flame: deep red → orange → yellow (bright at right/base, fades left to tip) -->
+            <linearGradient id="dfOuter" x1="1" y1="0" x2="0" y2="0">
+              <stop offset="0%"   stop-color="#cc1100"/>
+              <stop offset="22%"  stop-color="#ff4400"/>
+              <stop offset="50%"  stop-color="#ff8800" stop-opacity="0.9"/>
+              <stop offset="78%"  stop-color="#ffcc00" stop-opacity="0.55"/>
+              <stop offset="100%" stop-color="#ffee44" stop-opacity="0"/>
+            </linearGradient>
+            <!-- Inner hot core: bright orange → yellow → near-white (bright at right/base, fades left) -->
+            <linearGradient id="dfInner" x1="1" y1="0" x2="0" y2="0">
+              <stop offset="0%"   stop-color="#ff6600"/>
+              <stop offset="35%"  stop-color="#ffbb00"/>
+              <stop offset="65%"  stop-color="#ffee88" stop-opacity="0.75"/>
+              <stop offset="100%" stop-color="#ffffff"  stop-opacity="0"/>
+            </linearGradient>
+            <!-- Turbulence filter: distorts gradients into organic flame shapes -->
+            <filter id="dfFilt" x="-5%" y="-45%" width="112%" height="190%"
+                    color-interpolation-filters="sRGB">
+              <feTurbulence type="turbulence" baseFrequency="0.022 0.085"
+                            numOctaves="4" seed="5" result="t">
+                <!-- Discrete seed jumps create snapping flame tongues -->
+                <animate attributeName="seed"
+                         values="5;19;8;27;13;3;22;11;31;6;5"
+                         calcMode="discrete" dur="3.8s" repeatCount="indefinite"/>
+                <!-- Slow baseFrequency drift makes the fire breathe -->
+                <animate attributeName="baseFrequency"
+                         values="0.022 0.085;0.027 0.105;0.019 0.078;0.024 0.092;0.022 0.085"
+                         dur="2.5s" repeatCount="indefinite"/>
+              </feTurbulence>
+              <feDisplacementMap in="SourceGraphic" in2="t"
+                                 scale="34" xChannelSelector="R" yChannelSelector="G"/>
+            </filter>
+          </defs>
+          <!-- Four triangular flame tongues: base on right (bright/hot), tip pointing left -->
+          <polygon points="420,0   30,80  420,160" fill="url(#dfOuter)" filter="url(#dfFilt)" opacity="0.88"/>
+          <polygon points="405,18  30,80  405,142" fill="url(#dfOuter)" filter="url(#dfFilt)" opacity="0.72"/>
+          <polygon points="335,40  30,80  335,120" fill="url(#dfInner)" filter="url(#dfFilt)" opacity="0.82"/>
+          <polygon points="255,58  30,80  255,102" fill="url(#dfInner)" filter="url(#dfFilt)" opacity="0.65"/>
+        </svg>
+      </div>
+    </div>
+    <div class="dragon-modal-msg" id="dragonModalMsg">⚔️ The Dragon Judges!</div>
+  </div>
+</div>
+
+<!-- QUIZ MODAL (educational mode) -->
+<div class="quiz-modal" id="quizModal">
+  <div class="quiz-box">
+    <div class="quiz-head">
+      <div class="quiz-label" id="quizLabel">🧮 Math Challenge!</div>
+      <div class="quiz-sq" id="quizSq"></div>
+    </div>
+    <div class="quiz-q" id="quizQ"></div>
+    <div class="quiz-opts" id="quizOpts"></div>
+    <div class="quiz-timer-wrap"><div class="quiz-timer-bar" id="quizTimerBar"></div></div>
+    <div class="quiz-result" id="quizResult"></div>
+  </div>
+</div>
+
+<!-- LOG HISTORY MODAL -->
+<div class="log-modal" id="logModal" onclick="if(event.target===this)closeLog()">
+  <div class="log-box">
+    <div class="log-box-title">📜 Move History</div>
+    <div class="log-content" id="logContent"></div>
+    <button class="log-close" onclick="closeLog()">✕ Close</button>
+  </div>
+</div>
+
+<!-- DICE ROLL MODAL -->
+<div class="dice-modal" id="diceModal" style="display:none">
+  <div class="dice-modal-box">
+    <div class="modal-title" id="modalTitle">Rolling…</div>
+    <div class="modal-dice-row">
+      <div class="modal-die" id="md0"></div>
+      <div class="modal-die" id="md1"></div>
+    </div>
+    <div class="modal-result" id="modalResult"></div>
+  </div>
+</div>
+
+<!-- WIN MODAL -->
+<div class="win-modal" id="winModal" style="display:none">
+  <canvas class="win-canvas" id="confettiCanvas"></canvas>
+  <div class="win-box">
+    <span class="win-trophy">🏆</span>
+    <div class="win-title" id="winTitle">Player 1 Wins!</div>
+    <div class="win-sub">Both pieces made it home!</div>
+    <button class="btn btn-new" onclick="newGame()">🎮 New Game</button>
+    <br>
+    <button class="btn-review" id="reviewBtn" style="display:none" onclick="showReview()">📋 Review Missed Questions</button>
+  </div>
+</div>
+
+<!-- Review missed questions modal -->
+<div class="review-modal" id="reviewModal">
+  <div class="review-box">
+    <div class="review-title">📋 Questions to Review</div>
+    <div id="reviewList"></div>
+    <button class="review-close" onclick="document.getElementById('reviewModal').classList.remove('open')">Close</button>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════
+   CONSTANTS
+═══════════════════════════════════════════ */
+const COLS=16, ROWS=9;
+
+/* ── Prime helper ─────────────────────────── */
+function isPrime(n){
+  if(n<2) return false;
+  for(let i=2;i*i<=n;i++) if(n%i===0) return false;
+  return true;
+}
+
+/* ── Perfect squares 1–144 (safe houses) ─────
+   1²=1, 2²=4, 3²=9, 4²=16, 5²=25, 6²=36,
+   7²=49, 8²=64, 9²=81, 10²=100, 11²=121, 12²=144  */
+const PERFECT_SQUARES=new Set();
+for(let k=1;k*k<=144;k++) PERFECT_SQUARES.add(k*k);
+
+/* ── Dangerous primes: 5th prime (11) and beyond ──
+   First four primes 2,3,5,7 are NOT dangerous.      */
+function isDangerous(n){ return n>=11 && isPrime(n); }
+
+/* ── SNAKES: dangerous prime → largest perfect square below it ── */
+const SNAKES=(function(){
+  const psList=[...PERFECT_SQUARES].sort((a,b)=>a-b);
+  const s={};
+  for(let n=11;n<=143;n++){
+    if(isDangerous(n)){
+      let dest=1;
+      for(const ps of psList){ if(ps<n) dest=ps; else break; }
+      s[n]=dest;
+    }
+  }
+  return s;
+})();
+
+// Special overrides: 131 and 139 fall all the way to 49 (7²)
+SNAKES[131]=49;
+SNAKES[139]=49;
+// Custom snake destinations (override auto-generated)
+SNAKES[11]=1;  SNAKES[13]=1;
+SNAKES[17]=11; SNAKES[19]=11; SNAKES[23]=11;
+SNAKES[29]=16; SNAKES[31]=16;
+SNAKES[37]=25; SNAKES[41]=25;
+SNAKES[53]=36;
+SNAKES[83]=64; SNAKES[89]=64;
+SNAKES[101]=81; SNAKES[103]=81;
+
+/* ── LADDERS: curated destinations ──────────────────────────
+   66 removed; 42, 54, 72, 102 added; 6 moved from 22 to 51. */
+const LADDERS={
+  6:51,  12:28, 18:38, 24:46,
+  30:57, 42:69, 48:81, 54:86, 60:92,
+  72:99, 78:111, 96:121, 102:135, 108:129, 120:133, 132:142
+};
+
+/* ── Safe houses for capture: all perfect squares ── */
+const SAFE_HOUSES=PERFECT_SQUARES;
+
+const COLORS    = [['#e74c3c','#e74c3c'],['#3498db','#3498db']];
+let   NAMES     = ['Player 1','Player 2'];
+const PIECE_CLS = [['p1a','p1b'],['p2a','p2b']];
+const DOTS      = {0:[],1:[4],2:[2,6],3:[2,4,6],4:[0,2,6,8],5:[0,2,4,6,8],6:[0,2,3,5,6,8]};
+
+/* ═══════════════════════════════════════════
+   BOARD NUMBERING
+═══════════════════════════════════════════ */
+function squareAt(vRow,col){
+  const bRow=ROWS-1-vRow;
+  return bRow%2===0 ? bRow*COLS+col+1 : bRow*COLS+(COLS-1-col)+1;
+}
+
+/* ── verticalUpByRows: move `rows` board-rows up in the same visual column ──
+   Examples from sq 1 (bottom-left):
+     d=1 → sq 32   (row 2, right end)
+     d=2 → sq 33   (row 3, left end)
+     d=3 → sq 64   (row 4, right end)   */
+function verticalUpByRows(sq, rows){
+  const bRow    =Math.floor((sq-1)/COLS);
+  const posInRow=(sq-1)%COLS;
+  const vRow    =ROWS-1-bRow;
+  const col     =bRow%2===0 ? posInRow : COLS-1-posInRow;
+  const newVRow =vRow-rows;
+  if(newVRow<0) return null;
+  return squareAt(newVRow, col);
+}
+
+/* ═══════════════════════════════════════════
+   AVATARS & PLAYER CONFIG
+═══════════════════════════════════════════ */
+const AVATAR_LIST=['🦁','🐯','🦊','🐺','🧙','🧑‍🚀','🥷','👑','🐸','🦄','🐲','🦈'];
+const AI_AVATARS={1:'🤖',2:'🎲',3:'😈'};
+const AI_NAMES={1:'Grandmaster',2:'Random Bot',3:'Mean Mode'};
+let playerAvatars=['🦁','🐯'];
+
+// selected indices in setup modal
+let _setupAv=[0,1];
+let _p2Mode='cpu';   // 'human' | 'cpu' | 'online'  — default: Computer
+let _aiLevel=1;      // 1=Grandmaster (default)
+
+let computerPlayer=-1; // -1=none, 0=P1 cpu, 1=P2 cpu
+let aiLevel=1;
+
+/* ── Avatar picker builder ─ */
+function buildAvatarPicker(containerId, playerIdx){
+  const el=document.getElementById(containerId);
+  el.innerHTML='';
+  AVATAR_LIST.forEach((av,i)=>{
+    const b=document.createElement('button');
+    b.className='av-btn'+(i===_setupAv[playerIdx]?' selected':'');
+    b.textContent=av;
+    b.title=av;
+    b.onclick=()=>{
+      _setupAv[playerIdx]=i;
+      el.querySelectorAll('.av-btn').forEach((x,j)=>x.classList.toggle('selected',j===i));
+    };
+    el.appendChild(b);
+  });
+}
+
+function setP2Mode(mode){
+  _p2Mode=mode;
+  document.getElementById('p2HumanBtn').classList.toggle('active',mode==='human');
+  document.getElementById('p2CpuBtn').classList.toggle('active',mode==='cpu');
+  document.getElementById('p2OnlineBtn').classList.toggle('active',mode==='online');
+  document.getElementById('p2HumanSec').style.display=mode==='human'?'':'none';
+  document.getElementById('p2CpuSec').style.display=mode==='cpu'?'':'none';
+  document.getElementById('p2OnlineSec').style.display=mode==='online'?'':'none';
+  // Reset online state if switching away
+  if(mode!=='online'){isOnlineMode=false;roomCode='';}
+}
+
+function setAI(level){
+  _aiLevel=level;
+  [1,2,3].forEach(l=>document.getElementById('ai'+l).classList.toggle('selected',l===level));
+}
+
+function openSetup(){
+  buildAvatarPicker('av0',0);
+  buildAvatarPicker('av1',1);
+  document.getElementById('setupModal').classList.add('open');
+}
+
+function setupGame(){
+  // Online mode: only P1 (creator) calls setupGame — P2 joined independently
+  if(_p2Mode==='online'){
+    if(!isOnlineMode||!roomCode){
+      alert('Please click "Create Room" first to get a room code, then share it with your opponent.');
+      return;
+    }
+    playerAvatars[0]=AVATAR_LIST[_setupAv[0]];
+    playerAvatars[1]='🌐';
+    computerPlayer=-1;
+    NAMES[0]='Player 1'; NAMES[1]='Player 2';
+    eduMode=document.getElementById('eduCheck').checked;
+    if(eduMode) setEduTopic(questionLevel);
+    document.getElementById('av0disp').textContent=playerAvatars[0];
+    document.getElementById('av1disp').textContent='🌐';
+    document.getElementById('pname0').textContent=NAMES[0];
+    document.getElementById('pname1').textContent=NAMES[1];
+    document.getElementById('setupModal').classList.remove('open');
+    showOnlineBanner();
+    newGame();
+    return;
+  }
+
+  // Read avatar choices
+  playerAvatars[0]=AVATAR_LIST[_setupAv[0]];
+  if(_p2Mode==='cpu'){
+    computerPlayer=1;
+    aiLevel=_aiLevel;
+    playerAvatars[1]=AI_AVATARS[_aiLevel];
+    NAMES[1]=AI_NAMES[_aiLevel];
+  } else {
+    computerPlayer=-1;
+    playerAvatars[1]=AVATAR_LIST[_setupAv[1]];
+    NAMES[0]='Player 1'; NAMES[1]='Player 2';
+  }
+  NAMES[0]='Player 1';
+
+  // Read edu mode + level
+  eduMode=document.getElementById('eduCheck').checked;
+  if(eduMode) setEduTopic(questionLevel); // keep current level; already set by button
+
+  // Update player bar display
+  document.getElementById('av0disp').textContent=playerAvatars[0];
+  document.getElementById('av1disp').textContent=playerAvatars[1];
+  document.getElementById('pname0').textContent=NAMES[0];
+  document.getElementById('pname1').textContent=NAMES[1];
+
+  document.getElementById('setupModal').classList.remove('open');
+  newGame();
+}
+
+/* ═══════════════════════════════════════════
+   MOVE QUEUE  (for AI evaluation)
+═══════════════════════════════════════════ */
+let moveQueue=[];
+
+/* ── Online multiplayer globals (declared here so syncUI() can reference them safely) ── */
+let isOnlineMode   = false;
+let myPlayerIdx    = 0;
+let roomCode       = '';
+let _lastAppliedSeq = -1;
+let _fbUnsubscribe  = null;
+
+/* ═══════════════════════════════════════════
+   AI LOGIC
+═══════════════════════════════════════════ */
+function scoreOption(meta){
+  if(!meta) return 50+Math.random()*50;
+  const ps=G.pieces[G.cur].slice();
+
+  if(meta.type==='vertical'){
+    const fp=ps.slice(); fp[meta.pi]=meta.dest;
+    return fp[0]+fp[1];
+  }
+  if(meta.type==='exec'){
+    const fp=ps.slice();
+    for(const{p,s}of meta.moves){
+      let raw=fp[p]+s;
+      if(raw>144) raw=144-(raw-144);
+      raw=Math.max(1,Math.min(144,raw));
+      if(!meta.isPairMove && SNAKES[raw]) raw=SNAKES[raw];
+      else if(LADDERS[raw]) raw=LADDERS[raw];
+      fp[p]=raw;
+    }
+    return fp[0]+fp[1];
+  }
+  if(meta.type==='seq'){
+    // Simulate both steps with intermediate snake/ladder effects
+    const fp=ps.slice();
+    let raw=fp[meta.pi]+meta.s1;
+    if(raw>144) raw=144-(raw-144);
+    raw=Math.max(1,Math.min(144,raw));
+    if(SNAKES[raw]) raw=SNAKES[raw]; else if(LADDERS[raw]) raw=LADDERS[raw];
+    if(raw<144){
+      raw+=meta.s2;
+      if(raw>144) raw=144-(raw-144);
+      raw=Math.max(1,Math.min(144,raw));
+      if(SNAKES[raw]) raw=SNAKES[raw]; else if(LADDERS[raw]) raw=LADDERS[raw];
+    }
+    fp[meta.pi]=raw;
+    return fp[0]+fp[1];
+  }
+  return 50;
+}
+
+/* Returns true if a simulated move would capture a lone opponent piece. */
+function wouldCapture(meta){
+  if(!meta) return false;
+  const opp=1-G.cur;
+  const oppPs=G.pieces[opp];
+  const ps=G.pieces[G.cur].slice();
+
+  function checkSq(sq){
+    if(sq<=1||sq>=144) return false;
+    const hits=[0,1].filter(i=>oppPs[i]===sq);
+    return hits.length===1 && !SAFE_HOUSES.has(sq);
+  }
+  function sim(pos,s){
+    let r=pos+s;
+    if(r>144) r=144-(r-144);
+    r=Math.max(1,Math.min(144,r));
+    if(SNAKES[r]) r=SNAKES[r]; else if(LADDERS[r]) r=LADDERS[r];
+    return r;
+  }
+
+  if(meta.type==='exec'){
+    for(const{p,s}of meta.moves){
+      if(checkSq(sim(ps[p],s))) return true;
+    }
+  } else if(meta.type==='seq'){
+    const r1=sim(ps[meta.pi],meta.s1);
+    if(checkSq(r1)) return true;
+    if(r1<144 && checkSq(sim(r1,meta.s2))) return true;
+  } else if(meta.type==='vertical'){
+    if(checkSq(meta.dest)) return true;
+  }
+  return false;
+}
+
+function aiPickMove(){
+  if(!moveQueue.length) return;
+  let chosen;
+  if(aiLevel===2){
+    // Random
+    chosen=moveQueue[Math.floor(Math.random()*moveQueue.length)];
+  } else if(aiLevel===3){
+    // Mean: capture opponent pieces whenever possible; otherwise pick worst move
+    const capturing=moveQueue.filter(o=>wouldCapture(o.meta));
+    if(capturing.length){
+      chosen=capturing[Math.floor(Math.random()*capturing.length)];
+    } else {
+      const scored=moveQueue.map(o=>({o,score:scoreOption(o.meta)}));
+      scored.sort((a,b)=>a.score-b.score); // worst first
+      chosen=scored[0].o;
+    }
+  } else {
+    // Grandmaster (level 1): best move
+    const scored=moveQueue.map(opt=>({opt,score:scoreOption(opt.meta)}));
+    scored.sort((a,b)=>b.score-a.score);
+    chosen=scored[0].opt;
+  }
+  document.getElementById('moveOpts').innerHTML='';
+  moveQueue=[];
+  chosen.handler();
+}
+
+/* ═══════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════ */
+let G={};
+let confettiRAF=null;
+
+/* ═══════════════════════════════════════════
+   EDUCATIONAL MODE
+═══════════════════════════════════════════ */
+let eduMode=false;
+let questionLevel='basic'; // topic id — e.g. 'basic','ap','trig','prob_basic', …
+const Q_CACHE={};          // {topicId: null | []} — null=fetch failed, []=loaded
+let topicsManifest=[];     // populated from topics.json
+let usedQIdx=new Set();
+let quizTimerTO=null;
+let missedQuestions=[];
+let _nextFlyIsTumble=false; // set before resolve(false) so piece-fly adds rotation
+// {q, options, answer, chosen} — chosen=-1 means timed out
+
+function toggleEduLevelRow(rowId,show){
+  const row=document.getElementById(rowId);
+  if(row) row.classList.toggle('visible',show);
+  // Pre-load questions as soon as edu mode is switched on
+  if(show) ensureTopicLoaded(questionLevel);
+}
+
+// ── Topic helpers ──────────────────────────────────────────────────────────
+function setEduTopic(topicId){
+  questionLevel=topicId;
+  const sel=document.getElementById('topicSelect');
+  if(sel&&sel.value!==topicId) sel.value=topicId;
+  // Eagerly pre-load so questions are ready before the first quiz fires
+  ensureTopicLoaded(topicId);
+}
+function activeQ(){ return Q_CACHE[questionLevel]??[]; }
+function qLoadFailed(){ return Q_CACHE[questionLevel]===null; }
+function topicLabel(id){
+  const t=topicsManifest.find(t=>t.id===id);
+  return t?t.label:id;
+}
+// Timer duration (seconds) based on topic tier; uncategorised topics default to basic (30 s)
+function quizDuration(id){
+  const t=topicsManifest.find(t=>t.id===id);
+  const tier=t?.tier||'basic';
+  if(tier==='advanced')     return 90;
+  if(tier==='intermediate') return 60;
+  return 30; // basic or uncategorised
+}
+
+// Load topics.json and populate the dropdown; fallback if fetch fails
+async function loadTopicsManifest(){
+  const href=window.location.href;
+  const base=href.substring(0,href.lastIndexOf('/')+1);
+  try{
+    const r=await fetch(base+'topics.json');
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    topicsManifest=await r.json();
+    console.log(`✅ Loaded ${topicsManifest.length} topics`);
+  }catch(e){
+    console.error('❌ Could not load topics.json:',e.message);
+    topicsManifest=[
+      {id:'basic',        label:'📊 Basic Math',                 file:'questions_basic.json'},
+      {id:'ap',           label:'🎓 AP Algebra',                  file:'questions_ap.json'},
+      {id:'trig',         label:'🔺 Trigonometry',                file:'questions_trig.json'},
+      {id:'prob_basic',   label:'🎲 Probability – Basic',         file:'questions_prob_basic.json'},
+      {id:'prob_inter',   label:'🎲 Probability – Intermediate',  file:'questions_prob_intermediate.json'},
+      {id:'prob_advanced',label:'🎲 Probability – Advanced',      file:'questions_prob_advanced.json'},
+    ];
+  }
+  const sel=document.getElementById('topicSelect');
+  if(!sel) return;
+  sel.innerHTML='';
+  topicsManifest.forEach(t=>{
+    const opt=document.createElement('option');
+    opt.value=t.id; opt.textContent=t.label;
+    sel.appendChild(opt);
+  });
+  if(topicsManifest.find(t=>t.id===questionLevel)) sel.value=questionLevel;
+  else if(topicsManifest.length){ questionLevel=topicsManifest[0].id; sel.value=questionLevel; }
+}
+
+// Lazy-load a topic's questions on first use; result cached in Q_CACHE
+async function ensureTopicLoaded(topicId){
+  if(Q_CACHE[topicId]!==undefined) return;
+  const topic=topicsManifest.find(t=>t.id===topicId);
+  if(!topic){ Q_CACHE[topicId]=null; return; }
+  const href=window.location.href;
+  const base=href.substring(0,href.lastIndexOf('/')+1);
+  try{
+    const r=await fetch(base+topic.file);
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    Q_CACHE[topicId]=await r.json();
+    console.log(`✅ Loaded ${Q_CACHE[topicId].length} ${topic.label} questions`);
+  }catch(e){
+    console.error(`❌ Could not load ${topic.file}:`,e.message);
+    Q_CACHE[topicId]=null;
+  }
+}
+
+/* ── Dragon full-screen overlay ──────────────────────────────────── */
+// Fire is pure SVG (feTurbulence + feDisplacementMap) — no JS needed for the flame.
+function showDragonOverlay(msg, duration){
+  return new Promise(resolve=>{
+    const modal=document.getElementById('dragonModal');
+    const msgEl=document.getElementById('dragonModalMsg');
+    msgEl.textContent=msg;
+    modal.style.transition='';
+    modal.style.opacity='1';
+    modal.classList.add('open');
+    if(soundOn) SFX.dragonFire(duration);
+    setTimeout(()=>{
+      modal.style.transition='opacity .4s ease';
+      modal.style.opacity='0';
+      setTimeout(()=>{ modal.classList.remove('open'); modal.style.opacity=''; modal.style.transition=''; resolve(); }, 420);
+    }, duration);
+  });
+}
+
+/* ── Dragon intro — full-screen modal before quiz appears ────────── */
+function showDragonIntro(){
+  return showDragonOverlay('⚔️ The Dragon Judges!', 4000);
+}
+
+/* ── Board-level dragon fire when player answers wrong ───────────── */
+async function playBoardDragonFire(sq){
+  const cell=document.getElementById('sq'+sq);
+  if(!cell) return;
+  const cr=cell.getBoundingClientRect();
+  const cx=cr.left+cr.width/2, cy=cr.top+cr.height/2;
+
+  // Dragon pops in above-left of the square
+  const dragon=document.createElement('div');
+  dragon.className='board-dragon';
+  dragon.textContent='🐉';
+  dragon.style.cssText=`left:${cx-58}px;top:${cy-62}px`;
+  document.body.appendChild(dragon);
+  await sleep(380);
+
+  // Fire stream: 10 particles from dragon mouth toward the square
+  for(let i=0;i<10;i++){
+    setTimeout(()=>{
+      const p=document.createElement('div');
+      p.className='fire-stream-particle';
+      const sz=7+Math.random()*14;
+      const sx=cx-34+(Math.random()-0.5)*8, sy=cy-38+(Math.random()-0.5)*8;
+      p.style.cssText=`left:${sx}px;top:${sy}px;width:${sz}px;height:${sz}px;opacity:.95;transition:left .28s ease-in,top .28s ease-in,opacity .28s,transform .28s`;
+      document.body.appendChild(p);
+      requestAnimationFrame(()=>requestAnimationFrame(()=>{
+        p.style.left=`${cx+(Math.random()-0.5)*cr.width*.35}px`;
+        p.style.top =`${cy+(Math.random()-0.5)*cr.height*.35}px`;
+        p.style.opacity='0';
+        p.style.transform='scale(2.2)';
+      }));
+      setTimeout(()=>p.remove(), 340);
+    }, i*55);
+  }
+
+  await sleep(280);
+
+  // Fire blast at the square centre
+  const blast=document.createElement('div');
+  blast.className='fire-blast';
+  blast.style.cssText=`left:${cx}px;top:${cy}px`;
+  document.body.appendChild(blast);
+
+  // Scorch the cell briefly
+  cell.style.transition='box-shadow .08s,background .08s';
+  cell.style.boxShadow='inset 0 0 0 4px #ff6600,0 0 32px 10px rgba(255,100,0,.75)';
+  cell.style.background='rgba(255,80,0,.45)';
+  await sleep(450);
+  cell.style.boxShadow='';
+  cell.style.background='';
+
+  // Dragon shakes then vanishes
+  dragon.style.cssText+=';transition:opacity .35s,transform .35s;opacity:0;transform:scale(.5) translateY(18px)';
+  setTimeout(()=>{ blast.remove(); dragon.remove(); },380);
+  await sleep(350);
+}
+
+/* ── Sequence for wrong / timeout: dragon scolds, fire on board, piece tumbles ─ */
+function wrongAnswerSequence(sq, dest, resolve){
+  setTimeout(async()=>{
+    closeQuizModal();
+    await showDragonOverlay('Wrong answer,\nand so you suffer.', 3600);
+    await playBoardDragonFire(sq);
+    _nextFlyIsTumble=true; // piece-fly will add rotation
+    resolve(false);
+  }, 700);
+}
+
+function showQuiz(sq, fallDest){
+  return new Promise(async resolve=>{
+    await ensureTopicLoaded(questionLevel); // lazy-load on first use
+    const bank=activeQ();
+    if(!bank.length){
+      if(qLoadFailed()){
+        // Show a visible error but don't penalise — load failure is not the player's fault
+        const label=topicLabel(questionLevel);
+        const topic=topicsManifest.find(t=>t.id===questionLevel);
+        document.getElementById('quizLabel').textContent='⚠️ Questions not loaded';
+        document.getElementById('quizSq').textContent='';
+        document.getElementById('quizQ').textContent=
+          `Could not fetch the "${label}" question file.\n`+
+          `Ensure ${topic?topic.file:questionLevel+'.json'} is deployed alongside the game, then reload.`;
+        document.getElementById('quizOpts').innerHTML=
+          '<button class="quiz-opt" onclick="document.getElementById(\'quizModal\').classList.remove(\'open\')">Close</button>';
+        document.getElementById('quizResult').textContent='';
+        document.getElementById('quizModal').classList.add('open');
+      }
+      resolve(true); return; // no fall — questions unavailable through no fault of the player
+    }
+
+    // Pick a random unused question; reset pool if all used
+    let available=[...Array(bank.length).keys()].filter(i=>!usedQIdx.has(i));
+    if(!available.length){ usedQIdx.clear(); available=[...Array(bank.length).keys()]; }
+    const idx=available[Math.floor(Math.random()*available.length)];
+    usedQIdx.add(idx);
+    const q=bank[idx];
+
+    sfx('quizAlert');
+    // Populate modal
+    document.getElementById('quizLabel').textContent=topicLabel(questionLevel)+' Challenge!';
+    document.getElementById('quizSq').textContent=`Square ${sq} — Fall to ${fallDest} if wrong!`;
+    document.getElementById('quizQ').textContent=q.q;
+    document.getElementById('quizResult').textContent='';
+    document.getElementById('quizResult').className='quiz-result';
+
+    // Build option buttons — disabled until dragon intro finishes
+    const optsEl=document.getElementById('quizOpts');
+    optsEl.innerHTML='';
+    q.options.forEach((opt,i)=>{
+      const btn=document.createElement('button');
+      btn.className='quiz-opt';
+      btn.textContent=opt;
+      btn.disabled=true;
+      btn.onclick=()=>selectAnswer(i, q, resolve, optsEl, sq, fallDest);
+      optsEl.appendChild(btn);
+    });
+
+    // Show modal then play dragon intro (~1.9 s); timer starts after
+    document.getElementById('quizModal').style.display='flex';
+    await showDragonIntro();
+
+    // Enable buttons
+    optsEl.querySelectorAll('.quiz-opt').forEach(b=>b.disabled=false);
+
+    // Timer bar — duration depends on topic tier
+    const secs=quizDuration(questionLevel);
+    const bar=document.getElementById('quizTimerBar');
+    bar.style.transition='none';
+    bar.style.width='100%';
+    void bar.offsetWidth;
+    bar.style.transition=`width ${secs}s linear`;
+    bar.style.width='0%';
+
+    // Auto-fail on timeout → dragon fire sequence
+    if(quizTimerTO) clearTimeout(quizTimerTO);
+    quizTimerTO=setTimeout(()=>{
+      optsEl.querySelectorAll('.quiz-opt').forEach(b=>b.disabled=true);
+      const res=document.getElementById('quizResult');
+      res.textContent=`⏰ Time's up! The answer was: "${q.options[q.answer]}"`;
+      res.className='quiz-result fail';
+      missedQuestions.push({q:q.q, options:q.options, answer:q.answer, chosen:-1});
+      wrongAnswerSequence(sq, fallDest, resolve);
+    }, secs*1000);
+  });
+}
+
+function selectAnswer(chosen, q, resolve, optsEl, sq, dest){
+  const correct=q.answer, correctText=q.options[q.answer];
+  if(quizTimerTO){ clearTimeout(quizTimerTO); quizTimerTO=null; }
+
+  // Stop timer bar
+  const bar=document.getElementById('quizTimerBar');
+  bar.style.transition='none';
+  void bar.offsetWidth;
+
+  // Disable all options & mark correct/wrong
+  optsEl.querySelectorAll('.quiz-opt').forEach((b,i)=>{
+    b.disabled=true;
+    if(i===correct) b.classList.add('correct');
+    else if(i===chosen && chosen!==correct) b.classList.add('wrong');
+  });
+
+  const passed=(chosen===correct);
+  const res=document.getElementById('quizResult');
+  if(passed){
+    res.textContent='✅ Correct! You stay on this square.';
+    res.className='quiz-result ok';
+    sfx('quizCorrect');
+    setTimeout(()=>{ closeQuizModal(); resolve(true); }, 1800);
+  } else {
+    res.textContent=`❌ Wrong! The answer was: "${correctText}"`;
+    res.className='quiz-result fail';
+    sfx('quizWrong');
+    missedQuestions.push({q:q.q, options:q.options, answer:q.answer, chosen});
+    wrongAnswerSequence(sq, dest, resolve); // dragon fire + tumble
+  }
+}
+
+function closeQuizModal(){
+  document.getElementById('quizModal').style.display='none';
+}
+
+function newGame(){
+  if(confettiRAF){cancelAnimationFrame(confettiRAF);confettiRAF=null;}
+  document.getElementById('winModal').style.display='none';
+  document.getElementById('reviewModal').classList.remove('open');
+  missedQuestions=[];
+  G={pieces:[[1,1],[1,1]],cur:0,dice:[0,0],phase:'roll',seq:0};
+  _lastAppliedSeq=0;
+  usedQIdx.clear(); moveQueue=[];
+  document.getElementById('log').innerHTML='';
+  document.getElementById('moveOpts').innerHTML='';
+  renderDie('d0',0); renderDie('d1',0);
+  document.getElementById('deq').textContent='?';
+  renderPieces(); syncUI();
+  log(`Game started! ${NAMES[0]}'s turn.`,'le-roll');
+  sfx('newGame');
+  if(isOnlineMode && myPlayerIdx===0) pushGameState();
+  // If P1 is computer, kick off its turn
+  if(computerPlayer===0) setTimeout(()=>doRoll(),1000);
+}
+
+/* ═══════════════════════════════════════════
+   BUILD BOARD
+═══════════════════════════════════════════ */
+function buildBoard(){
+  const board=document.getElementById('board');
+  board.innerHTML='';
+  for(let r=0;r<ROWS;r++){
+    for(let c=0;c<COLS;c++){
+      const n=squareAt(r,c);
+      const cell=document.createElement('div');
+      cell.id=`sq${n}`;
+
+      // Priority: start > finish > safe house > snake > ladder > normal
+      if     (n===1)                      cell.className='cell start';
+      else if(n===144)                    cell.className='cell finish';
+      else if(PERFECT_SQUARES.has(n))     cell.className='cell safe';
+      else if(SNAKES[n])                  cell.className='cell snake';
+      else if(LADDERS[n])                 cell.className='cell ladder';
+      else                                cell.className='cell norm'+((r+c)%2===0?'':' alt');
+
+      let gfx='', spec='';
+      if(n===1)   gfx=`<span class="cgfx">🏠</span>`;
+      if(n===144) gfx=`<span class="cgfx">🏰</span>`;
+      if(PERFECT_SQUARES.has(n) && n!==1 && n!==144)
+        gfx=`<span class="cgfx shield">🛡</span>`;
+
+      if(SNAKES[n]){
+        gfx=`<span class="cgfx dragon">🐉</span>`;
+        spec=`<span class="cspec">↓${SNAKES[n]}</span>`;
+      }
+      if(LADDERS[n]){
+        gfx=`<span class="cgfx eagle">🦅</span>`;
+        spec=`<span class="cspec">↑${LADDERS[n]}</span>`;
+      }
+
+      cell.innerHTML=`<span class="cnum">${n}</span>${gfx}${spec}<div class="cpieces" id="p${n}"></div>`;
+      board.appendChild(cell);
+    }
+  }
+}
+
+/* ═══════════════════════════════════════════
+   RENDER PIECES
+═══════════════════════════════════════════ */
+function renderPieces(){
+  document.querySelectorAll('.cpieces').forEach(el=>el.innerHTML='');
+  document.querySelectorAll('.pair-badge').forEach(el=>el.remove());
+  for(let p=0;p<2;p++){
+    for(let pi=0;pi<2;pi++){
+      const sq=G.pieces[p][pi];
+      const cont=document.getElementById(`p${sq}`);
+      if(!cont) continue;
+      const el=document.createElement('div');
+      el.className=`piece ${PIECE_CLS[p][pi]}`;
+      el.style.background=COLORS[p][pi];
+      el.textContent=pi===0?'A':'B';
+      el.title=`${NAMES[p]} – Piece ${pi===0?'A':'B'}`;
+      cont.appendChild(el);
+    }
+    // Show 🔗 badge if both pieces share a square (immune pair, not at start or finish)
+    const [sqA,sqB]=G.pieces[p];
+    if(sqA===sqB && sqA!==1 && sqA!==144){
+      const cellEl=document.getElementById(`sq${sqA}`);
+      if(cellEl){
+        const badge=document.createElement('div');
+        badge.className='pair-badge';
+        badge.textContent='🔗';
+        badge.title=`${NAMES[p]} – Immune pair!`;
+        cellEl.appendChild(badge);
+      }
+    }
+  }
+}
+
+/* ═══════════════════════════════════════════
+   DICE
+═══════════════════════════════════════════ */
+function renderDieEl(el,val){
+  el.innerHTML='';
+  for(let i=0;i<9;i++){
+    const d=document.createElement('div');
+    d.className='dot'+(val>0&&DOTS[val].includes(i)?' on':'');
+    el.appendChild(d);
+  }
+}
+function renderDie(id,val){renderDieEl(document.getElementById(id),val);}
+
+/* ═══════════════════════════════════════════
+   ROLL MODAL
+═══════════════════════════════════════════ */
+function doRoll(){
+  if(G.phase!=='roll') return;
+  document.getElementById('rollBtn').disabled=true;
+  const modal=document.getElementById('diceModal');
+  const titleEl=document.getElementById('modalTitle');
+  const resultEl=document.getElementById('modalResult');
+  const md0=document.getElementById('md0'), md1=document.getElementById('md1');
+
+  titleEl.textContent=`${NAMES[G.cur]} is rolling…`;
+  resultEl.textContent='';
+  renderDieEl(md0,1); renderDieEl(md1,1);
+  md0.classList.add('die-rolling'); md1.classList.add('die-rolling');
+  modal.style.display='flex';
+  sfx('diceRoll');
+
+  let ticks=0;
+  const iv=setInterval(()=>{
+    renderDieEl(md0,Math.ceil(Math.random()*6));
+    renderDieEl(md1,Math.ceil(Math.random()*6));
+    if(++ticks>=18){
+      clearInterval(iv);
+      md0.classList.remove('die-rolling'); md1.classList.remove('die-rolling');
+      const d1=Math.ceil(Math.random()*6), d2=Math.ceil(Math.random()*6);
+      G.dice=[d1,d2];
+      renderDieEl(md0,d1); renderDieEl(md1,d2);
+      renderDie('d0',d1);  renderDie('d1',d2);
+      document.getElementById('deq').textContent=d1===d2?'=':'≠';
+      titleEl.textContent =d1===d2?'🎯 Doubles!':'🎲 Rolled!';
+      resultEl.textContent=`${d1}  and  ${d2}${d1===d2?' — doubles!':''}`;
+      if(d1===d2) sfx('doubles');
+      setTimeout(()=>{
+        modal.style.display='none';
+        log(`${NAMES[G.cur]} rolled ${d1} & ${d2}${d1===d2?' (doubles!)':''}`, 'le-roll');
+        G.phase='move';
+        buildMoveOptions();
+        // Push dice result to Firebase so opponent can see the roll
+        if(isOnlineMode && G.cur===myPlayerIdx) pushGameState();
+      },1100);
+    }
+  },80);
+}
+
+/* ═══════════════════════════════════════════
+   ANIMATION HELPERS
+═══════════════════════════════════════════ */
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+
+async function animateSteps(playerIdx,pieceIdx,from,to,msPerStep){
+  if(from===to) return;
+  const dir=from<to?1:-1;
+  let pos=from;
+  while(pos!==to){
+    pos+=dir;
+    G.pieces[playerIdx][pieceIdx]=pos;
+    renderPieces();
+    await sleep(msPerStep);
+  }
+}
+
+async function flashCell(sq,type){
+  const cell=document.getElementById(`sq${sq}`);
+  if(!cell) return;
+  const f=document.createElement('div');
+  f.className=`portal-flash ${type}`;
+  cell.appendChild(f);
+  const dur={
+    'snake-in':900,'ladder-in':900,'arrive':680,
+    'capture':720,'vertical':640,
+    'explode':920,'liftOff':780
+  }[type]||700;
+  await sleep(dur);
+  f.remove();
+}
+
+/* ═══════════════════════════════════════════
+   CAPTURE RESOLUTION
+   Returns true if the MOVING piece was itself sent home.
+
+   Pair immunity: if both opponent pieces occupy sq, the pair
+   is invulnerable — no capture in either direction.
+   Safe house: a lone opponent piece on a safe square expels
+   the attacker instead of the defender.
+═══════════════════════════════════════════ */
+async function resolveCapture(playerIdx, pieceIdx, sq){
+  if(sq===1||sq===144) return false;
+
+  const opp=1-playerIdx;
+  const pName=['A','B'][pieceIdx];
+
+  // Count opponent pieces on this square
+  const oppOnSq=[0,1].filter(i=>G.pieces[opp][i]===sq);
+
+  if(oppOnSq.length===2){
+    // Immune pair — attacker is sent home (Rule 6)
+    sfx('capture');
+    log(`🔗 ${NAMES[opp]}'s immune pair on sq ${sq}! ${NAMES[playerIdx]} Piece ${pName} is repelled home!`,'le-capture');
+    await flyPiece(playerIdx,pieceIdx,sq,1,'snake');
+    return true;
+  }
+
+  if(oppOnSq.length===1){
+    const opi=oppOnSq[0];
+    if(SAFE_HOUSES.has(sq)){
+      // Safe house with lone defender: attacker is expelled
+      sfx('capture');
+      await flashCell(sq,'capture');
+      log(`🛡 Safe house ${sq}! ${NAMES[playerIdx]} Piece ${pName} is expelled back to start!`,'le-capture');
+      G.pieces[playerIdx][pieceIdx]=1;
+      renderPieces();
+      return true;
+    } else {
+      // Normal square: defender is expelled
+      const oName=['A','B'][opi];
+      sfx('capture');
+      await flashCell(sq,'capture');
+      log(`⚔ ${NAMES[playerIdx]} Piece ${pName} captures ${NAMES[opp]} Piece ${oName}! Sent to start.`,'le-capture');
+      G.pieces[opp][opi]=1;
+      renderPieces();
+    }
+  }
+  return false;
+}
+
+/* ═══════════════════════════════════════════
+   WIN CHECK + TURN HANDOFF
+═══════════════════════════════════════════ */
+function checkWinAndNext(){
+  if(G.pieces[G.cur][0]===144 && G.pieces[G.cur][1]===144){
+    G.phase='over';
+    log(`🏆 ${NAMES[G.cur]} wins! Both pieces home!`,'le-win');
+    showWinScreen(G.cur);
+  } else {
+    nextTurn();
+  }
+}
+
+/* ═══════════════════════════════════════════
+   MOVE OPTIONS
+
+   DOUBLES special bonuses (gold buttons):
+     1. Piece on sq 1 (home)  → offer vertical jump of d rows up
+     2. Piece on a safe house → offer +d² movement (if d²≠sum)
+     3. Both pieces active    → pair move by d (= sum/2)
+   Normal doubles: move one piece by 2d.
+   Different dice, even sum, both active → pair move by sum/2.
+   Different dice:  move both pieces (one per die).
+   One piece at 144: remaining piece uses lower die (or d for doubles).
+═══════════════════════════════════════════ */
+function buildMoveOptions(){
+  const[d1,d2]=G.dice;
+  const ps=G.pieces[G.cur];
+  const fin=[ps[0]===144, ps[1]===144];
+  const opts=document.getElementById('moveOpts');
+  opts.innerHTML=''; moveQueue=[];
+  const big=Math.max(d1,d2), small=Math.min(d1,d2);
+  const sum=d1+d2;
+  // Immune pair: both pieces on the same square (and not both finished)
+  const immunePair = !fin[0]&&!fin[1] && ps[0]===ps[1];
+
+  if(fin[0]&&fin[1]){nextTurn(true);return;}
+
+  // ── One piece finished ─────────────────────────────────────────────
+  //   Doubles (d,d)  → move by d²  OR  move d then d in sequence
+  //   Other rolls    → move by sum  OR  move d1→d2  OR  move d2→d1 in sequence
+  if(fin[0]||fin[1]){
+    const pi=fin[0]?1:0;
+    const lbl=['A','B'][pi];
+    if(d1===d2){
+      const dsq=d1*d1;
+      mkBtn(`Move ${lbl} by ${dsq}  (${d1}² doubles)`,()=>exec([{p:pi,s:dsq}]),false,{type:'exec',moves:[{p:pi,s:dsq}],isPairMove:false});
+      // Sequential: move d, resolve snake/ladder, then move d again
+      mkBtn(`Move ${lbl}: +${d1} → +${d1}  (sequence)`,()=>execSeq(pi,d1,d1),false,{type:'seq',pi,s1:d1,s2:d1});
+    } else {
+      const singleSum=d1+d2;
+      mkBtn(`Move ${lbl} by ${singleSum}  (sum)`,()=>exec([{p:pi,s:singleSum}]),false,{type:'exec',moves:[{p:pi,s:singleSum}],isPairMove:false});
+      // Sequential: choose which die to apply first
+      mkBtn(`Move ${lbl}: +${d1} → +${d2}  (sequence)`,()=>execSeq(pi,d1,d2),false,{type:'seq',pi,s1:d1,s2:d2});
+      mkBtn(`Move ${lbl}: +${d2} → +${d1}  (sequence)`,()=>execSeq(pi,d2,d1),false,{type:'seq',pi,s1:d2,s2:d1});
+    }
+    maybeAI(); return;
+  }
+
+  // ── Both pieces active ─────────────────────────────────────────────
+  // Rule: leave home (sq 1) only when BOTH dice are even.
+  if(d1===d2){
+    const d=d1, sum2=2*d, dsq=d*d;
+    const dEven=(d%2===0);
+
+    for(let pi=0;pi<2;pi++){
+      const pos=ps[pi];
+      const lbl=['A','B'][pi];
+      const onShield=SAFE_HOUSES.has(pos)&&pos!==1&&pos!==144;
+      const atHome=(pos===1);
+
+      if(atHome){
+        // At home with even doubles: vertical jump + move by 2d
+        const up=verticalUpByRows(pos,d);
+        if(up) mkBtn(`✦ ${lbl} ↑ ${d} row${d>1?'s':''} → sq ${up}  (doubles on 🏠)`,()=>execVertical(pi,up),true,{type:'vertical',pi,dest:up});
+        mkBtn(`Move ${lbl} by ${sum2}`,()=>exec([{p:pi,s:sum2}]),false,{type:'exec',moves:[{p:pi,s:sum2}],isPairMove:false});
+      } else if(onShield){
+        // On shield: keep 2d + d² bonus (Rule 5 exception)
+        mkBtn(`Move ${lbl} by ${sum2}`,()=>exec([{p:pi,s:sum2}]),false,{type:'exec',moves:[{p:pi,s:sum2}],isPairMove:false});
+        if(dsq!==sum2) mkBtn(`✦ Move ${lbl} by +${dsq}  (${d}² on 🛡)`,()=>exec([{p:pi,s:dsq}]),true,{type:'exec',moves:[{p:pi,s:dsq}],isPairMove:false});
+      } else {
+        // Normal square (not home, not shield): Rule 5 → sequence d→d replaces 2d
+        mkBtn(`Move ${lbl}: +${d} → +${d}  (sequence)`,()=>execSeq(pi,d,d),false,{type:'seq',pi,s1:d,s2:d});
+      }
+    }
+    // Immune pair d² — not at home (Rule 2: no immune pair privilege at home)
+    if(immunePair&&ps[0]!==1){
+      mkBtn(`🔗 Move A+B by +${dsq}  (${d}² immune pair)`,()=>exec([{p:0,s:dsq},{p:1,s:dsq}],true),true,{type:'exec',moves:[{p:0,s:dsq},{p:1,s:dsq}],isPairMove:true});
+    }
+    maybeAI(); return;
+  }
+
+  // ── Different dice — both pieces active ─────────────────────────────
+  // Home-exit: BOTH dice must be even for a piece to leave sq 1 (Rule 1).
+  const posA=ps[0], posB=ps[1];
+  const atHomeA=(posA===1), atHomeB=(posB===1);
+  const bothDiceEven=(d1%2===0&&d2%2===0);
+
+  if(!bothDiceEven){
+    if(atHomeA&&atHomeB){
+      log(`${NAMES[G.cur]} rolled (${d1},${d2}) — need both dice even to leave home. Turn skipped.`,'le-roll');
+      nextTurn(true); return;
+    }
+    if(atHomeA||atHomeB){
+      const freeP=atHomeA?1:0;
+      const lockP=1-freeP;
+      const fLbl=['A','B'][freeP], kLbl=['A','B'][lockP];
+      log(`${NAMES[G.cur]} Piece ${kLbl} needs both dice even to leave home. Move Piece ${fLbl} only.`,'le-roll');
+      mkBtn(`Move ${fLbl} by ${d1}`,()=>exec([{p:freeP,s:d1}]),false,{type:'exec',moves:[{p:freeP,s:d1}],isPairMove:false});
+      mkBtn(`Move ${fLbl} by ${d2}`,()=>exec([{p:freeP,s:d2}]),false,{type:'exec',moves:[{p:freeP,s:d2}],isPairMove:false});
+      maybeAI(); return;
+    }
+  }
+  // Both dice even, or neither piece at home: normal two-piece movement
+  mkBtn(`A +${d1} · B +${d2}`,()=>exec([{p:0,s:d1},{p:1,s:d2}]),false,{type:'exec',moves:[{p:0,s:d1},{p:1,s:d2}],isPairMove:false});
+  mkBtn(`A +${d2} · B +${d1}`,()=>exec([{p:0,s:d2},{p:1,s:d1}]),false,{type:'exec',moves:[{p:0,s:d2},{p:1,s:d1}],isPairMove:false});
+  // Immune pair even-sum bonus — not at home (Rule 2)
+  if(sum%2===0&&immunePair&&ps[0]!==1){
+    mkBtn(`🔗 Move A+B by +${sum}  (even sum, immune pair)`,()=>exec([{p:0,s:sum},{p:1,s:sum}],true),true,{type:'exec',moves:[{p:0,s:sum},{p:1,s:sum}],isPairMove:true});
+  }
+  maybeAI();
+}
+
+function maybeAI(){
+  if(G.cur===computerPlayer && G.phase==='move'){
+    setTimeout(()=>aiPickMove(), 900);
+  }
+}
+
+function mkBtn(label,handler,bonus=false,meta=null){
+  const b=document.createElement('button');
+  b.className=`btn btn-move btn-p${G.cur+1}${bonus?' btn-bonus':''}`;
+  b.textContent=label;
+  b.onclick=()=>{document.getElementById('moveOpts').innerHTML=''; moveQueue=[]; handler();};
+  document.getElementById('moveOpts').appendChild(b);
+  moveQueue.push({label,handler,bonus,meta});
+}
+
+/* ═══════════════════════════════════════════
+   EAGLE CARRY — green square advance animation
+   Eagle circles the board once then lands at dest.
+   Orientation flips left/right with direction of travel.
+═══════════════════════════════════════════ */
+function sqToCol(sq){
+  // Returns 0-based x-column (0=left, 15=right) regardless of row direction
+  const row=Math.floor((sq-1)/16);
+  const pos=(sq-1)%16;
+  return row%2===0 ? pos : 15-pos;
+}
+
+async function playEagleCarry(playerIdx,pieceIdx,from,to){
+  const fromCell=document.getElementById('sq'+from);
+  const toCell  =document.getElementById('sq'+to);
+  const board   =document.getElementById('board');
+
+  if(!fromCell||!toCell||!board){
+    G.pieces[playerIdx][pieceIdx]=to; renderPieces();
+    sfx('arrive'); await flashCell(to,'arrive'); return;
+  }
+
+  const fr=fromCell.getBoundingClientRect();
+  const tr=toCell.getBoundingClientRect();
+  const br=board.getBoundingClientRect();
+  const sx=fr.left+fr.width/2,  sy=fr.top+fr.height/2;
+  const dx=tr.left+tr.width/2,  dy=tr.top+tr.height/2;
+
+  // Flip eagle only when destination is to the right (dx > sx)
+  const xScale = dx > sx ? -1 : 1;
+  const sz=Math.round(Math.min(fr.width*0.78,30));
+  const TALON=34; // px below eagle centre — where piece rides
+
+  // ── Hide the board piece at 'from' ──
+  const fromPieceEl=document.querySelector(`#p${from} .piece.${PIECE_CLS[playerIdx][pieceIdx]}`);
+  if(fromPieceEl) fromPieceEl.style.opacity='0';
+
+  // ── Blur overlay — sits below eagle/piece, blurs the board ──
+  const blurEl=document.createElement('div');
+  blurEl.style.cssText='position:fixed;inset:0;z-index:4997;pointer-events:none;'+
+    'backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);'+
+    'background:rgba(0,0,0,.60);opacity:0;transition:opacity .35s ease';
+  document.body.appendChild(blurEl);
+
+  // ── Eagle ──
+  // Inline transform carries translate(-50%,-50%) + scaleX so when the
+  // eagleAppear animation clears, the correct centering+facing snaps back.
+  const eagle=document.createElement('div');
+  eagle.className='board-eagle';
+  eagle.textContent='🦅';
+  eagle.style.cssText=
+    `left:${sx}px;top:${sy}px;`+
+    `transform:translate(-50%,-50%) scaleX(${xScale});`+
+    `opacity:0`;
+  document.body.appendChild(eagle);
+
+  // ── Carried piece (hangs in talon area below eagle) ──
+  const carried=document.createElement('div');
+  carried.style.cssText=[
+    'position:fixed',
+    `width:${sz}px`,`height:${sz}px`,
+    `left:${sx}px`,`top:${sy+TALON}px`,
+    `margin-left:-${sz/2}px`,`margin-top:-${sz/2}px`,
+    'z-index:4999','pointer-events:none',
+    `background:${COLORS[playerIdx][pieceIdx]}`,
+    'border-radius:50%','border:2.5px solid rgba(255,255,255,.92)',
+    'display:flex','align-items:center','justify-content:center',
+    `font-size:${Math.round(sz*0.44)}px`,'font-weight:900','color:#fff',
+    'text-shadow:0 1px 4px rgba(0,0,0,.9)','opacity:0',
+  ].join(';');
+  carried.textContent=pieceIdx===0?'A':'B';
+  document.body.appendChild(carried);
+
+  // ── Pop-in ──
+  eagle.style.animation='eagleAppear .42s cubic-bezier(.18,.89,.32,1.28) forwards';
+  await sleep(320);
+  // Clear animation so the inline transform (centering + facing) takes over
+  eagle.style.animation='none';
+  eagle.style.transform=`translate(-50%,-50%) scaleX(${xScale})`;
+  eagle.style.opacity='1';
+
+  // Reveal blur and carried piece together
+  requestAnimationFrame(()=>{ blurEl.style.opacity='1'; });
+  carried.style.transition='opacity .25s';
+  carried.style.opacity='1';
+  await sleep(220);
+
+  // ── Parabolic flight via requestAnimationFrame ──
+  // Easing: smooth start and end
+  function easeInOut(t){ return t<.5 ? 2*t*t : -1+(4-2*t)*t; }
+
+  // Peak height: enough to clear the board top with 70 px of headroom
+  const midChordY=(sy+dy)/2;
+  const peakH=Math.max(160, Math.min(420, midChordY-(br.top-70)));
+
+  const FLIGHT_MS=2400;
+
+  // Clear any transition on eagle/carried so rAF drives them cleanly
+  eagle.style.transition='none';
+  carried.style.transition='none';
+
+  await new Promise(resolve=>{
+    const t0=performance.now();
+    function frame(now){
+      const rawT=Math.min((now-t0)/FLIGHT_MS, 1);
+      const u=easeInOut(rawT);
+
+      // Parabolic path: linear x interpolation, parabolic y above the chord
+      const x  = sx + (dx-sx)*u;
+      const cy = sy + (dy-sy)*u;           // point on chord
+      const ay = cy - peakH*4*u*(1-u);    // arc above chord
+
+      eagle.style.left=x+'px';   eagle.style.top=ay+'px';
+      carried.style.left=x+'px'; carried.style.top=(ay+TALON)+'px';
+
+      if(rawT<1){ requestAnimationFrame(frame); } else { resolve(); }
+    }
+    requestAnimationFrame(frame);
+  });
+
+  // ── Landing via CSS transition (puff-up then settle+fade) ──
+  eagle.style.transition='transform .28s ease-out, opacity .32s ease-in';
+  eagle.style.transform=`translate(-50%,-50%) scaleX(${xScale}) scale(1.22) rotate(-6deg)`;
+  await sleep(180);
+  eagle.style.transform=`translate(-50%,-50%) scaleX(${xScale}) scale(0.78)`;
+  eagle.style.opacity='0';
+
+  // Piece arrives at the same moment the eagle settles
+  G.pieces[playerIdx][pieceIdx]=to;
+  renderPieces();
+
+  // Fade out blur and carried piece
+  blurEl.style.transition='opacity .28s ease';
+  blurEl.style.opacity='0';
+  carried.style.transition='opacity .2s';
+  carried.style.opacity='0';
+
+  await sleep(340);
+  eagle.remove(); carried.remove(); blurEl.remove();
+
+  sfx('arrive');
+  await flashCell(to,'arrive');
+}
+
+/* ═══════════════════════════════════════════
+   FLYING PIECE ANIMATION
+   Visually moves a piece from `from` to `to`
+   using a fixed-position overlay element that
+   CSS-transitions across the screen.
+   type: 'snake' | 'ladder'
+═══════════════════════════════════════════ */
+async function flyPiece(playerIdx,pieceIdx,from,to,type){
+  const fromCell=document.getElementById(`sq${from}`);
+  const toCell  =document.getElementById(`sq${to}`);
+
+  // Fallback: step-animate if cells aren't in DOM
+  if(!fromCell||!toCell){
+    const ms=Math.max(60,Math.min(150,Math.floor(1400/Math.abs(to-from))));
+    await animateSteps(playerIdx,pieceIdx,from,to,ms);
+    await flashCell(to,'arrive');
+    return;
+  }
+
+  const fr=fromCell.getBoundingClientRect();
+  const tr=toCell.getBoundingClientRect();
+  const sz=Math.round(Math.min(fr.width*0.78,30));
+  const isSnake=(type==='snake');
+
+  // Move piece in data model — it will render at destination immediately
+  G.pieces[playerIdx][pieceIdx]=to;
+  renderPieces();
+
+  // Create the flyer positioned at the source cell centre
+  const flyer=document.createElement('div');
+  flyer.className=`piece-flyer ${isSnake?'snake-fly':'ladder-fly'}`;
+  const cx=fr.left+fr.width/2, cy=fr.top+fr.height/2;
+  // Tumble on wrong-answer falls (snake moves only)
+  const tumble=isSnake&&_nextFlyIsTumble;
+  if(tumble) _nextFlyIsTumble=false;
+  flyer.style.cssText=[
+    'position:fixed',
+    `width:${sz}px`,`height:${sz}px`,
+    `left:${cx}px`,`top:${cy}px`,
+    `margin-left:-${sz/2}px`,`margin-top:-${sz/2}px`,
+    'z-index:1000','pointer-events:none',
+    `background:${COLORS[playerIdx][pieceIdx]}`,
+    'border-radius:50%','border:2.5px solid rgba(255,255,255,.92)',
+    'display:flex','align-items:center','justify-content:center',
+    `font-size:${Math.round(sz*0.44)}px`,'font-weight:900','color:#fff',
+    'text-shadow:0 1px 4px rgba(0,0,0,.9)',
+    tumble
+      ? 'transition:left .78s cubic-bezier(.55,.05,.85,.5),top .78s cubic-bezier(.55,.05,.85,.5),transform .78s ease-in,opacity .78s ease-in'
+      : isSnake
+        ? 'transition:left .72s cubic-bezier(.55,.05,.85,.5),top .72s cubic-bezier(.55,.05,.85,.5)'
+        : 'transition:left .58s cubic-bezier(.05,.8,.3,1),top .58s cubic-bezier(.05,.8,.3,1)',
+  ].join(';');
+  flyer.textContent=pieceIdx===0?'A':'B';
+  document.body.appendChild(flyer);
+
+  // Trigger transition on next paint
+  await sleep(30);
+  flyer.style.left=`${tr.left+tr.width/2}px`;
+  flyer.style.top =`${tr.top +tr.height/2}px`;
+  if(tumble){
+    flyer.style.transform='rotate(720deg) scale(0.55)';
+    flyer.style.opacity='0.3';
+  }
+
+  await sleep(tumble?820:isSnake?750:610);
+  flyer.remove();
+  sfx('arrive');
+  await flashCell(to,'arrive');
+}
+
+/* ═══════════════════════════════════════════
+   SINGLE-STEP MOVE HELPER
+   Moves one piece by `steps`, resolves bounce /
+   capture / snake / ladder.  Used by exec() and
+   execSeq() so logic lives in one place.
+═══════════════════════════════════════════ */
+async function execOneStep(pi,steps,isPairMove){
+  const from=G.pieces[G.cur][pi];
+  const name=['A','B'][pi];
+  if(from===144){log(`${NAMES[G.cur]} Piece ${name} already home.`); return;}
+
+  let raw=from+steps;
+
+  if(raw>144){
+    const excess=raw-144, to=144-excess;
+    log(`${NAMES[G.cur]} Piece ${name}: ${from} → 144 ↩ bounces to ${to}`,'le-bounce');
+    await animateSteps(G.cur,pi,from,144,200);
+    await sleep(380);
+    await animateSteps(G.cur,pi,144,to,200);
+  } else {
+    log(`${NAMES[G.cur]} Piece ${name}: ${from} → ${raw}`);
+    sfx('step');
+    await animateSteps(G.cur,pi,from,raw,200);
+  }
+
+  const landed=G.pieces[G.cur][pi];
+  if(landed===144) return;
+
+  // ── Capture check ──────────────────────────────────────────────
+  const expelled=await resolveCapture(G.cur,pi,landed);
+  if(expelled) return;
+
+  // ── Snake / Ladder ─────────────────────────────────────────────
+  if(SNAKES[landed]){
+    const dest=SNAKES[landed];
+    if(isPairMove){
+      log(`🔗 Immune pair passes sq ${landed} safely — no fall!`,'le-special');
+    } else {
+      let stay=false;
+      // Trigger quiz if edu mode is on and questions haven't explicitly failed to load (null)
+      if(eduMode && Q_CACHE[questionLevel]!==null){
+        if(G.cur===computerPlayer){
+          stay=true;
+          log(`🤖 ${NAMES[G.cur]} Piece ${name} answers the challenge — stays on sq ${landed}!`,'le-special');
+        } else {
+          stay=await showQuiz(landed,dest);
+        }
+      }
+      if(stay){
+        if(G.cur!==computerPlayer)
+          log(`✅ Math challenge passed! ${NAMES[G.cur]} Piece ${name} stays on sq ${landed}.`,'le-special');
+      } else {
+        if(eduMode && Q_CACHE[questionLevel]!==null && G.cur!==computerPlayer) log(`❌ Challenge failed — `,'le-snake');
+        // Rule 3: if piece started from a shield, it bounces back to that shield
+        const actualDest=(SAFE_HOUSES.has(from)&&from!==1)?from:dest;
+        if(actualDest===from){
+          log(`  🛡 Piece ${name} moved from shield sq ${from} to prime ${landed} — bounced back to shield!`,'le-snake');
+        } else {
+          log(`  💥 Sq ${landed} is a dangerous prime! Piece ${name} falls to ${actualDest} 🛡`,'le-snake');
+        }
+        sfx('dragonFall');
+        await flashCell(landed,'explode');
+        await flyPiece(G.cur,pi,landed,actualDest,'snake');
+      }
+    }
+  } else if(LADDERS[landed]){
+    const dest=LADDERS[landed];
+    log(`  ✦ Sq ${landed} ÷5/6! Piece ${name} launches to ${dest} 🚀`,'le-ladder');
+    sfx('eagleLaunch');
+    await flashCell(landed,'liftOff');
+    await playEagleCarry(G.cur,pi,landed,dest);
+  }
+}
+
+/* ═══════════════════════════════════════════
+   EXECUTE NORMAL MOVES  (async — animated)
+═══════════════════════════════════════════ */
+async function exec(moves,isPairMove=false){
+  for(const{p:pi,s:steps}of moves){
+    await execOneStep(pi,steps,isPairMove);
+  }
+  syncUI();
+  checkWinAndNext();
+  if(isOnlineMode) pushGameState();
+}
+
+/* ═══════════════════════════════════════════
+   EXECUTE SEQUENTIAL MOVE  (single piece, two dice)
+   Each die resolves independently — snake/ladder
+   effects apply after each step.
+═══════════════════════════════════════════ */
+async function execSeq(pi,s1,s2){
+  const name=['A','B'][pi];
+  log(`${NAMES[G.cur]} Piece ${name}: sequential +${s1} then +${s2}`,'le-roll');
+  await execOneStep(pi,s1,false);
+  // Only take second step if piece hasn't reached home yet
+  if(G.pieces[G.cur][pi]<144){
+    await execOneStep(pi,s2,false);
+  }
+  syncUI();
+  checkWinAndNext();
+  if(isOnlineMode) pushGameState();
+}
+
+/* ═══════════════════════════════════════════
+   EXECUTE VERTICAL JUMP  (doubles on home)
+   Jumps piece d rows up in the same visual column.
+   Capture rules apply; snake/ladder effects do NOT.
+═══════════════════════════════════════════ */
+async function execVertical(pieceIdx, destSq){
+  const from=G.pieces[G.cur][pieceIdx];
+  const name=['A','B'][pieceIdx];
+  log(`${NAMES[G.cur]} Piece ${name} ↑ jumps vertically: ${from} → ${destSq}`,'le-special');
+  sfx('verticalJump');
+  await flashCell(from,'liftOff');
+  await flyPiece(G.cur,pieceIdx,from,destSq,'ladder');
+
+  const expelled=await resolveCapture(G.cur,pieceIdx,destSq);
+  if(expelled){ syncUI(); checkWinAndNext(); if(isOnlineMode) pushGameState(); return; }
+
+  syncUI();
+  checkWinAndNext();
+  if(isOnlineMode) pushGameState();
+}
+
+/* ═══════════════════════════════════════════
+   TURN & UI
+═══════════════════════════════════════════ */
+function nextTurn(pushOnline=false){
+  const oldCur=G.cur;
+  G.cur=1-G.cur; G.phase='roll'; G.dice=[0,0];
+  renderDie('d0',0); renderDie('d1',0);
+  document.getElementById('deq').textContent='?';
+  document.getElementById('rollBtn').disabled=false;
+  sfx('turnChange');
+  syncUI();
+  // Push when this is an auto-skip (no exec caller to push for us)
+  if(pushOnline && isOnlineMode && oldCur===myPlayerIdx) pushGameState();
+  if(G.cur===computerPlayer) setTimeout(()=>doRoll(),1000);
+}
+
+function syncUI(){
+  const lbl=sq=>sq===144?'🏠 Home':`Sq ${sq}`;
+  document.getElementById('s0a').textContent=lbl(G.pieces[0][0]);
+  document.getElementById('s0b').textContent=lbl(G.pieces[0][1]);
+  document.getElementById('s1a').textContent=lbl(G.pieces[1][0]);
+  document.getElementById('s1b').textContent=lbl(G.pieces[1][1]);
+  document.getElementById('c0').classList.toggle('active',G.cur===0&&G.phase!=='over');
+  document.getElementById('c1').classList.toggle('active',G.cur===1&&G.phase!=='over');
+  if(G.phase!=='over'){
+    const isCpuTurn=(G.cur===computerPlayer);
+    document.getElementById('status').textContent=
+      `${NAMES[G.cur]}'s Turn${eduMode?' 📚':''}${isCpuTurn?' 🤖':''}`;
+  }
+  const btn=document.getElementById('rollBtn');
+  btn.classList.toggle('btn-p1',G.cur===0);
+  btn.classList.toggle('btn-p2',G.cur===1);
+  // Disable roll when: computer's turn OR online opponent's turn OR game over
+  const onlineOpponentTurn = isOnlineMode && G.cur!==myPlayerIdx;
+  btn.disabled = G.phase==='over' ||
+                 (G.cur===computerPlayer && G.phase==='roll') ||
+                 (onlineOpponentTurn && G.phase==='roll') ||
+                 (isOnlineMode && G.phase==='move' && G.cur!==myPlayerIdx);
+}
+
+function log(msg,cls=''){
+  const el=document.getElementById('log');
+  const d=document.createElement('div');
+  if(cls) d.className=cls;
+  d.textContent=msg;
+  el.appendChild(d);
+  el.scrollTop=el.scrollHeight;
+}
+
+/* ═══════════════════════════════════════════
+   WIN SCREEN
+═══════════════════════════════════════════ */
+function showReview(){
+  const list=document.getElementById('reviewList');
+  list.innerHTML='';
+  missedQuestions.forEach((m,i)=>{
+    const item=document.createElement('div');
+    item.className='review-item';
+    const qDiv=document.createElement('div');
+    qDiv.className='review-q';
+    qDiv.textContent=`${i+1}. ${m.q}`;
+    item.appendChild(qDiv);
+    const grid=document.createElement('div');
+    grid.className='review-opts';
+    m.options.forEach((opt,oi)=>{
+      const d=document.createElement('div');
+      const letter='ABCD'[oi];
+      let cls='review-opt';
+      if(oi===m.answer) cls+=' correct';
+      else if(oi===m.chosen) cls+=' wrong';
+      d.className=cls;
+      d.innerHTML=`<span style="font-weight:900;flex-shrink:0">${letter}.</span> ${opt}`;
+      grid.appendChild(d);
+    });
+    item.appendChild(grid);
+    const footer=document.createElement('div');
+    footer.className='review-footer';
+    footer.textContent=m.chosen===-1
+      ? '⏰ Timed out — correct answer shown in green'
+      : '✓ Correct answer in green · ✗ Your answer in red';
+    item.appendChild(footer);
+    list.appendChild(item);
+  });
+  document.getElementById('reviewModal').classList.add('open');
+}
+
+function showWinScreen(playerIdx){
+  document.getElementById('winTitle').textContent=`${NAMES[playerIdx]} Wins!`;
+  document.getElementById('winModal').style.display='flex';
+  // Show review button only in edu mode with at least one missed question
+  document.getElementById('reviewBtn').style.display=
+    (eduMode && missedQuestions.length>0) ? '' : 'none';
+  sfx('win');
+  launchConfetti();
+}
+
+function launchConfetti(){
+  const canvas=document.getElementById('confettiCanvas');
+  canvas.width=window.innerWidth; canvas.height=window.innerHeight;
+  const ctx=canvas.getContext('2d');
+  const CC=['#e74c3c','#3498db','#2ecc71','#f1c40f','#9b59b6','#ffd700','#ff8c69','#00d2d3'];
+  const pts=[];
+  for(let i=0;i<220;i++){
+    const a=Math.random()*Math.PI*2, sp=Math.random()*7+2;
+    pts.push({x:canvas.width*(0.2+Math.random()*0.6),y:canvas.height*0.38+Math.random()*60-30,
+      vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-5,sz:Math.random()*9+4,
+      color:CC[Math.floor(Math.random()*CC.length)],
+      rot:Math.random()*360,rv:(Math.random()-.5)*14,
+      shape:Math.random()>.4?'rect':'circle'});
+  }
+  let frame=0;
+  function draw(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    pts.forEach(p=>{
+      p.vy+=0.2; p.x+=p.vx; p.y+=p.vy; p.rot+=p.rv;
+      ctx.save(); ctx.globalAlpha=Math.max(0,1-frame/240);
+      ctx.translate(p.x,p.y); ctx.rotate(p.rot*Math.PI/180);
+      ctx.fillStyle=p.color;
+      if(p.shape==='rect'){ctx.fillRect(-p.sz/2,-p.sz*.28,p.sz,p.sz*.55);}
+      else{ctx.beginPath();ctx.arc(0,0,p.sz/2,0,Math.PI*2);ctx.fill();}
+      ctx.restore();
+    });
+    if(++frame<280) confettiRAF=requestAnimationFrame(draw);
+  }
+  confettiRAF=requestAnimationFrame(draw);
+}
+
+/* ═══════════════════════════════════════════
+   RULES MODAL
+═══════════════════════════════════════════ */
+function openRules(){
+  document.getElementById('rulesModal').classList.add('open');
+}
+function closeRules(){
+  document.getElementById('rulesModal').classList.remove('open');
+}
+
+/* ═══════════════════════════════════════════
+   LOG HISTORY MODAL
+═══════════════════════════════════════════ */
+function openLog(){
+  const src=document.getElementById('log');
+  const content=document.getElementById('logContent');
+  content.innerHTML=src.innerHTML||'<div style="color:#666;text-align:center;padding:24px">No moves yet.</div>';
+  document.getElementById('logModal').classList.add('open');
+  content.scrollTop=content.scrollHeight;
+}
+function closeLog(){
+  document.getElementById('logModal').classList.remove('open');
+}
+
+/* ═══════════════════════════════════════════
+   VOICE RECOGNITION
+   Commands: "roll", "option N / N-word / N-th", "new game"
+═══════════════════════════════════════════ */
+let recognition=null;
+let micOn=false;
+
+const WORD_TO_N={
+  'one':1,'two':2,'three':3,'four':4,'five':5,
+  '1':1,'2':2,'3':3,'4':4,'5':5,
+  'first':1,'second':2,'third':3,'fourth':4,'fifth':5
+};
+
+function handleVoice(text){
+  const t=text.toLowerCase().trim();
+  const vsEl=document.getElementById('voiceStatus');
+
+  // Roll
+  if(/\broll\b/.test(t)){
+    vsEl.textContent='🎤 Heard: "roll"';
+    doRoll();
+    return;
+  }
+  // New game
+  if(/\bnew\s*game\b/.test(t)){
+    vsEl.textContent='🎤 Heard: "new game"';
+    newGame();
+    return;
+  }
+  // Rules
+  if(/\brules?\b/.test(t)){
+    vsEl.textContent='🎤 Heard: "rules"';
+    document.getElementById('rulesModal').style.display='flex';
+    return;
+  }
+  // Option N
+  for(const[word,n] of Object.entries(WORD_TO_N)){
+    // matches "option two", "two", "option 2", "2" etc.
+    const pat=new RegExp('(\\boption\\s+'+word+'\\b|^'+word+'$)');
+    if(pat.test(t)){
+      const btns=[...document.querySelectorAll('#moveOpts .btn')];
+      if(btns[n-1]){
+        vsEl.textContent=`🎤 Heard: option ${n}`;
+        btns[n-1].click();
+      } else {
+        vsEl.textContent=`🎤 No option ${n} available`;
+      }
+      return;
+    }
+  }
+  vsEl.textContent=`🎤 "${text}"`;
+}
+
+function setupRecognition(){
+  const SpeechRec=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SpeechRec){
+    document.getElementById('micBtn').textContent='🚫 Voice N/A';
+    document.getElementById('micBtn').disabled=true;
+    return null;
+  }
+  const r=new SpeechRec();
+  r.lang='en-US';
+  r.continuous=true;
+  r.interimResults=false;
+  r.maxAlternatives=3;
+  r.onresult=e=>{
+    for(let i=e.resultIndex;i<e.results.length;i++){
+      if(e.results[i].isFinal){
+        // Try all alternatives
+        for(let a=0;a<e.results[i].length;a++){
+          const txt=e.results[i][a].transcript;
+          handleVoice(txt);
+          break; // use best alternative
+        }
+      }
+    }
+  };
+  r.onerror=err=>{
+    if(err.error!=='no-speech' && err.error!=='aborted'){
+      document.getElementById('voiceStatus').textContent=`🎤 Error: ${err.error}`;
+    }
+  };
+  r.onend=()=>{
+    // Auto-restart if still enabled
+    if(micOn) try{ r.start(); }catch(e){}
+  };
+  return r;
+}
+
+function toggleMic(){
+  const btn=document.getElementById('micBtn');
+  if(!recognition) recognition=setupRecognition();
+  if(!recognition) return;
+
+  micOn=!micOn;
+  if(micOn){
+    try{ recognition.start(); }catch(e){}
+    btn.textContent='🎤 Voice: On';
+    btn.classList.add('listening');
+    document.getElementById('voiceStatus').textContent='Listening… say "Roll", "Option 1", "New game"…';
+  } else {
+    try{ recognition.abort(); }catch(e){}
+    btn.textContent='🎤 Voice: Off';
+    btn.classList.remove('listening');
+    document.getElementById('voiceStatus').textContent='';
+  }
+}
+
+/* ═══════════════════════════════════════════
+   SOUND ENGINE  (Web Audio API — no files needed)
+═══════════════════════════════════════════ */
+let _actx=null, soundOn=true;
+
+function aCtx(){
+  if(!_actx) _actx=new(window.AudioContext||window.webkitAudioContext)();
+  if(_actx.state==='suspended') _actx.resume();
+  return _actx;
+}
+
+/* single oscillator tone */
+function _tone(freq,dur,type,vol,t,atk){
+  if(!soundOn) return;
+  try{
+    const c=aCtx(), o=c.createOscillator(), g=c.createGain();
+    o.connect(g); g.connect(c.destination);
+    o.type=type||'sine';
+    o.frequency.setValueAtTime(freq, c.currentTime+(t||0));
+    g.gain.setValueAtTime(0, c.currentTime+(t||0));
+    g.gain.linearRampToValueAtTime(vol||0.2, c.currentTime+(t||0)+(atk||0.01));
+    g.gain.exponentialRampToValueAtTime(0.001, c.currentTime+(t||0)+dur);
+    o.start(c.currentTime+(t||0));
+    o.stop(c.currentTime+(t||0)+dur+0.05);
+  }catch(e){}
+}
+
+/* white/pink noise burst */
+function _noise(dur,vol,t){
+  if(!soundOn) return;
+  try{
+    const c=aCtx(), sr=c.sampleRate;
+    const buf=c.createBuffer(1,Math.ceil(sr*dur),sr);
+    const d=buf.getChannelData(0);
+    for(let i=0;i<d.length;i++) d[i]=Math.random()*2-1;
+    const src=c.createBufferSource(), g=c.createGain();
+    src.buffer=buf; src.connect(g); g.connect(c.destination);
+    g.gain.setValueAtTime(vol||0.15, c.currentTime+(t||0));
+    g.gain.exponentialRampToValueAtTime(0.001, c.currentTime+(t||0)+dur);
+    src.start(c.currentTime+(t||0));
+    src.stop(c.currentTime+(t||0)+dur+0.05);
+  }catch(e){}
+}
+
+/* frequency glide */
+function _glide(f0,f1,dur,type,vol,t){
+  if(!soundOn) return;
+  try{
+    const c=aCtx(), o=c.createOscillator(), g=c.createGain();
+    o.connect(g); g.connect(c.destination);
+    o.type=type||'sawtooth';
+    o.frequency.setValueAtTime(f0, c.currentTime+(t||0));
+    o.frequency.exponentialRampToValueAtTime(f1, c.currentTime+(t||0)+dur);
+    g.gain.setValueAtTime(vol||0.25, c.currentTime+(t||0));
+    g.gain.linearRampToValueAtTime((vol||0.25)*1.1, c.currentTime+(t||0)+0.1);
+    g.gain.exponentialRampToValueAtTime(0.001, c.currentTime+(t||0)+dur+0.05);
+    o.start(c.currentTime+(t||0));
+    o.stop(c.currentTime+(t||0)+dur+0.1);
+  }catch(e){}
+}
+
+/* ── Individual sound events ── */
+const SFX={
+  newGame(){
+    [261,329,392,523,392,523,659].forEach((f,i)=>
+      _tone(f,0.22,'triangle',0.2,i*0.09,0.01)
+    );
+  },
+  diceRoll(){
+    _noise(0.32,0.1);
+    for(let i=0;i<6;i++) _tone(180+Math.random()*300,0.04,'square',0.07,i*0.05);
+  },
+  doubles(){
+    [392,494,587].forEach((f,i)=>_tone(f,0.28,'triangle',0.18,i*0.06,0.01));
+    _tone(784,0.35,'triangle',0.12,0.2,0.01);
+  },
+  step(){          // subtle movement click
+    _tone(380,0.03,'square',0.04,0,0.002);
+  },
+  dragonFall(){    // roar + descent
+    _glide(420,55,0.95,'sawtooth',0.28);
+    _noise(0.5,0.09,0.05);
+    [110,165,220].forEach((f,i)=>_tone(f,0.55,'square',0.09,i*0.08));
+  },
+  eagleLaunch(){   // soaring eagle ~2.4 s
+    const c=aCtx();
+    // 1. Sharp screech — high freq gliding down
+    _glide(920,480,0.38,'sawtooth',0.14,0);
+    _glide(760,320,0.30,'square',0.07,0.06);
+    // 2. Wind rush — sustained low-pass noise
+    try{
+      const sr=c.sampleRate, dur=2.1;
+      const buf=c.createBuffer(1,Math.ceil(sr*dur),sr);
+      const d=buf.getChannelData(0);
+      for(let i=0;i<d.length;i++) d[i]=Math.random()*2-1;
+      const src=c.createBufferSource(); src.buffer=buf;
+      const lpf=c.createBiquadFilter();
+      lpf.type='lowpass';
+      lpf.frequency.setValueAtTime(700,c.currentTime);
+      lpf.frequency.linearRampToValueAtTime(1500,c.currentTime+1.1);
+      lpf.frequency.linearRampToValueAtTime(500,c.currentTime+dur);
+      const g=c.createGain();
+      g.gain.setValueAtTime(0,c.currentTime);
+      g.gain.linearRampToValueAtTime(0.11,c.currentTime+0.28);
+      g.gain.setValueAtTime(0.11,c.currentTime+1.75);
+      g.gain.exponentialRampToValueAtTime(0.001,c.currentTime+dur);
+      src.connect(lpf); lpf.connect(g); g.connect(c.destination);
+      src.start(c.currentTime); src.stop(c.currentTime+dur+0.1);
+    }catch(e){}
+    // 3. Wing beats — rhythmic low thumps
+    [0.38,0.82,1.26,1.70].forEach(t=>{
+      _noise(0.07,0.05,t);
+      _tone(110,0.10,'sine',0.04,t);
+    });
+    // 4. Second cry mid-flight
+    _glide(680,360,0.28,'sawtooth',0.09,1.15);
+  },
+  dragonFire(ms){   // roaring fire, duration in ms
+    if(!soundOn) return;
+    try{
+      const c=aCtx(), dur=(ms||3600)/1000;
+      // 1. Deep guttural roar with vibrato
+      const osc=c.createOscillator();
+      const vib=c.createOscillator(), vg=c.createGain(), og=c.createGain();
+      vib.frequency.value=5.5; vg.gain.value=10;
+      vib.connect(vg); vg.connect(osc.frequency);
+      osc.type='sawtooth';
+      osc.frequency.setValueAtTime(75,c.currentTime);
+      osc.frequency.linearRampToValueAtTime(105,c.currentTime+0.18);
+      og.gain.setValueAtTime(0,c.currentTime);
+      og.gain.linearRampToValueAtTime(0.20,c.currentTime+0.15);
+      og.gain.setValueAtTime(0.20,c.currentTime+dur-0.9);
+      og.gain.exponentialRampToValueAtTime(0.001,c.currentTime+dur);
+      osc.connect(og); og.connect(c.destination);
+      vib.start(c.currentTime); osc.start(c.currentTime);
+      vib.stop(c.currentTime+dur); osc.stop(c.currentTime+dur);
+      // 2. Fire hiss — bandpass noise
+      const sr=c.sampleRate;
+      const buf=c.createBuffer(1,Math.ceil(sr*dur),sr);
+      const bd=buf.getChannelData(0);
+      for(let i=0;i<bd.length;i++) bd[i]=Math.random()*2-1;
+      const hsrc=c.createBufferSource(); hsrc.buffer=buf;
+      const bpf=c.createBiquadFilter();
+      bpf.type='bandpass';
+      bpf.frequency.setValueAtTime(1400,c.currentTime);
+      bpf.frequency.linearRampToValueAtTime(2200,c.currentTime+0.5);
+      bpf.Q.value=0.7;
+      const hg=c.createGain();
+      hg.gain.setValueAtTime(0,c.currentTime);
+      hg.gain.linearRampToValueAtTime(0.13,c.currentTime+0.25);
+      hg.gain.setValueAtTime(0.13,c.currentTime+dur-0.7);
+      hg.gain.exponentialRampToValueAtTime(0.001,c.currentTime+dur);
+      hsrc.connect(bpf); bpf.connect(hg); hg.connect(c.destination);
+      hsrc.start(c.currentTime); hsrc.stop(c.currentTime+dur);
+      // 3. Initial whoosh glide
+      _glide(90,550,0.55,'sawtooth',0.22,0);
+      // 4. Random crackling bursts
+      const n=Math.max(6,Math.round(dur*3));
+      for(let i=0;i<n;i++)
+        _noise(0.04+Math.random()*0.06,0.04+Math.random()*0.07,0.08+i*(dur/n));
+    }catch(e){}
+  },
+  verticalJump(){
+    [392,494,587,740].forEach((f,i)=>_tone(f,0.15,'triangle',0.18,i*0.06,0.01));
+  },
+  arrive(){
+    _tone(659,0.18,'sine',0.18,0,0.01);
+    _tone(784,0.12,'sine',0.1,0.12,0.01);
+  },
+  capture(){
+    _noise(0.18,0.3);
+    _glide(280,90,0.3,'sawtooth',0.2);
+    _tone(120,0.28,'square',0.15,0.04);
+  },
+  win(){
+    const f=[261,329,392,523,659,523,659,784,523,659,784,1047];
+    const d=[0.15,0.15,0.15,0.15,0.15,0.1,0.1,0.4,0.1,0.1,0.1,0.7];
+    let t=0;
+    f.forEach((n,i)=>{_tone(n,d[i],'triangle',0.22,t,0.01);t+=d[i]+0.02;});
+    // chord sustain underneath
+    [261,329,392,523].forEach((n,i)=>_tone(n,1.5,'sine',0.06,0.5));
+  },
+  quizAlert(){
+    [330,415,523].forEach((f,i)=>_tone(f,0.25,'sine',0.2,i*0.09,0.02));
+    _tone(659,0.3,'sine',0.15,0.3,0.02);
+  },
+  quizCorrect(){
+    [523,659,784,1047].forEach((f,i)=>_tone(f,0.2,'triangle',0.22,i*0.08,0.01));
+  },
+  quizWrong(){
+    _glide(250,100,0.45,'square',0.2);
+    _noise(0.2,0.06,0.1);
+  },
+  turnChange(){
+    _tone(660,0.12,'sine',0.14,0,0.01);
+    _tone(880,0.08,'sine',0.08,0.11,0.01);
+  },
+  shieldStay(){    // forgo move on shield
+    _tone(523,0.15,'sine',0.18,0,0.01);
+    _tone(523,0.12,'sine',0.12,0.18,0.01);
+  }
+};
+
+function sfx(name){ if(soundOn) try{SFX[name]?.();}catch(e){} }
+
+function toggleSound(){
+  soundOn=!soundOn;
+  const btn=document.getElementById('soundBtn');
+  btn.textContent=soundOn?'🔊':'🔇';
+  btn.classList.toggle('muted',!soundOn);
+  btn.title=soundOn?'Mute all sounds':'Unmute sounds';
+}
+
+/* ═══════════════════════════════════════════
+   INIT
+   (Setup modal shown directly on load.
+    Rules accessible via the Rules button.)
+═══════════════════════════════════════════ */
+buildBoard();
+G={pieces:[[1,1],[1,1]],cur:0,dice:[0,0],phase:'roll'};
+renderPieces(); syncUI();
+openSetup();
+loadTopicsManifest(); // fetch topics.json and populate dropdown; questions loaded lazily
+
+/* ═══════════════════════════════════════════
+   ONLINE MULTIPLAYER — functions
+═══════════════════════════════════════════ */
+function generateRoomCode(){
+  const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let c='';
+  for(let i=0;i<6;i++) c+=chars[Math.floor(Math.random()*chars.length)];
+  return c;
+}
+
+/* ── Called when P1 presses "Create Room" ── */
+async function onlineCreate(){
+  const statusEl=document.getElementById('onlineStatus');
+  const displayEl=document.getElementById('onlineRoomDisplay');
+  displayEl.style.display='';
+  document.getElementById('onlineJoinPanel').style.display='none';
+
+  if(!window._fb){
+    statusEl.textContent='⏳ Firebase still loading — please wait a moment and try again.';
+    statusEl.className='online-status err';
+    return;
+  }
+
+  roomCode=generateRoomCode();
+  myPlayerIdx=0;
+  isOnlineMode=true;
+
+  document.getElementById('onlineCreateBtn').disabled=true;
+  document.getElementById('onlineJoinBtn').disabled=true;
+  document.getElementById('roomCodeDisplay').textContent=roomCode;
+  statusEl.textContent='⏳ Creating room…';
+  statusEl.className='online-status';
+
+  // Write placeholder so P2 can find the room before the game starts
+  const{db,ref,set,onValue}=window._fb;
+  try{
+    await set(ref(db,`rooms/${roomCode}`),{status:'waiting',host:0,createdAt:Date.now()});
+    statusEl.textContent='✅ Room ready! Share the code above, then click Start Game.';
+    statusEl.className='online-status ok';
+  }catch(e){
+    statusEl.textContent='❌ Could not create room: '+e.message;
+    statusEl.className='online-status err';
+    isOnlineMode=false; roomCode='';
+    document.getElementById('onlineCreateBtn').disabled=false;
+    document.getElementById('onlineJoinBtn').disabled=false;
+    return;
+  }
+
+  // Copy-on-click
+  document.getElementById('roomCodeDisplay').onclick=()=>{
+    navigator.clipboard&&navigator.clipboard.writeText(roomCode).then(()=>{
+      statusEl.textContent='📋 Code copied! Share it with your opponent.';
+    });
+  };
+
+  // P1 listens for remote state (P2 moves)
+  if(_fbUnsubscribe) _fbUnsubscribe();
+  _fbUnsubscribe=onValue(ref(db,`rooms/${roomCode}`),(snap)=>{
+    const d=snap.val();
+    if(!d||!d.G) return;
+    applyRemoteState(d);
+  });
+  startInactivityWatch();
+}
+
+/* ── Called when P1 presses "Join Room" toggle ── */
+function onlineShowJoin(){
+  document.getElementById('onlineJoinPanel').style.display='';
+  document.getElementById('onlineRoomDisplay').style.display='none';
+}
+
+/* ── Called when P2 presses "Join →" ── */
+async function onlineJoin(){
+  const code=(document.getElementById('joinCodeInput').value||'').trim().toUpperCase();
+  const statusEl=document.getElementById('onlineJoinStatus');
+  if(code.length!==6){
+    statusEl.textContent='⚠ Enter the full 6-character code.';
+    statusEl.className='online-status err';
+    return;
+  }
+  if(!window._fb){
+    statusEl.textContent='⏳ Firebase loading… try again in a second.';
+    statusEl.className='online-status err';
+    return;
+  }
+  statusEl.textContent='🔄 Connecting…';
+  statusEl.className='online-status';
+
+  const{db,ref,get,onValue}=window._fb;
+  try{
+    const snap=await get(ref(db,`rooms/${code}`));
+    if(!snap.exists()){
+      statusEl.textContent='❌ Room not found. Double-check the code.';
+      statusEl.className='online-status err';
+      return;
+    }
+    // Reject rooms that have been inactive for 5+ hours
+    const rd=snap.val();
+    const lastActive=rd.lastActivity||rd.createdAt||0;
+    if(Date.now()-lastActive>ROOM_INACTIVE_MS){
+      statusEl.textContent='❌ This room has expired (inactive for over 5 hours).';
+      statusEl.className='online-status err';
+      return;
+    }
+  }catch(e){
+    statusEl.textContent='❌ Connection error: '+e.message;
+    statusEl.className='online-status err';
+    return;
+  }
+
+  roomCode=code;
+  myPlayerIdx=1;
+  isOnlineMode=true;
+  computerPlayer=-1;
+
+  // Apply P2's own edu preference and level immediately (uses same edu section as P1)
+  eduMode=document.getElementById('eduCheck').checked;
+  // questionLevel already set by the shared level buttons (or defaults to 'basic')
+
+  statusEl.textContent='✅ Connected! Waiting for Player 1 to start…';
+  statusEl.className='online-status ok';
+
+  // Disable start button so P2 waits for P1's state push
+  document.getElementById('setupModal').classList.remove('open');
+  showOnlineBanner();
+  log('🌐 Joined room '+roomCode+' — you are Player 2. Waiting for Player 1 to start…','le-special');
+
+  // P2 listens for P1's state
+  if(_fbUnsubscribe) _fbUnsubscribe();
+  _fbUnsubscribe=onValue(ref(db,`rooms/${roomCode}`),(snap)=>{
+    const d=snap.val();
+    if(!d||!d.G) return;
+    applyRemoteState(d);
+  });
+  startInactivityWatch();
+}
+
+/* ── Push current G to Firebase ── */
+function pushGameState(){
+  if(!isOnlineMode||!window._fb) return;
+  const{db,ref,set}=window._fb;
+  G.seq=(G.seq||0)+1;
+  _lastAppliedSeq=G.seq;
+  set(ref(db,`rooms/${roomCode}`),{
+    G:JSON.parse(JSON.stringify(G)),
+    pusher:myPlayerIdx,
+    eduMode:eduMode,
+    questionLevel:questionLevel,
+    lastActivity:Date.now()
+  });
+}
+
+/* ── Apply state received from the remote player ── */
+function applyRemoteState(data){
+  if(!data||!data.G) return;
+  const remoteG=data.G;
+  // Ignore our own echoed pushes
+  if(data.pusher===myPlayerIdx) return;
+  if((remoteG.seq||0)<=_lastAppliedSeq) return;
+  _lastAppliedSeq=remoteG.seq||0;
+
+  // Edu mode: OR of both players' choices — if either player wants it, both get it
+  if(data.eduMode!==undefined){
+    const wasEdu=eduMode;
+    eduMode=data.eduMode||eduMode;
+    if(eduMode&&!wasEdu) log('📚 Educational Mode enabled by your opponent!','le-special');
+  }
+  // Topic sync — apply P1's chosen topic to both players
+  const remoteLvl=data.questionLevel||questionLevel;
+  if(remoteLvl!==questionLevel){
+    const remoteTopic=topicsManifest.find(t=>t.id===remoteLvl);
+    if(remoteTopic){
+      questionLevel=remoteLvl;
+      setEduTopic(remoteLvl);
+      log(`📚 ${remoteTopic.label} questions activated by your opponent!`,'le-special');
+    }
+  }
+
+  // Apply
+  G.pieces=remoteG.pieces;
+  G.cur   =remoteG.cur;
+  G.dice  =remoteG.dice;
+  G.phase =remoteG.phase;
+  G.seq   =remoteG.seq||0;
+
+  // Update dice display
+  if(G.dice&&G.dice[0]){
+    renderDie('d0',G.dice[0]); renderDie('d1',G.dice[1]);
+    document.getElementById('deq').textContent=G.dice[0]===G.dice[1]?'=':'≠';
+  }
+
+  renderPieces();
+  document.getElementById('moveOpts').innerHTML='';
+  moveQueue=[];
+
+  // Win?
+  if(G.phase==='over'){
+    syncUI();
+    showWinScreen(G.cur);
+    return;
+  }
+
+  // If remote player just rolled (phase=move, their turn) — log it, no move buttons for us
+  if(G.phase==='move'&&G.cur!==myPlayerIdx){
+    log(`${NAMES[G.cur]} rolled ${G.dice[0]} & ${G.dice[1]}${G.dice[0]===G.dice[1]?' (doubles!)':''}. Choosing a move…`,'le-roll');
+  }
+
+  syncUI();
+}
+
+function showOnlineBanner(){
+  document.getElementById('onlinePanelStatus').classList.add('visible');
+  document.getElementById('onlinePanelCode').textContent='🌐 Room: '+roomCode;
+  document.getElementById('onlinePanelRole').textContent='You are Player '+(myPlayerIdx+1);
+}
+
+/* ── Room inactivity watchdog ──────────────────────────────────────────────
+   Checks every 60 s (and on tab-focus) whether the room has been silent for
+   5 hours.  Uses lastActivity written by pushGameState(); falls back to
+   createdAt for rooms that never started (nobody joined).
+─────────────────────────────────────────────────────────────────────────── */
+const ROOM_INACTIVE_MS=5*60*60*1000; // 5 hours in milliseconds
+let _inactivityInterval=null;
+
+function _onTabVisible(){ if(!document.hidden) checkRoomInactivity(); }
+
+function startInactivityWatch(){
+  stopInactivityWatch();
+  _inactivityInterval=setInterval(checkRoomInactivity,60_000);
+  document.addEventListener('visibilitychange',_onTabVisible);
+}
+
+function stopInactivityWatch(){
+  if(_inactivityInterval){ clearInterval(_inactivityInterval); _inactivityInterval=null; }
+  document.removeEventListener('visibilitychange',_onTabVisible);
+}
+
+async function checkRoomInactivity(){
+  if(!isOnlineMode||!roomCode||!window._fb) return;
+  try{
+    const{db,ref,get}=window._fb;
+    const snap=await get(ref(db,`rooms/${roomCode}`));
+    if(!snap.exists()){ handleRoomExpired('deleted'); return; }
+    const d=snap.val();
+    const lastActive=d.lastActivity||d.createdAt||0;
+    if(Date.now()-lastActive>ROOM_INACTIVE_MS) handleRoomExpired('inactive');
+  }catch(e){
+    console.warn('Inactivity check failed:',e.message);
+  }
+}
+
+function handleRoomExpired(reason){
+  if(!isOnlineMode) return; // already handled
+  stopInactivityWatch();
+  if(_fbUnsubscribe){ _fbUnsubscribe(); _fbUnsubscribe=null; }
+  // Best-effort room deletion — whichever client gets here first cleans up
+  if(window._fb&&roomCode&&window._fb.remove){
+    const{db,ref,remove}=window._fb;
+    remove(ref(db,`rooms/${roomCode}`)).catch(()=>{});
+  }
+  isOnlineMode=false;
+  document.getElementById('onlinePanelStatus').classList.remove('visible');
+  const msg=reason==='deleted'
+    ? '🔌 The online room no longer exists. The game has ended.'
+    : '⏰ This online room closed after 5 hours of inactivity.';
+  log(msg,'le-special');
+  alert(msg);
+  roomCode='';
+}
+</script>
+
+<!-- Firebase Realtime Database (modular SDK) -->
+<script type="module">
+import{initializeApp}from"https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
+import{getDatabase,ref,set,get,onValue,remove}from"https://www.gstatic.com/firebasejs/12.13.0/firebase-database.js";
+const firebaseConfig={
+  apiKey:"AIzaSyBJ-3WI1FwM3zAIB8UNFZEPB7MYcPybFaA",
+  authDomain:"game2learndb.firebaseapp.com",
+  databaseURL:"https://game2learndb-default-rtdb.firebaseio.com",
+  projectId:"game2learndb",
+  storageBucket:"game2learndb.firebasestorage.app",
+  messagingSenderId:"542243702534",
+  appId:"1:542243702534:web:93d2ac9b5b7a0594b1c087",
+  measurementId:"G-M7FG667EEM"
+};
+const app=initializeApp(firebaseConfig);
+const db=getDatabase(app);
+window._fb={db,ref,set,get,onValue,remove};
+</script>
+</body>
+</html>
