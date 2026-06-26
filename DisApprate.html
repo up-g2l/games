@@ -1716,83 +1716,96 @@ function sqToCol(sq){
   return row%2===0 ? pos : 15-pos;
 }
 
-async function eagleMoveToPoint(eagle,x,y,durationMs,faceLeft){
-  eagle.style.transition=`left ${durationMs}ms linear, top ${durationMs}ms linear, transform ${Math.min(200,durationMs*0.4)}ms ease`;
-  eagle.style.left=x+'px';
-  eagle.style.top=y+'px';
-  eagle.style.transform=`translate(-50%,-50%) scaleX(${faceLeft?-1:1})`;
-  await sleep(durationMs);
-}
-
 async function playEagleCarry(playerIdx,pieceIdx,from,to){
   const fromCell=document.getElementById('sq'+from);
-  const toCell=document.getElementById('sq'+to);
-  const board=document.getElementById('board');
-
-  // Move piece in data model so it renders at destination immediately
-  G.pieces[playerIdx][pieceIdx]=to;
-  renderPieces();
+  const toCell  =document.getElementById('sq'+to);
+  const board   =document.getElementById('board');
 
   if(!fromCell||!toCell||!board){
-    // No DOM cells — skip visual, just flash arrival
+    // No DOM — skip visual entirely
+    G.pieces[playerIdx][pieceIdx]=to; renderPieces();
     sfx('arrive'); await flashCell(to,'arrive'); return;
   }
 
   const fr=fromCell.getBoundingClientRect();
   const tr=toCell.getBoundingClientRect();
   const br=board.getBoundingClientRect();
-
   const sx=fr.left+fr.width/2, sy=fr.top+fr.height/2;
   const dx=tr.left+tr.width/2, dy=tr.top+tr.height/2;
 
-  // Final-leg direction: face left if destination is visually to the left
-  const finalFaceLeft = sqToCol(to) < sqToCol(from);
+  // Which way does the eagle face on arrival?
+  const finalFaceLeft=sqToCol(to)<sqToCol(from);
+  const sz=Math.round(Math.min(fr.width*0.78,30));
+  const TALON=34; // px below eagle centre — where piece rides
 
-  // Create eagle at source position
+  // ── Hide the board piece at 'from' so only the carried div is visible ──
+  const fromPieceEl=document.querySelector(`#p${from} .piece.${PIECE_CLS[playerIdx][pieceIdx]}`);
+  if(fromPieceEl) fromPieceEl.style.opacity='0';
+
+  // ── Eagle ──
   const eagle=document.createElement('div');
   eagle.className='board-eagle';
   eagle.textContent='🦅';
   eagle.style.cssText=`left:${sx}px;top:${sy}px;transform:translate(-50%,-50%);opacity:0`;
   document.body.appendChild(eagle);
 
-  // Pop-in burst
+  // ── Carried piece (hangs in talon area below eagle) ──
+  const carried=document.createElement('div');
+  carried.style.cssText=[
+    'position:fixed',
+    `width:${sz}px`,`height:${sz}px`,
+    `left:${sx}px`,`top:${sy+TALON}px`,
+    `margin-left:-${sz/2}px`,`margin-top:-${sz/2}px`,
+    'z-index:4999','pointer-events:none',
+    `background:${COLORS[playerIdx][pieceIdx]}`,
+    'border-radius:50%','border:2.5px solid rgba(255,255,255,.92)',
+    'display:flex','align-items:center','justify-content:center',
+    `font-size:${Math.round(sz*0.44)}px`,'font-weight:900','color:#fff',
+    'text-shadow:0 1px 4px rgba(0,0,0,.9)','opacity:0',
+  ].join(';');
+  carried.textContent=pieceIdx===0?'A':'B';
+  document.body.appendChild(carried);
+
+  // Pop eagle in, then reveal piece in its talons
   eagle.style.animation='eagleAppear .4s cubic-bezier(.18,.89,.32,1.28) forwards';
-  await sleep(440);
+  await sleep(320);
+  carried.style.transition='opacity 0.25s';
+  carried.style.opacity='1';
+  await sleep(220);
 
-  // Perimeter waypoints — one clockwise loop around the board
-  const PAD=38;
-  const corners={
-    bl:{x:br.left -PAD, y:br.bottom+PAD},
-    br:{x:br.right+PAD, y:br.bottom+PAD},
-    tr:{x:br.right+PAD, y:br.top   -PAD},
-    tl:{x:br.left -PAD, y:br.top   -PAD},
-  };
-
-  const SPD=480; // px per second
-  function legMs(x1,y1,x2,y2){ return Math.max(220,Math.round(Math.hypot(x2-x1,y2-y1)/SPD*1000)); }
-
-  // Circuit: source → bottom-right → top-right → top-left → bottom-left → destination
-  // Eagle flips to face the direction of horizontal travel on each leg
-  const legs=[
-    {x:corners.br.x, y:corners.br.y, faceLeft:false},  // right along bottom
-    {x:corners.tr.x, y:corners.tr.y, faceLeft:false},  // up right side
-    {x:corners.tl.x, y:corners.tl.y, faceLeft:true },  // left across top
-    {x:corners.bl.x, y:corners.bl.y, faceLeft:true },  // down left side
-    {x:dx,           y:dy,           faceLeft:finalFaceLeft}, // home to destination
-  ];
-
-  let cx=sx, cy=sy;
-  for(const leg of legs){
-    const ms=legMs(cx,cy,leg.x,leg.y);
-    await eagleMoveToPoint(eagle,leg.x,leg.y,ms,leg.faceLeft);
-    cx=leg.x; cy=leg.y;
+  // ── flyBoth: move eagle + carried piece simultaneously ──
+  function flyBoth(ex,ey,faceLeft,ms){
+    const xScale=faceLeft?-1:1;
+    const flipMs=Math.min(160,ms*0.22);
+    eagle.style.transition=`left ${ms}ms ease-in-out,top ${ms}ms ease-in-out,transform ${flipMs}ms ease`;
+    eagle.style.left=ex+'px'; eagle.style.top=ey+'px';
+    eagle.style.transform=`translate(-50%,-50%) scaleX(${xScale})`;
+    carried.style.transition=`left ${ms}ms ease-in-out,top ${ms}ms ease-in-out`;
+    carried.style.left=ex+'px'; carried.style.top=(ey+TALON)+'px';
+    return sleep(ms);
   }
 
-  // Landing flourish then fade
-  eagle.style.transition='';
+  // ── Arc: rise to peak above the board, then glide down to destination ──
+  const peakX=(sx+dx)/2;
+  const peakY=Math.min(br.top-100, Math.min(sy,dy)-150);
+
+  await flyBoth(peakX, peakY, finalFaceLeft, 950);  // soar up
+  await flyBoth(dx,    dy,    finalFaceLeft, 850);  // glide down
+
+  // ── Landing: eagle settles, THEN piece is placed ──
+  eagle.style.transition='none';
   eagle.style.animation='eagleLand .55s ease-in-out forwards';
-  await sleep(580);
-  eagle.remove();
+  await sleep(300); // wait for eagle to touch down mid-animation
+
+  // Update data model now — piece appears at destination
+  G.pieces[playerIdx][pieceIdx]=to;
+  renderPieces();
+
+  // Fade carried div (real piece is now on the board at 'to')
+  carried.style.transition='opacity 0.2s';
+  carried.style.opacity='0';
+  await sleep(260);
+  eagle.remove(); carried.remove();
 
   sfx('arrive');
   await flashCell(to,'arrive');
