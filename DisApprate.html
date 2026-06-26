@@ -350,7 +350,21 @@ header{text-align:center;padding:8px 0;background:rgba(0,0,0,.35);font-size:1.6e
 /* ── QUIZ MODAL ───────────────────────────── */
 .quiz-modal{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;z-index:400;padding:16px}
 .quiz-modal.open{display:flex}
-.quiz-box{background:#12122a;border:3px solid var(--qcol,#ffd700);border-radius:16px;padding:22px 26px;width:min(580px,94vw);box-shadow:0 16px 64px rgba(0,0,0,.95)}
+.quiz-box{background:#12122a;border:3px solid var(--qcol,#ffd700);border-radius:16px;padding:22px 26px;width:min(580px,94vw);box-shadow:0 16px 64px rgba(0,0,0,.95);position:relative;overflow:hidden}
+
+/* ── DRAGON INTRO OVERLAY ─────────────────────────────────────── */
+.dragon-intro-overlay{position:absolute;inset:0;border-radius:14px;background:linear-gradient(160deg,#080018 0%,#1a0535 60%,#2a0a00 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:20;transition:opacity .4s,transform .4s}
+.dragon-intro-emoji{font-size:4.6em;display:block;filter:drop-shadow(0 0 22px #ff7700);animation:dragonRoarAnim .45s ease-in-out 3}
+.dragon-intro-text{color:#ff8c00;font-size:.95em;font-weight:900;margin-top:10px;letter-spacing:.07em;animation:dragonTextPulse .55s ease-in-out infinite alternate}
+@keyframes dragonRoarAnim{0%,100%{transform:scale(1) rotate(0deg)}30%{transform:scale(1.2) rotate(-7deg)}70%{transform:scale(1.15) rotate(7deg)}}
+@keyframes dragonTextPulse{from{opacity:.65;text-shadow:0 0 8px #ff6600}to{opacity:1;text-shadow:0 0 22px #ffaa00,0 0 44px #ff6600}}
+
+/* ── BOARD DRAGON & FIRE ──────────────────────────────────────── */
+.board-dragon{position:fixed;font-size:2.5em;z-index:4000;pointer-events:none;filter:drop-shadow(0 0 10px #ff6600);transform-origin:center bottom;animation:boardDragonPop .35s cubic-bezier(.18,.89,.32,1.28) forwards}
+@keyframes boardDragonPop{0%{transform:scale(0) rotate(-20deg);opacity:0}100%{transform:scale(1) rotate(0deg);opacity:1}}
+.fire-stream-particle{position:fixed;border-radius:50%;pointer-events:none;z-index:3999;background:radial-gradient(circle,#fff8 20%,#ff8800 60%,transparent 100%)}
+.fire-blast{position:fixed;width:0;height:0;border-radius:50%;pointer-events:none;z-index:4001;animation:fireBlastExpand .55s ease-out forwards}
+@keyframes fireBlastExpand{0%{box-shadow:0 0 0 0 rgba(255,200,0,1),0 0 0 0 rgba(255,100,0,.8)}60%{box-shadow:0 0 0 30px rgba(255,100,0,.55),0 0 0 52px rgba(255,50,0,.28)}100%{box-shadow:0 0 0 52px rgba(255,60,0,0),0 0 0 80px rgba(255,0,0,0)}}
 .quiz-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
 .quiz-label{font-size:.8em;font-weight:800;color:var(--qcol,#ffd700);letter-spacing:2px;text-transform:uppercase}
 .quiz-sq{font-size:.72em;color:#999;text-align:right;max-width:55%}
@@ -995,7 +1009,8 @@ const Q_CACHE={};          // {topicId: null | []} — null=fetch failed, []=loa
 let topicsManifest=[];     // populated from topics.json
 let usedQIdx=new Set();
 let quizTimerTO=null;
-let missedQuestions=[]; // {q, options, answer, chosen} — chosen=-1 means timed out
+let missedQuestions=[];
+let _nextFlyIsTumble=false; // set before resolve(false) so piece-fly adds rotation // {q, options, answer, chosen} — chosen=-1 means timed out
 
 function toggleEduLevelRow(rowId,show){
   const row=document.getElementById(rowId);
@@ -1017,6 +1032,14 @@ function qLoadFailed(){ return Q_CACHE[questionLevel]===null; }
 function topicLabel(id){
   const t=topicsManifest.find(t=>t.id===id);
   return t?t.label:id;
+}
+// Timer duration (seconds) based on topic tier; uncategorised topics default to basic (30 s)
+function quizDuration(id){
+  const t=topicsManifest.find(t=>t.id===id);
+  const tier=t?.tier||'basic';
+  if(tier==='advanced')     return 90;
+  if(tier==='intermediate') return 60;
+  return 30; // basic or uncategorised
 }
 
 // Load topics.json and populate the dropdown; fallback if fetch fails
@@ -1069,6 +1092,89 @@ async function ensureTopicLoaded(topicId){
   }
 }
 
+/* ── Dragon intro — covers quiz-box while question loads ─────────── */
+function showDragonIntro(){
+  return new Promise(resolve=>{
+    const box=document.querySelector('.quiz-box');
+    const overlay=document.createElement('div');
+    overlay.className='dragon-intro-overlay';
+    overlay.innerHTML='<span class="dragon-intro-emoji">🐉</span><div class="dragon-intro-text">⚔️ The Dragon Judges!</div>';
+    box.appendChild(overlay);
+    // After 3 roar cycles (3×0.45s ≈ 1.35s) + brief pause, fade out
+    setTimeout(()=>{
+      overlay.style.opacity='0';
+      overlay.style.transform='translateY(-18px) scale(0.92)';
+      setTimeout(()=>{ overlay.remove(); resolve(); }, 420);
+    }, 1500);
+  });
+}
+
+/* ── Board-level dragon fire when player answers wrong ───────────── */
+async function playBoardDragonFire(sq){
+  const cell=document.getElementById('sq'+sq);
+  if(!cell) return;
+  const cr=cell.getBoundingClientRect();
+  const cx=cr.left+cr.width/2, cy=cr.top+cr.height/2;
+
+  // Dragon pops in above-left of the square
+  const dragon=document.createElement('div');
+  dragon.className='board-dragon';
+  dragon.textContent='🐉';
+  dragon.style.cssText=`left:${cx-58}px;top:${cy-62}px`;
+  document.body.appendChild(dragon);
+  await sleep(380);
+
+  // Fire stream: 10 particles from dragon mouth toward the square
+  for(let i=0;i<10;i++){
+    setTimeout(()=>{
+      const p=document.createElement('div');
+      p.className='fire-stream-particle';
+      const sz=7+Math.random()*14;
+      const sx=cx-34+(Math.random()-0.5)*8, sy=cy-38+(Math.random()-0.5)*8;
+      p.style.cssText=`left:${sx}px;top:${sy}px;width:${sz}px;height:${sz}px;opacity:.95;transition:left .28s ease-in,top .28s ease-in,opacity .28s,transform .28s`;
+      document.body.appendChild(p);
+      requestAnimationFrame(()=>requestAnimationFrame(()=>{
+        p.style.left=`${cx+(Math.random()-0.5)*cr.width*.35}px`;
+        p.style.top =`${cy+(Math.random()-0.5)*cr.height*.35}px`;
+        p.style.opacity='0';
+        p.style.transform='scale(2.2)';
+      }));
+      setTimeout(()=>p.remove(), 340);
+    }, i*55);
+  }
+
+  await sleep(280);
+
+  // Fire blast at the square centre
+  const blast=document.createElement('div');
+  blast.className='fire-blast';
+  blast.style.cssText=`left:${cx}px;top:${cy}px`;
+  document.body.appendChild(blast);
+
+  // Scorch the cell briefly
+  cell.style.transition='box-shadow .08s,background .08s';
+  cell.style.boxShadow='inset 0 0 0 4px #ff6600,0 0 32px 10px rgba(255,100,0,.75)';
+  cell.style.background='rgba(255,80,0,.45)';
+  await sleep(450);
+  cell.style.boxShadow='';
+  cell.style.background='';
+
+  // Dragon shakes then vanishes
+  dragon.style.cssText+=';transition:opacity .35s,transform .35s;opacity:0;transform:scale(.5) translateY(18px)';
+  setTimeout(()=>{ blast.remove(); dragon.remove(); },380);
+  await sleep(350);
+}
+
+/* ── Sequence for wrong / timeout: fire on board, then piece tumbles ─ */
+function wrongAnswerSequence(sq, dest, resolve){
+  setTimeout(async()=>{
+    closeQuizModal();
+    await playBoardDragonFire(sq);
+    _nextFlyIsTumble=true; // piece-fly will add rotation
+    resolve(false);
+  }, 700);
+}
+
 function showQuiz(sq, fallDest){
   return new Promise(async resolve=>{
     await ensureTopicLoaded(questionLevel); // lazy-load on first use
@@ -1106,44 +1212,48 @@ function showQuiz(sq, fallDest){
     document.getElementById('quizResult').textContent='';
     document.getElementById('quizResult').className='quiz-result';
 
-    // Build option buttons
+    // Build option buttons — disabled until dragon intro finishes
     const optsEl=document.getElementById('quizOpts');
     optsEl.innerHTML='';
     q.options.forEach((opt,i)=>{
       const btn=document.createElement('button');
       btn.className='quiz-opt';
       btn.textContent=opt;
-      btn.onclick=()=>selectAnswer(i, q, resolve, optsEl);
+      btn.disabled=true;
+      btn.onclick=()=>selectAnswer(i, q, resolve, optsEl, sq, fallDest);
       optsEl.appendChild(btn);
     });
 
-    // Timer bar — 25 seconds
+    // Show modal then play dragon intro (~1.9 s); timer starts after
+    document.getElementById('quizModal').style.display='flex';
+    await showDragonIntro();
+
+    // Enable buttons
+    optsEl.querySelectorAll('.quiz-opt').forEach(b=>b.disabled=false);
+
+    // Timer bar — duration depends on topic tier
+    const secs=quizDuration(questionLevel);
     const bar=document.getElementById('quizTimerBar');
     bar.style.transition='none';
     bar.style.width='100%';
-    // Force reflow so transition starts fresh
     void bar.offsetWidth;
-    bar.style.transition='width 25s linear';
+    bar.style.transition=`width ${secs}s linear`;
     bar.style.width='0%';
 
-    // Auto-fail on timeout
+    // Auto-fail on timeout → dragon fire sequence
     if(quizTimerTO) clearTimeout(quizTimerTO);
     quizTimerTO=setTimeout(()=>{
-      // Disable all buttons
       optsEl.querySelectorAll('.quiz-opt').forEach(b=>b.disabled=true);
       const res=document.getElementById('quizResult');
       res.textContent=`⏰ Time's up! The answer was: "${q.options[q.answer]}"`;
       res.className='quiz-result fail';
       missedQuestions.push({q:q.q, options:q.options, answer:q.answer, chosen:-1});
-      setTimeout(()=>{ closeQuizModal(); resolve(false); }, 2000);
-    }, 25000);
-
-    // Show modal
-    document.getElementById('quizModal').style.display='flex';
+      wrongAnswerSequence(sq, fallDest, resolve);
+    }, secs*1000);
   });
 }
 
-function selectAnswer(chosen, q, resolve, optsEl){
+function selectAnswer(chosen, q, resolve, optsEl, sq, dest){
   const correct=q.answer, correctText=q.options[q.answer];
   if(quizTimerTO){ clearTimeout(quizTimerTO); quizTimerTO=null; }
 
@@ -1165,14 +1275,14 @@ function selectAnswer(chosen, q, resolve, optsEl){
     res.textContent='✅ Correct! You stay on this square.';
     res.className='quiz-result ok';
     sfx('quizCorrect');
+    setTimeout(()=>{ closeQuizModal(); resolve(true); }, 1800);
   } else {
     res.textContent=`❌ Wrong! The answer was: "${correctText}"`;
     res.className='quiz-result fail';
     sfx('quizWrong');
     missedQuestions.push({q:q.q, options:q.options, answer:q.answer, chosen});
+    wrongAnswerSequence(sq, dest, resolve); // dragon fire + tumble
   }
-
-  setTimeout(()=>{ closeQuizModal(); resolve(passed); }, 1800);
 }
 
 function closeQuizModal(){
@@ -1583,6 +1693,9 @@ async function flyPiece(playerIdx,pieceIdx,from,to,type){
   const flyer=document.createElement('div');
   flyer.className=`piece-flyer ${isSnake?'snake-fly':'ladder-fly'}`;
   const cx=fr.left+fr.width/2, cy=fr.top+fr.height/2;
+  // Tumble on wrong-answer falls (snake moves only)
+  const tumble=isSnake&&_nextFlyIsTumble;
+  if(tumble) _nextFlyIsTumble=false;
   flyer.style.cssText=[
     'position:fixed',
     `width:${sz}px`,`height:${sz}px`,
@@ -1594,9 +1707,11 @@ async function flyPiece(playerIdx,pieceIdx,from,to,type){
     'display:flex','align-items:center','justify-content:center',
     `font-size:${Math.round(sz*0.44)}px`,'font-weight:900','color:#fff',
     'text-shadow:0 1px 4px rgba(0,0,0,.9)',
-    isSnake
-      ? 'transition:left .72s cubic-bezier(.55,.05,.85,.5),top .72s cubic-bezier(.55,.05,.85,.5)'
-      : 'transition:left .58s cubic-bezier(.05,.8,.3,1),top .58s cubic-bezier(.05,.8,.3,1)',
+    tumble
+      ? 'transition:left .78s cubic-bezier(.55,.05,.85,.5),top .78s cubic-bezier(.55,.05,.85,.5),transform .78s ease-in,opacity .78s ease-in'
+      : isSnake
+        ? 'transition:left .72s cubic-bezier(.55,.05,.85,.5),top .72s cubic-bezier(.55,.05,.85,.5)'
+        : 'transition:left .58s cubic-bezier(.05,.8,.3,1),top .58s cubic-bezier(.05,.8,.3,1)',
   ].join(';');
   flyer.textContent=pieceIdx===0?'A':'B';
   document.body.appendChild(flyer);
@@ -1605,8 +1720,12 @@ async function flyPiece(playerIdx,pieceIdx,from,to,type){
   await sleep(30);
   flyer.style.left=`${tr.left+tr.width/2}px`;
   flyer.style.top =`${tr.top +tr.height/2}px`;
+  if(tumble){
+    flyer.style.transform='rotate(720deg) scale(0.55)';
+    flyer.style.opacity='0.3';
+  }
 
-  await sleep(isSnake?750:610);
+  await sleep(tumble?820:isSnake?750:610);
   flyer.remove();
   sfx('arrive');
   await flashCell(to,'arrive');
@@ -2230,6 +2349,7 @@ async function onlineCreate(){
     if(!d||!d.G) return;
     applyRemoteState(d);
   });
+  startInactivityWatch();
 }
 
 /* ── Called when P1 presses "Join Room" toggle ── */
@@ -2263,6 +2383,14 @@ async function onlineJoin(){
       statusEl.className='online-status err';
       return;
     }
+    // Reject rooms that have been inactive for 5+ hours
+    const rd=snap.val();
+    const lastActive=rd.lastActivity||rd.createdAt||0;
+    if(Date.now()-lastActive>ROOM_INACTIVE_MS){
+      statusEl.textContent='❌ This room has expired (inactive for over 5 hours).';
+      statusEl.className='online-status err';
+      return;
+    }
   }catch(e){
     statusEl.textContent='❌ Connection error: '+e.message;
     statusEl.className='online-status err';
@@ -2293,6 +2421,7 @@ async function onlineJoin(){
     if(!d||!d.G) return;
     applyRemoteState(d);
   });
+  startInactivityWatch();
 }
 
 /* ── Push current G to Firebase ── */
@@ -2301,7 +2430,13 @@ function pushGameState(){
   const{db,ref,set}=window._fb;
   G.seq=(G.seq||0)+1;
   _lastAppliedSeq=G.seq;
-  set(ref(db,`rooms/${roomCode}`),{G:JSON.parse(JSON.stringify(G)),pusher:myPlayerIdx,eduMode:eduMode,questionLevel:questionLevel});
+  set(ref(db,`rooms/${roomCode}`),{
+    G:JSON.parse(JSON.stringify(G)),
+    pusher:myPlayerIdx,
+    eduMode:eduMode,
+    questionLevel:questionLevel,
+    lastActivity:Date.now()
+  });
 }
 
 /* ── Apply state received from the remote player ── */
@@ -2367,12 +2502,66 @@ function showOnlineBanner(){
   document.getElementById('onlinePanelCode').textContent='🌐 Room: '+roomCode;
   document.getElementById('onlinePanelRole').textContent='You are Player '+(myPlayerIdx+1);
 }
+
+/* ── Room inactivity watchdog ──────────────────────────────────────────────
+   Checks every 60 s (and on tab-focus) whether the room has been silent for
+   5 hours.  Uses lastActivity written by pushGameState(); falls back to
+   createdAt for rooms that never started (nobody joined).
+─────────────────────────────────────────────────────────────────────────── */
+const ROOM_INACTIVE_MS=5*60*60*1000; // 5 hours in milliseconds
+let _inactivityInterval=null;
+
+function _onTabVisible(){ if(!document.hidden) checkRoomInactivity(); }
+
+function startInactivityWatch(){
+  stopInactivityWatch();
+  _inactivityInterval=setInterval(checkRoomInactivity,60_000);
+  document.addEventListener('visibilitychange',_onTabVisible);
+}
+
+function stopInactivityWatch(){
+  if(_inactivityInterval){ clearInterval(_inactivityInterval); _inactivityInterval=null; }
+  document.removeEventListener('visibilitychange',_onTabVisible);
+}
+
+async function checkRoomInactivity(){
+  if(!isOnlineMode||!roomCode||!window._fb) return;
+  try{
+    const{db,ref,get}=window._fb;
+    const snap=await get(ref(db,`rooms/${roomCode}`));
+    if(!snap.exists()){ handleRoomExpired('deleted'); return; }
+    const d=snap.val();
+    const lastActive=d.lastActivity||d.createdAt||0;
+    if(Date.now()-lastActive>ROOM_INACTIVE_MS) handleRoomExpired('inactive');
+  }catch(e){
+    console.warn('Inactivity check failed:',e.message);
+  }
+}
+
+function handleRoomExpired(reason){
+  if(!isOnlineMode) return; // already handled
+  stopInactivityWatch();
+  if(_fbUnsubscribe){ _fbUnsubscribe(); _fbUnsubscribe=null; }
+  // Best-effort room deletion — whichever client gets here first cleans up
+  if(window._fb&&roomCode&&window._fb.remove){
+    const{db,ref,remove}=window._fb;
+    remove(ref(db,`rooms/${roomCode}`)).catch(()=>{});
+  }
+  isOnlineMode=false;
+  document.getElementById('onlinePanelStatus').classList.remove('visible');
+  const msg=reason==='deleted'
+    ? '🔌 The online room no longer exists. The game has ended.'
+    : '⏰ This online room closed after 5 hours of inactivity.';
+  log(msg,'le-special');
+  alert(msg);
+  roomCode='';
+}
 </script>
 
 <!-- Firebase Realtime Database (modular SDK) -->
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
-import{getDatabase,ref,set,get,onValue}from"https://www.gstatic.com/firebasejs/12.13.0/firebase-database.js";
+import{getDatabase,ref,set,get,onValue,remove}from"https://www.gstatic.com/firebasejs/12.13.0/firebase-database.js";
 const firebaseConfig={
   apiKey:"AIzaSyBJ-3WI1FwM3zAIB8UNFZEPB7MYcPybFaA",
   authDomain:"game2learndb.firebaseapp.com",
@@ -2385,7 +2574,7 @@ const firebaseConfig={
 };
 const app=initializeApp(firebaseConfig);
 const db=getDatabase(app);
-window._fb={db,ref,set,get,onValue};
+window._fb={db,ref,set,get,onValue,remove};
 </script>
 </body>
 </html>

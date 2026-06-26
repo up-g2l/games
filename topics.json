@@ -1,8 +1,8 @@
 [
-  { "id": "basic",          "label": "Basic Math",                  "file": "questions_basic.json" },
-  { "id": "ap",             "label": "AP Algebra",                  "file": "questions_ap.json" },
-  { "id": "trig",           "label": "Trigonometry",                "file": "questions_trig.json" },
-  { "id": "prob_basic",     "label": "Probability – Basic",         "file": "questions_prob_basic.json" },
-  { "id": "prob_inter",     "label": "Probability – Intermediate",  "file": "questions_prob_intermediate.json" },
-  { "id": "prob_advanced",  "label": "Probability – Advanced",      "file": "questions_prob_advanced.json" }
+  { "id": "basic",          "label": "Basic Math",                  "file": "questions_basic.json",                "tier": "basic" },
+  { "id": "ap",             "label": "AP Algebra",                  "file": "questions_ap.json",                   "tier": "intermediate" },
+  { "id": "trig",           "label": "Trigonometry",                "file": "questions_trig.json",                 "tier": "intermediate" },
+  { "id": "prob_basic",     "label": "Probability – Basic",         "file": "questions_prob_basic.json",           "tier": "basic" },
+  { "id": "prob_inter",     "label": "Probability – Intermediate",  "file": "questions_prob_intermediate.json",    "tier": "intermediate" },
+  { "id": "prob_advanced",  "label": "Probability – Advanced",      "file": "questions_prob_advanced.json",        "tier": "advanced" }
 ]
