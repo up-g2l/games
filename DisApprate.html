@@ -363,7 +363,7 @@ header{text-align:center;padding:8px 0;background:rgba(0,0,0,.35);font-size:1.6e
   from{transform:scaleX(-1) scale(1)    translateY(0)    rotate(-3deg)}
   to  {transform:scaleX(-1) scale(1.09) translateY(-10px) rotate(2deg)}
 }
-.fire-exhale{position:relative;z-index:2;flex:1;max-width:420px;height:160px;margin-left:-48px;margin-top:-16px;overflow:hidden}
+.fire-exhale{position:relative;z-index:2;flex:1;max-width:540px;height:160px;margin-left:-48px;margin-top:-16px;overflow:visible}
 .dragon-fire-svg{display:block;width:100%;height:100%;overflow:visible}
 .dragon-modal-msg{font-size:2.1em;font-weight:900;color:#ff9000;letter-spacing:.06em;text-align:center;white-space:pre-line;text-shadow:0 0 22px #ff6600,0 0 50px #ff2200;animation:msgGlow .85s ease-in-out infinite alternate}
 @keyframes msgGlow{from{color:#ff8800;text-shadow:0 0 14px #ff5500}to{color:#ffcc44;text-shadow:0 0 32px #ffaa00,0 0 72px #ff4400}}
@@ -1771,9 +1771,8 @@ async function playEagleCarry(playerIdx,pieceIdx,from,to){
   const sx=fr.left+fr.width/2,  sy=fr.top+fr.height/2;
   const dx=tr.left+tr.width/2,  dy=tr.top+tr.height/2;
 
-  // Face left when destination is to the left in screen pixels
-  const faceLeft = dx < sx;
-  const xScale   = faceLeft ? -1 : 1;
+  // Flip eagle only when destination is to the right (dx > sx)
+  const xScale = dx > sx ? -1 : 1;
   const sz=Math.round(Math.min(fr.width*0.78,30));
   const TALON=34; // px below eagle centre — where piece rides
 
