@@ -352,12 +352,23 @@ header{text-align:center;padding:8px 0;background:rgba(0,0,0,.35);font-size:1.6e
 .quiz-modal.open{display:flex}
 .quiz-box{background:#12122a;border:3px solid var(--qcol,#ffd700);border-radius:16px;padding:22px 26px;width:min(580px,94vw);box-shadow:0 16px 64px rgba(0,0,0,.95);position:relative;overflow:hidden}
 
-/* ── DRAGON INTRO OVERLAY ─────────────────────────────────────── */
-.dragon-intro-overlay{position:absolute;inset:0;border-radius:14px;background:linear-gradient(160deg,#080018 0%,#1a0535 60%,#2a0a00 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:20;transition:opacity .4s,transform .4s}
-.dragon-intro-emoji{font-size:4.6em;display:block;filter:drop-shadow(0 0 22px #ff7700);animation:dragonRoarAnim .45s ease-in-out 3}
-.dragon-intro-text{color:#ff8c00;font-size:.95em;font-weight:900;margin-top:10px;letter-spacing:.07em;animation:dragonTextPulse .55s ease-in-out infinite alternate}
-@keyframes dragonRoarAnim{0%,100%{transform:scale(1) rotate(0deg)}30%{transform:scale(1.2) rotate(-7deg)}70%{transform:scale(1.15) rotate(7deg)}}
-@keyframes dragonTextPulse{from{opacity:.65;text-shadow:0 0 8px #ff6600}to{opacity:1;text-shadow:0 0 22px #ffaa00,0 0 44px #ff6600}}
+/* ── DRAGON JUDGMENT MODAL (full-screen) ──────────────────────── */
+.dragon-modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:600;background:rgba(0,0,0,.70);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+.dragon-modal.open{display:flex;animation:dragonModalFadeIn .35s ease-out forwards}
+@keyframes dragonModalFadeIn{from{opacity:0}to{opacity:1}}
+.dragon-modal-box{width:80vw;max-width:780px;padding:44px 48px 40px;border-radius:28px;background:radial-gradient(ellipse at 28% 38%,rgba(32,0,64,.97) 0%,rgba(8,0,18,.99) 100%);border:2px solid rgba(255,90,0,.35);box-shadow:0 0 90px rgba(255,60,0,.28),0 0 200px rgba(160,0,0,.18),inset 0 0 80px rgba(10,0,32,.7);display:flex;flex-direction:column;align-items:center;gap:32px}
+.dragon-fire-scene{display:flex;align-items:center;width:100%;justify-content:center;gap:0}
+.dragon-big{font-size:7.5em;flex-shrink:0;filter:drop-shadow(0 0 28px #ff6600) drop-shadow(0 0 64px #ff2200);animation:dragonBreathe .78s ease-in-out infinite alternate}
+@keyframes dragonBreathe{from{transform:scale(1) translateY(0) rotate(-3deg)}to{transform:scale(1.09) translateY(-8px) rotate(2deg)}}
+.fire-exhale{flex:1;max-width:300px;height:100px;position:relative;overflow:visible}
+.flame{position:absolute;left:0;border-radius:60% 40% 40% 60%/50% 50% 50% 50%;transform-origin:left center}
+.flame.f1{width:100%;height:100%;background:linear-gradient(to right,#ff2200 0%,#ff8800 55%,transparent 100%);animation:flamePulse .44s ease-in-out infinite alternate;opacity:.92}
+.flame.f2{width:88%;height:72%;top:12%;left:4%;background:linear-gradient(to right,#ff6600 0%,#ffcc00 60%,transparent 100%);animation:flamePulse .56s ease-in-out infinite alternate;animation-delay:.12s;opacity:.82}
+.flame.f3{width:72%;height:52%;top:20%;left:2%;background:linear-gradient(to right,#ffaa00 0%,#fffde0 65%,transparent 100%);animation:flamePulse .38s ease-in-out infinite alternate;animation-delay:.22s;opacity:.74}
+.flame.f4{width:54%;height:36%;top:28%;left:10%;background:linear-gradient(to right,#ffdd00 0%,#fff 70%,transparent 100%);animation:flamePulse .62s ease-in-out infinite alternate;animation-delay:.06s;opacity:.62}
+@keyframes flamePulse{from{transform:scaleY(.6) scaleX(.93) rotate(-2deg)}to{transform:scaleY(1.38) scaleX(1.07) rotate(1.5deg)}}
+.dragon-modal-msg{font-size:1.7em;font-weight:900;color:#ff9000;letter-spacing:.05em;text-align:center;white-space:pre-line;text-shadow:0 0 18px #ff6600,0 0 40px #ff2200;animation:msgGlow .85s ease-in-out infinite alternate}
+@keyframes msgGlow{from{color:#ff8800;text-shadow:0 0 14px #ff5500}to{color:#ffcc44;text-shadow:0 0 32px #ffaa00,0 0 72px #ff4400}}
 
 /* ── BOARD DRAGON & FIRE ──────────────────────────────────────── */
 .board-dragon{position:fixed;font-size:2.5em;z-index:4000;pointer-events:none;filter:drop-shadow(0 0 10px #ff6600);transform-origin:center bottom;animation:boardDragonPop .35s cubic-bezier(.18,.89,.32,1.28) forwards}
@@ -624,6 +635,22 @@ header{text-align:center;padding:8px 0;background:rgba(0,0,0,.35);font-size:1.6e
     </div>
 
     <button class="setup-start" onclick="setupGame()">▶ Start Game!</button>
+  </div>
+</div>
+
+<!-- DRAGON JUDGMENT MODAL -->
+<div class="dragon-modal" id="dragonModal">
+  <div class="dragon-modal-box">
+    <div class="dragon-fire-scene">
+      <div class="dragon-big">🐉</div>
+      <div class="fire-exhale">
+        <div class="flame f1"></div>
+        <div class="flame f2"></div>
+        <div class="flame f3"></div>
+        <div class="flame f4"></div>
+      </div>
+    </div>
+    <div class="dragon-modal-msg" id="dragonModalMsg">⚔️ The Dragon Judges!</div>
   </div>
 </div>
 
@@ -1092,21 +1119,26 @@ async function ensureTopicLoaded(topicId){
   }
 }
 
-/* ── Dragon intro — covers quiz-box while question loads ─────────── */
-function showDragonIntro(){
+/* ── Dragon full-screen overlay ──────────────────────────────────── */
+function showDragonOverlay(msg, duration){
   return new Promise(resolve=>{
-    const box=document.querySelector('.quiz-box');
-    const overlay=document.createElement('div');
-    overlay.className='dragon-intro-overlay';
-    overlay.innerHTML='<span class="dragon-intro-emoji">🐉</span><div class="dragon-intro-text">⚔️ The Dragon Judges!</div>';
-    box.appendChild(overlay);
-    // After 3 roar cycles (3×0.45s ≈ 1.35s) + brief pause, fade out
+    const modal=document.getElementById('dragonModal');
+    const msgEl=document.getElementById('dragonModalMsg');
+    msgEl.textContent=msg;
+    modal.style.transition='';
+    modal.style.opacity='1';
+    modal.classList.add('open');
     setTimeout(()=>{
-      overlay.style.opacity='0';
-      overlay.style.transform='translateY(-18px) scale(0.92)';
-      setTimeout(()=>{ overlay.remove(); resolve(); }, 420);
-    }, 1500);
+      modal.style.transition='opacity .4s ease';
+      modal.style.opacity='0';
+      setTimeout(()=>{ modal.classList.remove('open'); modal.style.opacity=''; modal.style.transition=''; resolve(); }, 420);
+    }, duration);
   });
+}
+
+/* ── Dragon intro — full-screen modal before quiz appears ────────── */
+function showDragonIntro(){
+  return showDragonOverlay('⚔️ The Dragon Judges!', 2000);
 }
 
 /* ── Board-level dragon fire when player answers wrong ───────────── */
@@ -1165,10 +1197,11 @@ async function playBoardDragonFire(sq){
   await sleep(350);
 }
 
-/* ── Sequence for wrong / timeout: fire on board, then piece tumbles ─ */
+/* ── Sequence for wrong / timeout: dragon scolds, fire on board, piece tumbles ─ */
 function wrongAnswerSequence(sq, dest, resolve){
   setTimeout(async()=>{
     closeQuizModal();
+    await showDragonOverlay('Wrong answer,\nand so you suffer.', 1800);
     await playBoardDragonFire(sq);
     _nextFlyIsTumble=true; // piece-fly will add rotation
     resolve(false);
