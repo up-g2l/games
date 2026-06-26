@@ -364,7 +364,7 @@ header{text-align:center;padding:8px 0;background:rgba(0,0,0,.35);font-size:1.6e
   to  {transform:scaleX(-1) scale(1.09) translateY(-10px) rotate(2deg)}
 }
 .fire-exhale{position:relative;z-index:2;flex:1;max-width:420px;height:160px;margin-left:-48px;margin-top:-16px;overflow:hidden}
-.dragon-fire-canvas{display:block;width:100%;height:100%;image-rendering:pixelated;image-rendering:crisp-edges}
+.dragon-fire-svg{display:block;width:100%;height:100%;overflow:visible}
 .dragon-modal-msg{font-size:2.1em;font-weight:900;color:#ff9000;letter-spacing:.06em;text-align:center;white-space:pre-line;text-shadow:0 0 22px #ff6600,0 0 50px #ff2200;animation:msgGlow .85s ease-in-out infinite alternate}
 @keyframes msgGlow{from{color:#ff8800;text-shadow:0 0 14px #ff5500}to{color:#ffcc44;text-shadow:0 0 32px #ffaa00,0 0 72px #ff4400}}
 
@@ -653,7 +653,48 @@ header{text-align:center;padding:8px 0;background:rgba(0,0,0,.35);font-size:1.6e
     <div class="dragon-fire-scene">
       <div class="dragon-big">🐉</div>
       <div class="fire-exhale">
-        <canvas class="dragon-fire-canvas"></canvas>
+        <svg class="dragon-fire-svg" viewBox="0 0 420 160" preserveAspectRatio="none"
+             xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <!-- Outer flame: deep red → orange → yellow, fades to transparent -->
+            <linearGradient id="dfOuter" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%"   stop-color="#cc1100"/>
+              <stop offset="22%"  stop-color="#ff4400"/>
+              <stop offset="50%"  stop-color="#ff8800" stop-opacity="0.9"/>
+              <stop offset="78%"  stop-color="#ffcc00" stop-opacity="0.55"/>
+              <stop offset="100%" stop-color="#ffee44" stop-opacity="0"/>
+            </linearGradient>
+            <!-- Inner hot core: bright orange → yellow → near-white -->
+            <linearGradient id="dfInner" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%"   stop-color="#ff6600"/>
+              <stop offset="35%"  stop-color="#ffbb00"/>
+              <stop offset="65%"  stop-color="#ffee88" stop-opacity="0.75"/>
+              <stop offset="100%" stop-color="#ffffff"  stop-opacity="0"/>
+            </linearGradient>
+            <!-- Turbulence filter: distorts gradients into organic flame shapes -->
+            <filter id="dfFilt" x="-5%" y="-45%" width="112%" height="190%"
+                    color-interpolation-filters="sRGB">
+              <feTurbulence type="turbulence" baseFrequency="0.022 0.085"
+                            numOctaves="4" seed="5" result="t">
+                <!-- Discrete seed jumps create snapping flame tongues -->
+                <animate attributeName="seed"
+                         values="5;19;8;27;13;3;22;11;31;6;5"
+                         calcMode="discrete" dur="3.8s" repeatCount="indefinite"/>
+                <!-- Slow baseFrequency drift makes the fire breathe -->
+                <animate attributeName="baseFrequency"
+                         values="0.022 0.085;0.027 0.105;0.019 0.078;0.024 0.092;0.022 0.085"
+                         dur="2.5s" repeatCount="indefinite"/>
+              </feTurbulence>
+              <feDisplacementMap in="SourceGraphic" in2="t"
+                                 scale="34" xChannelSelector="R" yChannelSelector="G"/>
+            </filter>
+          </defs>
+          <!-- Four layers: outer envelope → outer fill → inner fill → hot core -->
+          <rect x="0"  y="0"  width="420" height="160" fill="url(#dfOuter)" filter="url(#dfFilt)" opacity="0.88"/>
+          <rect x="0"  y="18" width="385" height="124" fill="url(#dfOuter)" filter="url(#dfFilt)" opacity="0.72"/>
+          <rect x="0"  y="40" width="320" height="80"  fill="url(#dfInner)" filter="url(#dfFilt)" opacity="0.82"/>
+          <rect x="0"  y="58" width="230" height="44"  fill="url(#dfInner)" filter="url(#dfFilt)" opacity="0.65"/>
+        </svg>
       </div>
     </div>
     <div class="dragon-modal-msg" id="dragonModalMsg">⚔️ The Dragon Judges!</div>
@@ -1044,8 +1085,7 @@ let usedQIdx=new Set();
 let quizTimerTO=null;
 let missedQuestions=[];
 let _nextFlyIsTumble=false; // set before resolve(false) so piece-fly adds rotation
-let _dragonFireRAF=null;   // rAF handle for dragon fire particle loop
-const _fireParticles=[];   // live particle array // {q, options, answer, chosen} — chosen=-1 means timed out
+// {q, options, answer, chosen} — chosen=-1 means timed out
 
 function toggleEduLevelRow(rowId,show){
   const row=document.getElementById(rowId);
@@ -1127,80 +1167,8 @@ async function ensureTopicLoaded(topicId){
   }
 }
 
-/* ── DOOM-style fire (cellular automaton, horizontal rightward) ── */
-// Classic technique: heat buffer propagates right with vertical drift + decay.
-// Running at low pixel resolution then scaled up gives authentic fire look.
-function startDragonFire(){
-  const canvas=document.querySelector('.dragon-fire-canvas');
-  if(!canvas) return;
-
-  // Low-res buffer — CSS scales it up with image-rendering:pixelated
-  const BW=105, BH=40;
-  canvas.width=BW; canvas.height=BH;
-  const ctx=canvas.getContext('2d');
-
-  // Build fire colour palette  (index 0 = fully transparent)
-  // Heat 0→50: black→deep red | 50→110: red→orange | 110→190: orange→yellow | 190→255: yellow→white
-  const pal=new Uint32Array(256);
-  pal[0]=0;
-  for(let i=1;i<256;i++){
-    let r,g,b;
-    if(i<50)       { r=(i*5)|0;                               g=0;                          b=0;                         }
-    else if(i<110) { r=255;                                   g=((i-50)*4.2)|0;             b=0;                         }
-    else if(i<190) { r=255;                                   g=Math.min(255,100+((i-110)*1.9)|0); b=0;                  }
-    else if(i<230) { r=255;                                   g=255;                        b=((i-190)*6.3)|0;           }
-    else           { r=255;                                   g=255;                        b=255;                       }
-    pal[i]=(255<<24)|(b<<16)|(g<<8)|r;   // little-endian ABGR for Uint32 view
-  }
-
-  const buf=new Uint8Array(BW*BH);
-
-  // ── Pre-warm: run BW iterations so fire fills the canvas from frame 1 ──
-  for(let iter=0;iter<BW;iter++){
-    for(let y=0;y<BH;y++) buf[y*BW]=255;          // source column always maxed
-    for(let x=BW-1;x>=1;x--){                      // right→left so we read prev values
-      for(let y=0;y<BH;y++){
-        const dy=(Math.random()*3|0)-1;            // vertical drift: -1, 0, +1
-        const sy=Math.min(BH-1,Math.max(0,y+dy));
-        const dec=Math.random()*5|0;               // heat decay 0-4
-        buf[y*BW+x]=Math.max(0,buf[sy*BW+(x-1)]-dec);
-      }
-    }
-  }
-
-  const imgData=ctx.createImageData(BW,BH);
-  const px=new Uint32Array(imgData.data.buffer);
-
-  function frame(){
-    // Flicker the source column slightly for organic feel
-    for(let y=0;y<BH;y++)
-      buf[y*BW]=Math.random()<0.92?255:(200+(Math.random()*55|0));
-
-    // Propagate heat one step rightward
-    for(let x=BW-1;x>=1;x--){
-      for(let y=0;y<BH;y++){
-        const dy=(Math.random()*3|0)-1;
-        const sy=Math.min(BH-1,Math.max(0,y+dy));
-        const dec=Math.random()*5|0;
-        buf[y*BW+x]=Math.max(0,buf[sy*BW+(x-1)]-dec);
-      }
-    }
-
-    // Map heat values to colours and push to canvas
-    for(let i=0;i<BW*BH;i++) px[i]=pal[buf[i]];
-    ctx.putImageData(imgData,0,0);
-    _dragonFireRAF=requestAnimationFrame(frame);
-  }
-  _dragonFireRAF=requestAnimationFrame(frame);
-}
-
-function stopDragonFire(){
-  if(_dragonFireRAF){ cancelAnimationFrame(_dragonFireRAF); _dragonFireRAF=null; }
-  const canvas=document.querySelector('.dragon-fire-canvas');
-  if(canvas){ const ctx=canvas.getContext('2d'); ctx.clearRect(0,0,canvas.width,canvas.height); }
-}
-
 /* ── Dragon full-screen overlay ──────────────────────────────────── */
+// Fire is pure SVG (feTurbulence + feDisplacementMap) — no JS needed for the flame.
 function showDragonOverlay(msg, duration){
   return new Promise(resolve=>{
     const modal=document.getElementById('dragonModal');
@@ -1209,9 +1177,7 @@ function showDragonOverlay(msg, duration){
     modal.style.transition='';
     modal.style.opacity='1';
     modal.classList.add('open');
-    startDragonFire();          // ← kick off particle loop
     setTimeout(()=>{
-      stopDragonFire();         // ← kill particles before fade
       modal.style.transition='opacity .4s ease';
       modal.style.opacity='0';
       setTimeout(()=>{ modal.classList.remove('open'); modal.style.opacity=''; modal.style.transition=''; resolve(); }, 420);
