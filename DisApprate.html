@@ -579,14 +579,14 @@ header{text-align:center;padding:8px 0;background:rgba(0,0,0,.35);font-size:1.6e
     <div class="setup-section">
       <div class="setup-plabel" style="color:#85c1e9">🔵 Player 2</div>
       <div class="setup-p2-toggle">
-        <button class="p2-mode-btn active" id="p2HumanBtn" onclick="setP2Mode('human')">👤 Human</button>
-        <button class="p2-mode-btn" id="p2CpuBtn" onclick="setP2Mode('cpu')">🤖 Computer</button>
+        <button class="p2-mode-btn" id="p2HumanBtn" onclick="setP2Mode('human')">👤 Human</button>
+        <button class="p2-mode-btn active" id="p2CpuBtn" onclick="setP2Mode('cpu')">🤖 Computer</button>
         <button class="p2-mode-btn" id="p2OnlineBtn" onclick="setP2Mode('online')">🌐 Online</button>
       </div>
-      <div id="p2HumanSec">
+      <div id="p2HumanSec" style="display:none">
         <div class="setup-avatars" id="av1"></div>
       </div>
-      <div id="p2CpuSec" style="display:none">
+      <div id="p2CpuSec">
         <div class="ai-levels">
           <div class="ai-level-card selected" id="ai1" onclick="setAI(1)">
             <div class="ai-icon">🤖</div>
@@ -689,11 +689,11 @@ header{text-align:center;padding:8px 0;background:rgba(0,0,0,.35);font-size:1.6e
                                  scale="34" xChannelSelector="R" yChannelSelector="G"/>
             </filter>
           </defs>
-          <!-- Four layers: outer envelope → outer fill → inner fill → hot core -->
-          <rect x="0"  y="0"  width="420" height="160" fill="url(#dfOuter)" filter="url(#dfFilt)" opacity="0.88"/>
-          <rect x="0"  y="18" width="385" height="124" fill="url(#dfOuter)" filter="url(#dfFilt)" opacity="0.72"/>
-          <rect x="0"  y="40" width="320" height="80"  fill="url(#dfInner)" filter="url(#dfFilt)" opacity="0.82"/>
-          <rect x="0"  y="58" width="230" height="44"  fill="url(#dfInner)" filter="url(#dfFilt)" opacity="0.65"/>
+          <!-- Four triangular flame tongues: base on left (dragon mouth), tip pointing right -->
+          <polygon points="20,0   420,80  20,160" fill="url(#dfOuter)" filter="url(#dfFilt)" opacity="0.88"/>
+          <polygon points="20,18  405,80  20,142" fill="url(#dfOuter)" filter="url(#dfFilt)" opacity="0.72"/>
+          <polygon points="20,40  335,80  20,120" fill="url(#dfInner)" filter="url(#dfFilt)" opacity="0.82"/>
+          <polygon points="20,58  255,80  20,102" fill="url(#dfInner)" filter="url(#dfFilt)" opacity="0.65"/>
         </svg>
       </div>
     </div>
@@ -856,8 +856,8 @@ let playerAvatars=['🦁','🐯'];
 
 // selected indices in setup modal
 let _setupAv=[0,1];
-let _p2Mode='human'; // 'human' | 'cpu'
-let _aiLevel=1;
+let _p2Mode='cpu';   // 'human' | 'cpu' | 'online'  — default: Computer
+let _aiLevel=1;      // 1=Grandmaster (default)
 
 let computerPlayer=-1; // -1=none, 0=P1 cpu, 1=P2 cpu
 let aiLevel=1;
