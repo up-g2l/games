@@ -364,7 +364,7 @@ header{text-align:center;padding:8px 0;background:rgba(0,0,0,.35);font-size:1.6e
   to  {transform:scaleX(-1) scale(1.09) translateY(-10px) rotate(2deg)}
 }
 .fire-exhale{position:relative;z-index:2;flex:1;max-width:420px;height:160px;margin-left:-48px;margin-top:-16px;overflow:hidden}
-.dragon-fire-canvas{display:block;width:100%;height:100%}
+.dragon-fire-canvas{display:block;width:100%;height:100%;image-rendering:pixelated;image-rendering:crisp-edges}
 .dragon-modal-msg{font-size:2.1em;font-weight:900;color:#ff9000;letter-spacing:.06em;text-align:center;white-space:pre-line;text-shadow:0 0 22px #ff6600,0 0 50px #ff2200;animation:msgGlow .85s ease-in-out infinite alternate}
 @keyframes msgGlow{from{color:#ff8800;text-shadow:0 0 14px #ff5500}to{color:#ffcc44;text-shadow:0 0 32px #ffaa00,0 0 72px #ff4400}}
 
@@ -1127,59 +1127,68 @@ async function ensureTopicLoaded(topicId){
   }
 }
 
-/* ── Dragon full-screen overlay ──────────────────────────────────── */
-/* ── Dragon fire particle system (canvas-based, confetti-style) ── */
-function _spawnFireParticle(canvas){
-  const h=canvas.height;
-  _fireParticles.push({
-    x  : 8  + Math.random()*20,               // spawn near left edge (mouth)
-    y  : h*0.5 + (Math.random()-0.5)*h*0.55,  // vertically centred with spread
-    vx : 3.8 + Math.random()*5.2,             // rightward
-    vy : (Math.random()-0.5)*2.8,             // slight vertical drift
-    life : 0.88 + Math.random()*0.12,
-    decay: 0.013 + Math.random()*0.017,
-    size : 7  + Math.random()*17,             // triangle half-height
-    hue  : Math.random()*48,                  // 0=red → 48=orange-yellow
-    lit  : 52 + Math.random()*32,             // lightness
-  });
-}
-
+/* ── DOOM-style fire (cellular automaton, horizontal rightward) ── */
+// Classic technique: heat buffer propagates right with vertical drift + decay.
+// Running at low pixel resolution then scaled up gives authentic fire look.
 function startDragonFire(){
   const canvas=document.querySelector('.dragon-fire-canvas');
   if(!canvas) return;
-  // Size buffer to CSS display size for sharp rendering
-  canvas.width =canvas.clientWidth  || 420;
-  canvas.height=canvas.clientHeight || 160;
+
+  // Low-res buffer — CSS scales it up with image-rendering:pixelated
+  const BW=105, BH=40;
+  canvas.width=BW; canvas.height=BH;
   const ctx=canvas.getContext('2d');
-  _fireParticles.length=0;
+
+  // Build fire colour palette  (index 0 = fully transparent)
+  // Heat 0→50: black→deep red | 50→110: red→orange | 110→190: orange→yellow | 190→255: yellow→white
+  const pal=new Uint32Array(256);
+  pal[0]=0;
+  for(let i=1;i<256;i++){
+    let r,g,b;
+    if(i<50)       { r=(i*5)|0;                               g=0;                          b=0;                         }
+    else if(i<110) { r=255;                                   g=((i-50)*4.2)|0;             b=0;                         }
+    else if(i<190) { r=255;                                   g=Math.min(255,100+((i-110)*1.9)|0); b=0;                  }
+    else if(i<230) { r=255;                                   g=255;                        b=((i-190)*6.3)|0;           }
+    else           { r=255;                                   g=255;                        b=255;                       }
+    pal[i]=(255<<24)|(b<<16)|(g<<8)|r;   // little-endian ABGR for Uint32 view
+  }
+
+  const buf=new Uint8Array(BW*BH);
+
+  // ── Pre-warm: run BW iterations so fire fills the canvas from frame 1 ──
+  for(let iter=0;iter<BW;iter++){
+    for(let y=0;y<BH;y++) buf[y*BW]=255;          // source column always maxed
+    for(let x=BW-1;x>=1;x--){                      // right→left so we read prev values
+      for(let y=0;y<BH;y++){
+        const dy=(Math.random()*3|0)-1;            // vertical drift: -1, 0, +1
+        const sy=Math.min(BH-1,Math.max(0,y+dy));
+        const dec=Math.random()*5|0;               // heat decay 0-4
+        buf[y*BW+x]=Math.max(0,buf[sy*BW+(x-1)]-dec);
+      }
+    }
+  }
+
+  const imgData=ctx.createImageData(BW,BH);
+  const px=new Uint32Array(imgData.data.buffer);
 
   function frame(){
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    // Spawn a burst each frame (confetti-style density)
-    const burst=4+Math.floor(Math.random()*4);
-    for(let i=0;i<burst;i++) _spawnFireParticle(canvas);
+    // Flicker the source column slightly for organic feel
+    for(let y=0;y<BH;y++)
+      buf[y*BW]=Math.random()<0.92?255:(200+(Math.random()*55|0));
 
-    for(let i=_fireParticles.length-1;i>=0;i--){
-      const p=_fireParticles[i];
-      p.x   +=p.vx;
-      p.y   +=p.vy;
-      p.vy  *=0.97;           // damp vertical drift
-      p.life-=p.decay;
-      p.size*=0.975;          // shrink as they travel
-
-      if(p.life<=0||p.x>canvas.width+10){ _fireParticles.splice(i,1); continue; }
-
-      // Right-pointing triangle = flame tongue
-      const hw=p.size*0.48;   // half-height
-      const len=p.size*1.9;   // horizontal length
-      ctx.beginPath();
-      ctx.moveTo(p.x,       p.y-hw);  // top-left base
-      ctx.lineTo(p.x+len,   p.y    ); // right tip
-      ctx.lineTo(p.x,       p.y+hw);  // bottom-left base
-      ctx.closePath();
-      ctx.fillStyle=`hsla(${p.hue},100%,${p.lit}%,${p.life})`;
-      ctx.fill();
+    // Propagate heat one step rightward
+    for(let x=BW-1;x>=1;x--){
+      for(let y=0;y<BH;y++){
+        const dy=(Math.random()*3|0)-1;
+        const sy=Math.min(BH-1,Math.max(0,y+dy));
+        const dec=Math.random()*5|0;
+        buf[y*BW+x]=Math.max(0,buf[sy*BW+(x-1)]-dec);
+      }
     }
+
+    // Map heat values to colours and push to canvas
+    for(let i=0;i<BW*BH;i++) px[i]=pal[buf[i]];
+    ctx.putImageData(imgData,0,0);
     _dragonFireRAF=requestAnimationFrame(frame);
   }
   _dragonFireRAF=requestAnimationFrame(frame);
@@ -1187,7 +1196,6 @@ function startDragonFire(){
 
 function stopDragonFire(){
   if(_dragonFireRAF){ cancelAnimationFrame(_dragonFireRAF); _dragonFireRAF=null; }
-  _fireParticles.length=0;
   const canvas=document.querySelector('.dragon-fire-canvas');
   if(canvas){ const ctx=canvas.getContext('2d'); ctx.clearRect(0,0,canvas.width,canvas.height); }
 }
