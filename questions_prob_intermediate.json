@@ -1,0 +1,1002 @@
+[
+  {
+    "q": "P(A|B) = P(A ∩ B) / P(B). If P(A ∩ B)=0.12 and P(B)=0.4, find P(A|B).",
+    "options": [
+      "0.12",
+      "0.30",
+      "0.48",
+      "0.52"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "In a class of 30: 18 play chess, 12 play checkers, 6 play both. Given a student plays chess, what is P(also plays checkers)?",
+    "options": [
+      "1/5",
+      "1/3",
+      "1/6",
+      "2/5"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "P(B|A)=0.5 and P(A)=0.4. What is P(A ∩ B)?",
+    "options": [
+      "0.10",
+      "0.20",
+      "0.40",
+      "0.90"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "A card is drawn from 52. Given it is red, what is P(heart)?",
+    "options": [
+      "1/4",
+      "1/2",
+      "1/13",
+      "1/26"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "P(A)=0.6, P(B|A)=0.3. Find P(A ∩ B).",
+    "options": [
+      "0.18",
+      "0.30",
+      "0.20",
+      "0.90"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "A die is rolled. Given the result is even, what is P(it equals 4)?",
+    "options": [
+      "1/6",
+      "1/3",
+      "1/2",
+      "1/4"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "In 100 people: 60 drink coffee, 40 drink tea, 20 drink both. Given a person drinks coffee, P(also drinks tea) = ?",
+    "options": [
+      "1/5",
+      "1/3",
+      "1/4",
+      "2/3"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "P(A|B) = P(A) implies that A and B are:",
+    "options": [
+      "Mutually exclusive",
+      "Dependent",
+      "Independent",
+      "Complementary"
+    ],
+    "answer": 2
+  },
+  {
+    "q": "P(rain | cloudy)=0.7, P(cloudy)=0.5. Find P(rain AND cloudy).",
+    "options": [
+      "0.35",
+      "0.70",
+      "0.50",
+      "0.14"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "A bag has 3 red and 2 blue balls; one is drawn and not replaced. Given the first was red, P(second is red) = ?",
+    "options": [
+      "3/5",
+      "2/4",
+      "2/5",
+      "1/2"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "P(A)=0.4, P(B)=0.5, P(A ∩ B)=0.2. Find P(A|B).",
+    "options": [
+      "0.4",
+      "0.5",
+      "0.2",
+      "0.8"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "P(A ∩ B) = 0.15, P(B) = 0.25. What is P(A|B)?",
+    "options": [
+      "0.15",
+      "0.40",
+      "0.60",
+      "0.75"
+    ],
+    "answer": 2
+  },
+  {
+    "q": "Two fair dice are rolled. Given the sum is 8, what is P(both dice show 4)?",
+    "options": [
+      "1/5",
+      "1/36",
+      "1/6",
+      "5/36"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "A bag has 4 green and 6 red balls; one drawn at random. P(red|not green) = ?",
+    "options": [
+      "0",
+      "1",
+      "3/5",
+      "2/3"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "P(A|B) = 0.6, P(B) = 0.5. Find P(A ∩ B).",
+    "options": [
+      "0.3",
+      "0.6",
+      "0.5",
+      "0.1"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "How many ways can 3 books be arranged from a shelf of 7 (order matters)?",
+    "options": [
+      "35",
+      "105",
+      "210",
+      "343"
+    ],
+    "answer": 2
+  },
+  {
+    "q": "What is P(6,2) (permutations)?",
+    "options": [
+      "15",
+      "30",
+      "12",
+      "36"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "How many 4-digit numbers can be formed from digits 1–9 with no repetition?",
+    "options": [
+      "3024",
+      "3024",
+      "6561",
+      "36"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "In how many ways can 5 people queue in a line?",
+    "options": [
+      "25",
+      "60",
+      "100",
+      "120"
+    ],
+    "answer": 3
+  },
+  {
+    "q": "What is P(7,3)?",
+    "options": [
+      "35",
+      "105",
+      "210",
+      "21"
+    ],
+    "answer": 2
+  },
+  {
+    "q": "How many ways can a president and vice-president be chosen from 10 candidates?",
+    "options": [
+      "10",
+      "20",
+      "45",
+      "90"
+    ],
+    "answer": 3
+  },
+  {
+    "q": "P(5,5) = ?",
+    "options": [
+      "1",
+      "5",
+      "25",
+      "120"
+    ],
+    "answer": 3
+  },
+  {
+    "q": "How many 3-letter codes can be made from 26 letters with no repetition?",
+    "options": [
+      "650",
+      "1404",
+      "15600",
+      "17576"
+    ],
+    "answer": 2
+  },
+  {
+    "q": "What is P(8,1)?",
+    "options": [
+      "1",
+      "8",
+      "56",
+      "40320"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "In how many ways can first, second, and third place be awarded to 8 runners?",
+    "options": [
+      "24",
+      "56",
+      "336",
+      "512"
+    ],
+    "answer": 2
+  },
+  {
+    "q": "What is C(8,3)?",
+    "options": [
+      "24",
+      "56",
+      "336",
+      "168"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "How many 5-card poker hands can be dealt from 52 cards?",
+    "options": [
+      "2598960",
+      "311875200",
+      "13",
+      "52"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "C(10,4) = ?",
+    "options": [
+      "210",
+      "5040",
+      "84",
+      "336"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "How many ways can a team of 4 be selected from 9 players?",
+    "options": [
+      "126",
+      "3024",
+      "36",
+      "72"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "C(n,r) = C(n, n–r). What is C(9,7)?",
+    "options": [
+      "36",
+      "63",
+      "72",
+      "9"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "How many ways can you choose 3 flavors from 10 ice cream flavors?",
+    "options": [
+      "30",
+      "60",
+      "120",
+      "720"
+    ],
+    "answer": 2
+  },
+  {
+    "q": "What is C(12,2)?",
+    "options": [
+      "24",
+      "66",
+      "132",
+      "144"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "From 6 men and 4 women, how many committees of 3 can be formed?",
+    "options": [
+      "80",
+      "120",
+      "100",
+      "84"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "C(6,3) = ?",
+    "options": [
+      "18",
+      "20",
+      "24",
+      "120"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "How many ways can you choose 2 different pairs of socks from 8 pairs?",
+    "options": [
+      "16",
+      "28",
+      "56",
+      "64"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "P(A)=0.4, P(B)=0.3, P(A ∩ B)=0.1. Find P(A ∪ B).",
+    "options": [
+      "0.7",
+      "0.6",
+      "0.8",
+      "0.5"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "P(A)=0.5, P(B)=0.5, A and B mutually exclusive. Find P(A ∪ B).",
+    "options": [
+      "0.25",
+      "0.50",
+      "1.00",
+      "0.75"
+    ],
+    "answer": 2
+  },
+  {
+    "q": "P(A ∪ B) = P(A) + P(B) − P(A ∩ B). If P(A)=0.6, P(B)=0.5, P(A ∪ B)=0.8, find P(A ∩ B).",
+    "options": [
+      "0.1",
+      "0.2",
+      "0.3",
+      "0.4"
+    ],
+    "answer": 2
+  },
+  {
+    "q": "In a class: P(maths)=0.7, P(science)=0.6, P(both)=0.4. Find P(at least one subject).",
+    "options": [
+      "0.9",
+      "0.7",
+      "0.8",
+      "1.0"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "P(A)=1/3, P(B)=1/4, A and B mutually exclusive. P(A ∪ B)=?",
+    "options": [
+      "1/12",
+      "7/12",
+      "1/7",
+      "5/12"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "P(A)=0.45, P(B)=0.30, P(A ∩ B)=0.15. P(A ∪ B)=?",
+    "options": [
+      "0.90",
+      "0.75",
+      "0.60",
+      "0.45"
+    ],
+    "answer": 2
+  },
+  {
+    "q": "P(A ∪ B)=0.85, P(A)=0.5, P(B)=0.6. Find P(A ∩ B).",
+    "options": [
+      "0.35",
+      "0.25",
+      "0.40",
+      "0.15"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "P(A)=0.3, P(B)=0.5. If A and B are independent, P(A ∩ B)=?",
+    "options": [
+      "0.15",
+      "0.80",
+      "0.20",
+      "0.35"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "P(A ∪ B)=1, P(A ∩ B)=0. What can be said about A and B?",
+    "options": [
+      "Independent",
+      "Identical",
+      "Mutually exclusive and exhaustive",
+      "None of the above"
+    ],
+    "answer": 2
+  },
+  {
+    "q": "A card is drawn. P(ace OR king) = ?",
+    "options": [
+      "2/13",
+      "1/13",
+      "8/52",
+      "1/26"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "Two events are independent: P(A)=0.4, P(B)=0.5. Find P(A AND B).",
+    "options": [
+      "0.9",
+      "0.45",
+      "0.2",
+      "0.1"
+    ],
+    "answer": 2
+  },
+  {
+    "q": "A coin and a die are thrown. P(head AND 6) = ?",
+    "options": [
+      "1/2",
+      "1/6",
+      "1/12",
+      "1/3"
+    ],
+    "answer": 2
+  },
+  {
+    "q": "P(A)=2/3, P(B|A)=1/2. Find P(A ∩ B).",
+    "options": [
+      "1/6",
+      "1/3",
+      "2/3",
+      "1/2"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "A bag has 5 red and 5 blue balls. Draw two WITH replacement. P(both red) = ?",
+    "options": [
+      "1/4",
+      "25/100",
+      "1/2",
+      "1/5"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "P(A)=0.3 and P(B)=0.6 are independent. P(neither A nor B) = ?",
+    "options": [
+      "0.28",
+      "0.18",
+      "0.82",
+      "0.72"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "Three coins are flipped. P(all heads) = ?",
+    "options": [
+      "1/8",
+      "1/4",
+      "3/8",
+      "1/2"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "P(A)=0.5, P(B)=0.4, A and B independent. P(A ∩ B') = ?",
+    "options": [
+      "0.30",
+      "0.10",
+      "0.50",
+      "0.20"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "Births of 2 children (each equally likely boy or girl). P(both girls) = ?",
+    "options": [
+      "1/4",
+      "1/2",
+      "3/4",
+      "1/3"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "P(A)=0.6, P(B)=0.7, A and B independent. Find P(A ∩ B).",
+    "options": [
+      "0.42",
+      "0.13",
+      "0.70",
+      "0.88"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "A factory produces 5% defective items. P(two randomly picked items both defective) ≈ ?",
+    "options": [
+      "0.0025",
+      "0.05",
+      "0.10",
+      "0.25"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "|A ∪ B ∪ C| = |A|+|B|+|C|−|A∩B|−|A∩C|−|B∩C|+|A∩B∩C|. If |A|=5,|B|=6,|C|=4,|A∩B|=2,|A∩C|=1,|B∩C|=1,|A∩B∩C|=0, find |A∪B∪C|.",
+    "options": [
+      "11",
+      "21",
+      "13",
+      "17"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "In a survey: 30 like apples, 25 like bananas, 10 like both. How many like at least one?",
+    "options": [
+      "45",
+      "55",
+      "65",
+      "40"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "P(A ∪ B ∪ C)=0.8. If events are mutually exclusive with P(A)=0.3, P(B)=0.3, what is P(C)?",
+    "options": [
+      "0.2",
+      "0.5",
+      "0.8",
+      "0.1"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "80 students: 50 study French, 40 study Spanish, 20 study both. How many study neither?",
+    "options": [
+      "10",
+      "20",
+      "30",
+      "70"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "P(A)=0.5, P(B)=0.4, P(A ∩ B)=0.2. Find P(only A, not B).",
+    "options": [
+      "0.3",
+      "0.5",
+      "0.2",
+      "0.1"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "A class: 40% boys, 60% girls. 50% of boys wear glasses, 30% of girls wear glasses. A random student wears glasses. P(student is boy) using Bayes' = ? (Use P(G|B)P(B) / P(G))",
+    "options": [
+      "5/11",
+      "6/11",
+      "4/9",
+      "5/9"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "P(A)=0.6, P(B)=0.5. If A and B are independent, P(A' ∩ B) = ?",
+    "options": [
+      "0.20",
+      "0.30",
+      "0.50",
+      "0.40"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "P(A)=0.5, P(B|A)=0.4, P(B|A')=0.2. Find P(B).",
+    "options": [
+      "0.30",
+      "0.40",
+      "0.20",
+      "0.60"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "P(A ∩ B)=0.24, P(A)=0.6. Find P(B|A).",
+    "options": [
+      "0.40",
+      "0.14",
+      "0.24",
+      "0.60"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "Box 1 has 3 red, 2 blue. Box 2 has 1 red, 4 blue. A box is chosen at random then a ball. P(red) = ?",
+    "options": [
+      "2/5",
+      "9/25",
+      "2/5",
+      "11/25"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "How many distinct arrangements of the letters in LEVEL?",
+    "options": [
+      "30",
+      "60",
+      "120",
+      "20"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "How many ways can 6 people be seated at a circular table?",
+    "options": [
+      "720",
+      "120",
+      "360",
+      "6"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "How many ways can 3 consonants be chosen from the word PRODUCT (P,R,D,C,T = 5 consonants)?",
+    "options": [
+      "10",
+      "15",
+      "20",
+      "60"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "In how many ways can you distribute 5 identical balls into 3 distinct boxes?",
+    "options": [
+      "15",
+      "21",
+      "35",
+      "243"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "How many binary strings of length 4 have exactly 2 ones?",
+    "options": [
+      "4",
+      "6",
+      "8",
+      "16"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "A committee of 4 from 5 men and 4 women must have at least 2 women. How many ways?",
+    "options": [
+      "60",
+      "66",
+      "70",
+      "76"
+    ],
+    "answer": 2
+  },
+  {
+    "q": "P(9,2) = ?",
+    "options": [
+      "36",
+      "72",
+      "84",
+      "9"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "How many 3-digit even numbers can be formed from {1,2,3,4,5} with no repetition?",
+    "options": [
+      "16",
+      "24",
+      "48",
+      "12"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "How many ways to arrange the word MISSISSIPPI?",
+    "options": [
+      "34650",
+      "7920",
+      "720",
+      "11"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "A group of 10 people; how many ways to choose a chair, vice-chair, and secretary (all different)?",
+    "options": [
+      "720",
+      "120",
+      "1000",
+      "360"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "P(A)=0.3, P(B)=0.4, P(A ∩ B)=0.12. Are A and B independent?",
+    "options": [
+      "Yes",
+      "No",
+      "Cannot tell",
+      "Only if mutually exclusive"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "P(at least one head in 4 flips) = ?",
+    "options": [
+      "1/16",
+      "15/16",
+      "1/2",
+      "3/4"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "P(A)=0.7. P(B|A)=0.6, P(B|A')=0.3. Find P(A|B).",
+    "options": [
+      "0.42/0.51 ≈ 0.82",
+      "0.70",
+      "0.60",
+      "0.50"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "Three people each independently guess a number from 1–4. P(all guess the same number) = ?",
+    "options": [
+      "1/4",
+      "1/16",
+      "4/64",
+      "1/64"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "P(A)=1/2, P(B)=1/3, P(C)=1/4, all independent. P(none occur) = ?",
+    "options": [
+      "1/4",
+      "1/8",
+      "1/6",
+      "1/24"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "5 cards drawn from 52. P(exactly 2 aces) = ?",
+    "options": [
+      "C(4,2)·C(48,3)/C(52,5)",
+      "C(4,2)/C(52,2)",
+      "C(4,2)·C(48,3)",
+      "4/52"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "What is C(15,3)?",
+    "options": [
+      "455",
+      "385",
+      "105",
+      "2730"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "From 10 questions, a student must answer exactly 6. In how many ways?",
+    "options": [
+      "210",
+      "720",
+      "5040",
+      "252"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "C(n,2) = 15. Find n.",
+    "options": [
+      "5",
+      "6",
+      "7",
+      "8"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "How many ways can 2 boys and 2 girls be chosen from 5 boys and 4 girls?",
+    "options": [
+      "60",
+      "80",
+      "40",
+      "120"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "A bag has 6 red and 4 blue balls; 2 drawn at random. P(both red) = ?",
+    "options": [
+      "1/3",
+      "2/5",
+      "C(6,2)/C(10,2)",
+      "6/10"
+    ],
+    "answer": 2
+  },
+  {
+    "q": "From a class of 12 students (7 boys, 5 girls), 3 chosen. P(all girls) = ?",
+    "options": [
+      "C(5,3)/C(12,3)",
+      "5/12",
+      "1/4",
+      "C(7,3)/C(12,3)"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "A committee of 4 is drawn from 10. P(specific person is included) = ?",
+    "options": [
+      "4/10",
+      "C(9,3)/C(10,4)",
+      "1/10",
+      "1/4"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "From 52 cards, 5 drawn. P(all same suit) = ?",
+    "options": [
+      "4·C(13,5)/C(52,5)",
+      "C(13,5)/C(52,5)",
+      "4/52",
+      "1/4"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "6 balls (3 red, 3 blue); 2 drawn without replacement. P(one red, one blue) = ?",
+    "options": [
+      "3/5",
+      "1/2",
+      "C(3,1)·C(3,1)/C(6,2)",
+      "2/5"
+    ],
+    "answer": 2
+  },
+  {
+    "q": "A class: 40% boys, 60% girls. 50% of boys wear glasses, 30% of girls wear glasses. A random student wears glasses. P(student is boy) using Bayes' = ? (Use P(G|B)P(B) / P(G))",
+    "options": [
+      "5/11",
+      "6/11",
+      "4/9",
+      "5/9"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "P(A)=0.6, P(B)=0.5. If A and B are independent, P(A' ∩ B) = ?",
+    "options": [
+      "0.20",
+      "0.30",
+      "0.50",
+      "0.40"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "P(A)=0.5, P(B|A)=0.4, P(B|A')=0.2. Find P(B).",
+    "options": [
+      "0.30",
+      "0.40",
+      "0.20",
+      "0.60"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "P(A ∩ B)=0.24, P(A)=0.6. Find P(B|A).",
+    "options": [
+      "0.40",
+      "0.14",
+      "0.24",
+      "0.60"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "Box 1 has 3 red, 2 blue. Box 2 has 1 red, 4 blue. A box is chosen at random then a ball. P(red) = ?",
+    "options": [
+      "2/5",
+      "9/25",
+      "2/5",
+      "11/25"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "How many distinct arrangements of the letters in LEVEL?",
+    "options": [
+      "30",
+      "60",
+      "120",
+      "20"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "How many ways can 6 people be seated at a circular table?",
+    "options": [
+      "720",
+      "120",
+      "360",
+      "6"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "How many ways can 3 consonants be chosen from the word PRODUCT (P,R,D,C,T = 5 consonants)?",
+    "options": [
+      "10",
+      "15",
+      "20",
+      "60"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "In how many ways can you distribute 5 identical balls into 3 distinct boxes?",
+    "options": [
+      "15",
+      "21",
+      "35",
+      "243"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "How many binary strings of length 4 have exactly 2 ones?",
+    "options": [
+      "4",
+      "6",
+      "8",
+      "16"
+    ],
+    "answer": 1
+  }
+]

@@ -1,0 +1,1002 @@
+[
+  {
+    "q": "P(A)=0.4, P(B|A)=0.5, P(B|A')=0.2. Using Bayes', P(A|B) = ?",
+    "options": [
+      "0.40",
+      "0.625",
+      "0.50",
+      "0.333"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "A disease affects 1% of a population. A test is 99% sensitive and 95% specific. If you test positive, P(you have the disease) ≈ ?",
+    "options": [
+      "99%",
+      "50%",
+      "16.7%",
+      "1%"
+    ],
+    "answer": 2
+  },
+  {
+    "q": "Two factories: A makes 60%, B makes 40%. A produces 3% defective; B produces 5%. A randomly chosen item is defective. P(it came from A) = ?",
+    "options": [
+      "18/38",
+      "20/38",
+      "3/8",
+      "1/2"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "P(H) = 0.6 (hypothesis), P(E|H) = 0.7, P(E|H') = 0.3. Find P(H|E).",
+    "options": [
+      "0.42/0.54 ≈ 0.778",
+      "0.60",
+      "0.70",
+      "0.50"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "An urn has 3 red and 7 black balls; a second urn has 6 red and 4 black. An urn is chosen at random; one ball drawn is red. P(it came from urn 1) = ?",
+    "options": [
+      "3/9",
+      "1/3",
+      "3/9 = 1/3",
+      "1/2"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "P(A)=0.3, P(B|A)=0.8, P(B|A')=0.4. Find P(A|B).",
+    "options": [
+      "0.24/0.52 ≈ 0.462",
+      "0.3",
+      "0.8",
+      "0.5"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "In a bag: box 1 has 2W 3B, box 2 has 4W 1B. A box is chosen equally likely. A white ball is drawn. P(box 1 was chosen) = ?",
+    "options": [
+      "1/3",
+      "2/5",
+      "2/6",
+      "2/7"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "P(D)=0.01, P(+|D)=0.95, P(+|D')=0.05. Find P(D|+).",
+    "options": [
+      "0.161",
+      "0.95",
+      "0.5",
+      "0.01"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "Three machines make 50%, 30%, 20% of parts. Defect rates: 2%, 3%, 4%. A defective is found. P(machine 3 made it) = ?",
+    "options": [
+      "0.08/0.27 ≈ 0.296",
+      "0.04",
+      "0.20",
+      "0.5"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "Bayes' theorem: P(A|B) = P(B|A)P(A) / P(B). If P(B|A)=0.9, P(A)=0.1, P(B)=0.15, find P(A|B).",
+    "options": [
+      "0.6",
+      "0.9",
+      "0.15",
+      "0.1"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "P(A)=0.5, P(B|A)=0.6, P(B|A')=0.4. Find P(A|B).",
+    "options": [
+      "0.6",
+      "0.5",
+      "0.3/0.5 = 0.6",
+      "0.4"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "If P(A|B) > P(A), then knowing B occurred makes A:",
+    "options": [
+      "Less likely",
+      "More likely",
+      "Equally likely",
+      "Impossible"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "In a medical test: sensitivity=0.90, specificity=0.85, prevalence=0.10. Find PPV (positive predictive value).",
+    "options": [
+      "≈0.40",
+      "0.90",
+      "0.85",
+      "≈0.90"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "P(G|F)=0.7, P(G|F')=0.2, P(F)=0.4. Find P(F|G).",
+    "options": [
+      "28/40",
+      "7/13",
+      "0.4",
+      "0.7"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "P(A)=0.25, P(B|A)=0.4, P(B|A')=0.1. Find P(A'|B).",
+    "options": [
+      "0.075/0.175 ≈ 0.429",
+      "0.75",
+      "0.1",
+      "0.571"
+    ],
+    "answer": 3
+  },
+  {
+    "q": "A game pays $5 for heads and −$3 for tails (fair coin). Expected value = ?",
+    "options": [
+      "$1",
+      "$2",
+      "$0",
+      "$5"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "X takes values 1,2,3 with P 0.2,0.5,0.3. E(X) = ?",
+    "options": [
+      "2.0",
+      "2.1",
+      "1.5",
+      "2.5"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "A die is rolled. E(value showing) = ?",
+    "options": [
+      "3.0",
+      "3.5",
+      "4.0",
+      "2.5"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "Lottery: 1/1000 chance to win $500; ticket costs $1. Expected profit = ?",
+    "options": [
+      "−$0.50",
+      "$0",
+      "$0.50",
+      "−$1"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "E(2X + 3) when E(X) = 4?",
+    "options": [
+      "8",
+      "11",
+      "14",
+      "10"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "X: values 0,1,2; P 0.5,0.3,0.2. E(X²) = ?",
+    "options": [
+      "0.7",
+      "1.0",
+      "0.9",
+      "0.5"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "Two dice rolled; you win the product of the two faces. E(winnings) = ?",
+    "options": [
+      "12.25",
+      "10.5",
+      "7",
+      "6.25"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "An urn has 4 red ($10) and 6 blue ($0) balls. Expected payout per draw = ?",
+    "options": [
+      "$4",
+      "$6",
+      "$10",
+      "$5"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "X ~ Bernoulli(p=0.4). E(X) = ?",
+    "options": [
+      "0.4",
+      "0.6",
+      "1",
+      "0"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "Var(X) = E(X²) − [E(X)]². If E(X)=3, E(X²)=11, Var(X) = ?",
+    "options": [
+      "2",
+      "8",
+      "11",
+      "9"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "X ~ Bin(n=5, p=0.4). P(X=2) = ?",
+    "options": [
+      "C(5,2)·0.4²·0.6³",
+      "C(5,2)·0.4²",
+      "0.4²",
+      "0.6³"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "X ~ Bin(n=10, p=0.3). E(X) = ?",
+    "options": [
+      "3.0",
+      "0.3",
+      "7.0",
+      "10"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "X ~ Bin(n=6, p=0.5). P(X=3) = ?",
+    "options": [
+      "5/16",
+      "1/4",
+      "C(6,3)/64",
+      "3/8"
+    ],
+    "answer": 2
+  },
+  {
+    "q": "Var(X) for X ~ Bin(n,p) = ?",
+    "options": [
+      "np",
+      "np²",
+      "np(1−p)",
+      "n²p"
+    ],
+    "answer": 2
+  },
+  {
+    "q": "X ~ Bin(n=4, p=0.5). P(X ≥ 1) = ?",
+    "options": [
+      "15/16",
+      "1/16",
+      "3/4",
+      "7/8"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "A coin is flipped 8 times. P(exactly 5 heads) = ?",
+    "options": [
+      "C(8,5)/256",
+      "C(8,5)/512",
+      "C(8,5)/128",
+      "5/8"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "X ~ Bin(20, 0.1). E(X) = ? and Var(X) = ?",
+    "options": [
+      "2 and 1.8",
+      "2 and 2",
+      "1 and 1.8",
+      "0.1 and 20"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "P(X=0) for X~Bin(5,0.3) = ?",
+    "options": [
+      "0.7⁵",
+      "0.3⁵",
+      "1−0.3⁵",
+      "C(5,0)·0.3"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "Which condition is NOT required for a binomial experiment?",
+    "options": [
+      "Fixed number of trials",
+      "Two outcomes per trial",
+      "Constant probability",
+      "Events are mutually exclusive"
+    ],
+    "answer": 3
+  },
+  {
+    "q": "X~Bin(n=3, p=1/3). P(X=1) = ?",
+    "options": [
+      "3·(1/3)·(2/3)²",
+      "(1/3)·(2/3)",
+      "1/3",
+      "3/9"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "Stars and bars: how many ways to write 8 as an ordered sum of 3 non-negative integers?",
+    "options": [
+      "36",
+      "45",
+      "56",
+      "28"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "How many ways to distribute 10 identical candies to 4 children (each can get 0)?",
+    "options": [
+      "C(13,3)",
+      "C(10,4)",
+      "10⁴",
+      "4¹⁰"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "How many 5-card hands from 52 have exactly 3 hearts?",
+    "options": [
+      "C(13,3)·C(39,2)",
+      "C(13,3)/C(52,5)",
+      "13³·39²",
+      "C(52,3)"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "How many integers from 1–100 are divisible by 2 OR 3?",
+    "options": [
+      "67",
+      "66",
+      "50",
+      "83"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "A PIN is 4 digits (0–9). How many PINs have no repeated digit?",
+    "options": [
+      "10000",
+      "5040",
+      "4536",
+      "9000"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "How many ways to arrange 4 As and 3 Bs in a row?",
+    "options": [
+      "5040",
+      "35",
+      "70",
+      "210"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "From 52 cards, how many 5-card hands have at least one ace?",
+    "options": [
+      "C(52,5)−C(48,5)",
+      "C(4,1)·C(48,4)",
+      "4·C(51,4)",
+      "C(4,1)/C(52,5)"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "In how many ways can 4 couples be seated in a row so each couple sits together?",
+    "options": [
+      "4!·2⁴",
+      "8!",
+      "4!",
+      "2⁴"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "How many distinct permutations does BANANA have?",
+    "options": [
+      "720",
+      "60",
+      "180",
+      "120"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "How many 3-element subsets of {1,2,3,4,5,6,7} contain at least one even number?",
+    "options": [
+      "35",
+      "26",
+      "20",
+      "15"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "A point is chosen randomly from a 10×10 square. What is P(it lies in a 3×4 rectangle inside)?",
+    "options": [
+      "12/100",
+      "7/10",
+      "12/10",
+      "3/4"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "A random number X is chosen uniformly from [0,10]. P(X < 3) = ?",
+    "options": [
+      "3/10",
+      "7/10",
+      "1/3",
+      "0.03"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "A stick of length 12 is broken at a random point. P(longer piece > 9) = ?",
+    "options": [
+      "1/4",
+      "1/3",
+      "1/2",
+      "3/4"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "A dart is thrown uniformly at a 6×6 board. It has a 2×2 target in the center. P(hit target) = ?",
+    "options": [
+      "1/9",
+      "4/36",
+      "1/4",
+      "2/6"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "X ~ Uniform[2,8]. P(X > 5) = ?",
+    "options": [
+      "1/2",
+      "3/6",
+      "5/8",
+      "1/3"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "P(B) = P(B|A)P(A) + P(B|A')P(A'). Given P(A)=0.3, P(B|A)=0.6, P(B|A')=0.2. Find P(B).",
+    "options": [
+      "0.32",
+      "0.18",
+      "0.60",
+      "0.42"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "Three factories: p1=0.5,p2=0.3,p3=0.2. Defect rates: 0.02,0.04,0.05. P(defective item) = ?",
+    "options": [
+      "0.031",
+      "0.02",
+      "0.04",
+      "0.05"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "P(B) = P(B|A₁)P(A₁)+P(B|A₂)P(A₂)+P(B|A₃)P(A₃). If each term is 0.12,0.09,0.06 and P(A₁)=P(A₂)=P(A₃)=1/3, P(B) = ?",
+    "options": [
+      "0.09",
+      "0.27",
+      "0.12",
+      "0.18"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "P(A₁)=0.4, P(A₂)=0.6, P(B|A₁)=0.7, P(B|A₂)=0.2. P(B) = ?",
+    "options": [
+      "0.40",
+      "0.28",
+      "0.12",
+      "0.40"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "P(E) = sum_i P(E|H_i)P(H_i) is called:",
+    "options": [
+      "Bayes' theorem",
+      "Law of total probability",
+      "Multiplication rule",
+      "Complement rule"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "Var(aX+b) = a²Var(X). If Var(X)=4 and Y=3X+2, Var(Y) = ?",
+    "options": [
+      "36",
+      "12",
+      "14",
+      "38"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "SD(X) = √Var(X). If Var(X)=25, SD = ?",
+    "options": [
+      "5",
+      "12.5",
+      "625",
+      "25"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "X takes values 2,4,6 each with P=1/3. Var(X) = ?",
+    "options": [
+      "8/3",
+      "4",
+      "2",
+      "16/3"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "Cov(X,Y)=0 and X,Y independent implies:",
+    "options": [
+      "X and Y are uncorrelated",
+      "X and Y are identical",
+      "X=0 or Y=0",
+      "Cannot determine"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "E(X+Y) = E(X)+E(Y) always holds (even if dependent). E(X)=3, E(Y)=5, E(X+Y) = ?",
+    "options": [
+      "15",
+      "8",
+      "3",
+      "5"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "In a group of 100: 70 like A, 60 like B, 50 like both. How many like neither?",
+    "options": [
+      "20",
+      "30",
+      "40",
+      "80"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "|A ∪ B ∪ C| formula uses how many terms (with signs)?",
+    "options": [
+      "3",
+      "5",
+      "7",
+      "4"
+    ],
+    "answer": 2
+  },
+  {
+    "q": "How many integers 1–100 are NOT divisible by 2 or 5?",
+    "options": [
+      "40",
+      "30",
+      "50",
+      "60"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "How many permutations of {1,2,3,4} have no element in its natural position (derangements)?",
+    "options": [
+      "9",
+      "10",
+      "11",
+      "8"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "D(4) (number of derangements of 4 elements) = ?",
+    "options": [
+      "9",
+      "11",
+      "6",
+      "12"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "P(X ≥ 2) for X~Bin(4,0.3) = ?",
+    "options": [
+      "1 − P(X=0) − P(X=1)",
+      "P(X=2)+P(X=3)+P(X=4)",
+      "Both A and B",
+      "Neither"
+    ],
+    "answer": 2
+  },
+  {
+    "q": "A biased coin: P(H)=0.6. Flipped 5 times. P(at least 4 heads) = ?",
+    "options": [
+      "C(5,4)·0.6⁴·0.4+0.6⁵",
+      "0.6⁴",
+      "5·0.6⁴·0.4",
+      "0.6⁵"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "X~Poisson(λ=3). P(X=0) = ?",
+    "options": [
+      "e⁻³",
+      "3e⁻³",
+      "e⁻¹",
+      "1/3"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "For Poisson distribution E(X) = Var(X) = λ. If λ=5, SD = ?",
+    "options": [
+      "5",
+      "√5",
+      "25",
+      "1/5"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "X~Poisson(2). P(X=2) = ?",
+    "options": [
+      "2e⁻²",
+      "4e⁻²/2 = 2e⁻²",
+      "e⁻²",
+      "4e⁻²"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "X~Geometric(p=0.3). P(X=4) = ?",
+    "options": [
+      "0.7³·0.3",
+      "0.3⁴",
+      "0.7⁴·0.3",
+      "0.3⁴·0.7"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "E(X) for Geometric(p) distribution = ?",
+    "options": [
+      "p",
+      "1/p",
+      "1−p",
+      "p/(1−p)"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "X~N(μ=50, σ=10). P(X < 50) = ?",
+    "options": [
+      "0",
+      "0.5",
+      "1",
+      "0.34"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "In a standard normal Z, P(Z < 0) = ?",
+    "options": [
+      "0",
+      "0.5",
+      "1",
+      "0.34"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "The 68-95-99.7 rule: approximately what % of data lies within 2 SD of mean?",
+    "options": [
+      "68%",
+      "95%",
+      "99.7%",
+      "50%"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "Chebyshev's inequality: P(|X−μ| ≥ kσ) ≤ 1/k². For k=2, the bound is?",
+    "options": [
+      "1/4",
+      "1/2",
+      "1/8",
+      "1/3"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "P(X ≤ x) is called the:",
+    "options": [
+      "PDF",
+      "CDF",
+      "PMF",
+      "MGF"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "The probability density function (PDF) integrates to:",
+    "options": [
+      "0",
+      "0.5",
+      "1",
+      "∞"
+    ],
+    "answer": 2
+  },
+  {
+    "q": "If X and Y are independent, Var(X+Y) = ?",
+    "options": [
+      "Var(X)+Var(Y)",
+      "Var(X)·Var(Y)",
+      "Var(X)−Var(Y)",
+      "E(X)·E(Y)"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "The moment generating function of X is M_X(t) = E(e^{tX}). M_X(0) = ?",
+    "options": [
+      "0",
+      "1",
+      "E(X)",
+      "e"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "Correlation ρ(X,Y) = Cov(X,Y)/(σ_X σ_Y). Range of ρ is:",
+    "options": [
+      "[0,1]",
+      "[−1,0]",
+      "[−1,1]",
+      "(−∞,∞)"
+    ],
+    "answer": 2
+  },
+  {
+    "q": "X~Bin(n,p). As n→∞ with np=λ fixed, Bin(n,p) converges to:",
+    "options": [
+      "Normal",
+      "Poisson",
+      "Geometric",
+      "Uniform"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "By CLT, the sample mean X̄ of n iid variables with mean μ, variance σ² is approximately:",
+    "options": [
+      "N(μ, σ²/n)",
+      "N(0,1)",
+      "N(μ,σ²)",
+      "Poisson(μ)"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "Two events A, B: P(A∩B)=P(A)P(B). This means they are:",
+    "options": [
+      "Mutually exclusive",
+      "Complementary",
+      "Independent",
+      "Exhaustive"
+    ],
+    "answer": 2
+  },
+  {
+    "q": "If X has CDF F(x), then P(a ≤ X ≤ b) = ?",
+    "options": [
+      "F(b)−F(a)",
+      "F(a)−F(b)",
+      "F(b)+F(a)",
+      "1−F(b)"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "P(A|B) · P(B) = P(B|A) · P(A) is:",
+    "options": [
+      "Law of total probability",
+      "Complement rule",
+      "Bayes' rule equivalent",
+      "Addition rule"
+    ],
+    "answer": 2
+  },
+  {
+    "q": "A random variable X has E(X)=5 and E(X²)=30. Var(X) = ?",
+    "options": [
+      "5",
+      "25",
+      "6",
+      "30"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "Which distribution models the number of successes in n independent Bernoulli trials?",
+    "options": [
+      "Geometric",
+      "Poisson",
+      "Binomial",
+      "Uniform"
+    ],
+    "answer": 2
+  },
+  {
+    "q": "P(A ∩ B) = P(A) when:",
+    "options": [
+      "A and B are independent",
+      "B ⊆ A",
+      "P(B) = 1",
+      "A and B are mutually exclusive"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "The sample space S has P(S) = ?",
+    "options": [
+      "0",
+      "0.5",
+      "1",
+      "depends on the experiment"
+    ],
+    "answer": 2
+  },
+  {
+    "q": "P(A)+P(A') = ?",
+    "options": [
+      "0",
+      "1",
+      "0.5",
+      "2P(A)"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "Which statement about independent events A and B is always true?",
+    "options": [
+      "P(A|B)=P(A)",
+      "P(A∩B)=0",
+      "A and B are mutually exclusive",
+      "P(A∪B)=1"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "For a fair die, P(sum of two dice = 2) = ?",
+    "options": [
+      "1/36",
+      "2/36",
+      "1/12",
+      "1/6"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "If P(A)=0.5 and A,B mutually exclusive with P(B)=0.3, P(A ∪ B) = ?",
+    "options": [
+      "0.8",
+      "0.15",
+      "0.2",
+      "1.0"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "Number of derangements D(3) = ?",
+    "options": [
+      "1",
+      "2",
+      "3",
+      "6"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "P(A')·P(B') when A,B independent with P(A)=0.4,P(B)=0.3 = ?",
+    "options": [
+      "0.42",
+      "0.70",
+      "0.12",
+      "0.58"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "In a binomial experiment with n=20 and p=0.5, the most likely value of X is:",
+    "options": [
+      "10",
+      "5",
+      "15",
+      "0"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "P(A ∩ B) = 0.15, P(B) = 0.50. P(A|B) = ?",
+    "options": [
+      "0.30",
+      "0.15",
+      "0.50",
+      "0.65"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "If Var(X) = 0, then X is:",
+    "options": [
+      "0",
+      "A constant",
+      "Normally distributed",
+      "Undefined"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "The probability of a continuous random variable taking a specific exact value is:",
+    "options": [
+      "Positive",
+      "0",
+      "1",
+      "Depends on the value"
+    ],
+    "answer": 1
+  }
+]

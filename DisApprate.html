@@ -343,9 +343,9 @@ header{text-align:center;padding:8px 0;background:rgba(0,0,0,.35);font-size:1.6e
 /* ── EDU LEVEL SELECTOR ──────────────────── */
 .edu-level-row{display:none;gap:7px;margin-top:9px}
 .edu-level-row.visible{display:flex}
-.edu-lvl-btn{flex:1;padding:8px 6px;border:2px solid rgba(255,255,255,.18);border-radius:8px;background:rgba(255,255,255,.06);color:#ccc;cursor:pointer;font-size:.82em;font-weight:700;transition:all .15s;text-align:center}
-.edu-lvl-btn:hover{border-color:#ffd700;color:#fff}
-.edu-lvl-btn.active{border-color:#ffd700;background:rgba(255,215,0,.2);color:#ffd700}
+.topic-select{flex:1;padding:8px 10px;border:2px solid rgba(255,215,0,.45);border-radius:8px;background:#2a2a2a;color:#ffd700;font-size:.84em;font-weight:700;cursor:pointer;outline:none;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23ffd700' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px}
+.topic-select:focus{border-color:#ffd700;box-shadow:0 0 0 2px rgba(255,215,0,.2)}
+.topic-select option{background:#2a2a2a;color:#eee;font-weight:600}
 
 /* ── QUIZ MODAL ───────────────────────────── */
 .quiz-modal{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;z-index:400;padding:16px}
@@ -604,9 +604,9 @@ header{text-align:center;padding:8px 0;background:rgba(0,0,0,.35);font-size:1.6e
       </label>
     </div>
     <div class="edu-level-row" id="eduLevelRow">
-      <button class="edu-lvl-btn active" id="eduBasicBtn" onclick="setEduLevel('basic')">📊 Basic Math</button>
-      <button class="edu-lvl-btn" id="eduApBtn" onclick="setEduLevel('ap')">🎓 AP Algebra</button>
-      <button class="edu-lvl-btn" id="eduTrigBtn" onclick="setEduLevel('trig')">🔺 Trigonometry</button>
+      <select id="topicSelect" class="topic-select" onchange="setEduTopic(this.value)">
+        <option value="basic">📊 Basic Math</option>
+      </select>
     </div>
 
     <button class="setup-start" onclick="setupGame()">▶ Start Game!</button>
@@ -826,7 +826,7 @@ function setupGame(){
     computerPlayer=-1;
     NAMES[0]='Player 1'; NAMES[1]='Player 2';
     eduMode=document.getElementById('eduCheck').checked;
-    if(eduMode) setEduLevel(questionLevel);
+    if(eduMode) setEduTopic(questionLevel);
     document.getElementById('av0disp').textContent=playerAvatars[0];
     document.getElementById('av1disp').textContent='🌐';
     document.getElementById('pname0').textContent=NAMES[0];
@@ -853,7 +853,7 @@ function setupGame(){
 
   // Read edu mode + level
   eduMode=document.getElementById('eduCheck').checked;
-  if(eduMode) setEduLevel(questionLevel); // keep current level; already set by button
+  if(eduMode) setEduTopic(questionLevel); // keep current level; already set by button
 
   // Update player bar display
   document.getElementById('av0disp').textContent=playerAvatars[0];
@@ -990,8 +990,9 @@ let confettiRAF=null;
    EDUCATIONAL MODE
 ═══════════════════════════════════════════ */
 let eduMode=false;
-let questionLevel='basic'; // 'basic' | 'ap' | 'trig'
-const Q_CACHE={};  // populated by preloadQuestions()
+let questionLevel='basic'; // topic id — e.g. 'basic','ap','trig','prob_basic', …
+const Q_CACHE={};          // {topicId: null | []} — null=fetch failed, []=loaded
+let topicsManifest=[];     // populated from topics.json
 let usedQIdx=new Set();
 let quizTimerTO=null;
 let missedQuestions=[]; // {q, options, answer, chosen} — chosen=-1 means timed out
@@ -1001,54 +1002,82 @@ function toggleEduLevelRow(rowId,show){
   if(row) row.classList.toggle('visible',show);
 }
 
-function setEduLevel(level){
-  questionLevel=level;
-  document.getElementById('eduBasicBtn').classList.toggle('active',level==='basic');
-  document.getElementById('eduApBtn').classList.toggle('active',level==='ap');
-  document.getElementById('eduTrigBtn').classList.toggle('active',level==='trig');
+// ── Topic helpers ──────────────────────────────────────────────────────────
+function setEduTopic(topicId){
+  questionLevel=topicId;
+  const sel=document.getElementById('topicSelect');
+  if(sel&&sel.value!==topicId) sel.value=topicId;
+}
+function activeQ(){ return Q_CACHE[questionLevel]??[]; }
+function qLoadFailed(){ return Q_CACHE[questionLevel]===null; }
+function topicLabel(id){
+  const t=topicsManifest.find(t=>t.id===id);
+  return t?t.label:id;
 }
 
-function activeQ(){
-  if(questionLevel==='ap')   return Q_CACHE.ap   ?? [];
-  if(questionLevel==='trig') return Q_CACHE.trig  ?? [];
-  return Q_CACHE.basic ?? [];
-}
-// Returns true if questions for the current level failed to fetch (null = fetch error)
-function qLoadFailed(){
-  const key = questionLevel==='ap'?'ap':questionLevel==='trig'?'trig':'basic';
-  return Q_CACHE[key]===null;
-}
-
-async function preloadQuestions(){
-  // Derive base URL from the page's own URL — works on any server including GitHub Pages
+// Load topics.json and populate the dropdown; fallback if fetch fails
+async function loadTopicsManifest(){
   const href=window.location.href;
   const base=href.substring(0,href.lastIndexOf('/')+1);
-  const files={basic:'questions_basic.json',ap:'questions_ap.json',trig:'questions_trig.json'};
-  await Promise.all(Object.entries(files).map(async([key,file])=>{
-    try{
-      const r=await fetch(base+file);
-      if(!r.ok) throw new Error('HTTP '+r.status);
-      Q_CACHE[key]=await r.json();
-      console.log(`✅ Loaded ${Q_CACHE[key].length} ${key} questions`);
-    }catch(e){
-      console.error(`❌ Could not load ${file}: ${e.message}`);
-      Q_CACHE[key]=null; // null = failed (distinct from [] = empty)
-    }
-  }));
+  try{
+    const r=await fetch(base+'topics.json');
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    topicsManifest=await r.json();
+    console.log(`✅ Loaded ${topicsManifest.length} topics`);
+  }catch(e){
+    console.error('❌ Could not load topics.json:',e.message);
+    topicsManifest=[
+      {id:'basic',        label:'📊 Basic Math',                 file:'questions_basic.json'},
+      {id:'ap',           label:'🎓 AP Algebra',                  file:'questions_ap.json'},
+      {id:'trig',         label:'🔺 Trigonometry',                file:'questions_trig.json'},
+      {id:'prob_basic',   label:'🎲 Probability – Basic',         file:'questions_prob_basic.json'},
+      {id:'prob_inter',   label:'🎲 Probability – Intermediate',  file:'questions_prob_intermediate.json'},
+      {id:'prob_advanced',label:'🎲 Probability – Advanced',      file:'questions_prob_advanced.json'},
+    ];
+  }
+  const sel=document.getElementById('topicSelect');
+  if(!sel) return;
+  sel.innerHTML='';
+  topicsManifest.forEach(t=>{
+    const opt=document.createElement('option');
+    opt.value=t.id; opt.textContent=t.label;
+    sel.appendChild(opt);
+  });
+  if(topicsManifest.find(t=>t.id===questionLevel)) sel.value=questionLevel;
+  else if(topicsManifest.length){ questionLevel=topicsManifest[0].id; sel.value=questionLevel; }
+}
+
+// Lazy-load a topic's questions on first use; result cached in Q_CACHE
+async function ensureTopicLoaded(topicId){
+  if(Q_CACHE[topicId]!==undefined) return;
+  const topic=topicsManifest.find(t=>t.id===topicId);
+  if(!topic){ Q_CACHE[topicId]=null; return; }
+  const href=window.location.href;
+  const base=href.substring(0,href.lastIndexOf('/')+1);
+  try{
+    const r=await fetch(base+topic.file);
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    Q_CACHE[topicId]=await r.json();
+    console.log(`✅ Loaded ${Q_CACHE[topicId].length} ${topic.label} questions`);
+  }catch(e){
+    console.error(`❌ Could not load ${topic.file}:`,e.message);
+    Q_CACHE[topicId]=null;
+  }
 }
 
 function showQuiz(sq, fallDest){
   return new Promise(async resolve=>{
-    await _qReady; // ensure fetch has finished before checking the bank
+    await ensureTopicLoaded(questionLevel); // lazy-load on first use
     const bank=activeQ();
     if(!bank.length){
       if(qLoadFailed()){
-        // JSON file didn't load — show an error in the quiz box so it's visible
-        const label=questionLevel==='ap'?'🎓 AP Algebra':questionLevel==='trig'?'🔺 Trig':'📊 Basic Math';
+        const label=topicLabel(questionLevel);
+        const topic=topicsManifest.find(t=>t.id===questionLevel);
         document.getElementById('quizLabel').textContent='⚠️ Questions not loaded';
         document.getElementById('quizSq').textContent='';
         document.getElementById('quizQ').textContent=
-          `Could not fetch the ${label} question file.\nEnsure questions_${questionLevel==='ap'?'ap':questionLevel==='trig'?'trig':'basic'}.json is deployed alongside the game, then reload.`;
+          `Could not fetch the "${label}" question file.\n`+
+          `Ensure ${topic?topic.file:questionLevel+'.json'} is deployed alongside the game, then reload.`;
         document.getElementById('quizOpts').innerHTML=
           '<button class="quiz-opt" onclick="document.getElementById(\'quizModal\').classList.remove(\'open\')">Close</button>';
         document.getElementById('quizResult').textContent='';
@@ -1066,9 +1095,7 @@ function showQuiz(sq, fallDest){
 
     sfx('quizAlert');
     // Populate modal
-    document.getElementById('quizLabel').textContent=
-      questionLevel==='ap'?'🎓 AP Algebra Challenge!':
-      questionLevel==='trig'?'🔺 Trig Challenge!':'🧮 Math Challenge!';
+    document.getElementById('quizLabel').textContent=topicLabel(questionLevel)+' Challenge!';
     document.getElementById('quizSq').textContent=`Square ${sq} — Fall to ${fallDest} if wrong!`;
     document.getElementById('quizQ').textContent=q.q;
     document.getElementById('quizResult').textContent='';
@@ -2133,7 +2160,7 @@ buildBoard();
 G={pieces:[[1,1],[1,1]],cur:0,dice:[0,0],phase:'roll'};
 renderPieces(); syncUI();
 openSetup();
-const _qReady=preloadQuestions(); // store promise so showQuiz can await it
+loadTopicsManifest(); // fetch topics.json and populate dropdown; questions loaded lazily
 
 /* ═══════════════════════════════════════════
    ONLINE MULTIPLAYER — functions
@@ -2286,13 +2313,15 @@ function applyRemoteState(data){
     eduMode=data.eduMode||eduMode;
     if(eduMode&&!wasEdu) log('📚 Educational Mode enabled by your opponent!','le-special');
   }
-  // Question level sync — higher difficulty wins (AP > Trig > Basic)
-  const lvlPriority={basic:0,trig:1,ap:2};
-  const remoteLvl=data.questionLevel||'basic';
-  if((lvlPriority[remoteLvl]||0)>(lvlPriority[questionLevel]||0)){
-    questionLevel=remoteLvl;
-    const label=remoteLvl==='ap'?'🎓 AP Algebra':remoteLvl==='trig'?'🔺 Trigonometry':'📊 Basic Math';
-    log(`${label} questions activated by your opponent!`,'le-special');
+  // Topic sync — apply P1's chosen topic to both players
+  const remoteLvl=data.questionLevel||questionLevel;
+  if(remoteLvl!==questionLevel){
+    const remoteTopic=topicsManifest.find(t=>t.id===remoteLvl);
+    if(remoteTopic){
+      questionLevel=remoteLvl;
+      setEduTopic(remoteLvl);
+      log(`📚 ${remoteTopic.label} questions activated by your opponent!`,'le-special');
+    }
   }
 
   // Apply

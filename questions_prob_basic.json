@@ -1,0 +1,1002 @@
+[
+  {
+    "q": "A bag has 3 red and 7 blue balls. What is P(red)?",
+    "options": [
+      "3/10",
+      "7/10",
+      "3/7",
+      "1/3"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "A fair die is rolled. What is P(getting a 4)?",
+    "options": [
+      "1/6",
+      "1/3",
+      "1/2",
+      "1/4"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "A fair die is rolled. What is P(even number)?",
+    "options": [
+      "1/6",
+      "1/2",
+      "1/3",
+      "2/3"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "A coin is flipped. What is P(heads)?",
+    "options": [
+      "1/4",
+      "3/4",
+      "1/2",
+      "1/3"
+    ],
+    "answer": 2
+  },
+  {
+    "q": "A bag has 5 green, 3 yellow, and 2 white marbles. What is P(yellow)?",
+    "options": [
+      "3/10",
+      "1/2",
+      "3/5",
+      "1/3"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "A card is drawn at random from a standard 52-card deck. What is P(ace)?",
+    "options": [
+      "1/13",
+      "1/4",
+      "4/52 = 1/13",
+      "1/52"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "A card is drawn from a 52-card deck. What is P(heart)?",
+    "options": [
+      "1/52",
+      "1/4",
+      "1/13",
+      "1/2"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "A spinner has 8 equal sections numbered 1–8. What is P(number > 5)?",
+    "options": [
+      "3/8",
+      "5/8",
+      "1/2",
+      "1/4"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "A jar has 6 orange and 4 purple candies. What is P(purple)?",
+    "options": [
+      "2/5",
+      "3/5",
+      "1/2",
+      "1/4"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "There are 12 students: 5 boys and 7 girls. One is chosen at random. What is P(boy)?",
+    "options": [
+      "5/12",
+      "7/12",
+      "5/7",
+      "1/2"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "A bag has 2 red, 4 green, and 6 blue balls. What is P(blue)?",
+    "options": [
+      "1/2",
+      "1/3",
+      "1/6",
+      "2/3"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "A die is rolled. What is P(number less than 3)?",
+    "options": [
+      "1/6",
+      "1/3",
+      "1/2",
+      "2/3"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "A deck of 52 cards. What is P(king or queen)?",
+    "options": [
+      "2/13",
+      "1/13",
+      "1/26",
+      "4/13"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "A box has 10 balls: 3 red, 3 green, 4 blue. What is P(not blue)?",
+    "options": [
+      "3/5",
+      "2/5",
+      "1/2",
+      "3/10"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "There are 20 tickets numbered 1–20. What is P(multiple of 5)?",
+    "options": [
+      "1/4",
+      "1/5",
+      "1/10",
+      "4/20"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "A bag has 1 black and 9 white balls. What is P(black)?",
+    "options": [
+      "1/10",
+      "9/10",
+      "1/9",
+      "1/5"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "A fair die is rolled. What is P(number > 4)?",
+    "options": [
+      "1/3",
+      "1/2",
+      "1/6",
+      "2/3"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "There are 30 students: 18 passed and 12 failed. What is P(randomly chosen student passed)?",
+    "options": [
+      "3/5",
+      "2/5",
+      "9/15",
+      "1/2"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "A bag has 7 red and 3 blue balls. What is P(blue)?",
+    "options": [
+      "3/10",
+      "7/10",
+      "3/7",
+      "1/3"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "A fair coin is flipped twice. How many outcomes are in the sample space?",
+    "options": [
+      "2",
+      "4",
+      "6",
+      "8"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "If P(A) = 0.3, what is P(A')?",
+    "options": [
+      "0.3",
+      "0.7",
+      "0.6",
+      "1.3"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "If P(rain) = 0.65, what is P(no rain)?",
+    "options": [
+      "0.65",
+      "0.45",
+      "0.35",
+      "0.25"
+    ],
+    "answer": 2
+  },
+  {
+    "q": "If P(win) = 1/4, what is P(not win)?",
+    "options": [
+      "1/4",
+      "3/4",
+      "1/2",
+      "1/3"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "P(A) = 0.82. What is P(A')?",
+    "options": [
+      "0.82",
+      "0.28",
+      "0.18",
+      "0.72"
+    ],
+    "answer": 2
+  },
+  {
+    "q": "A die is rolled. If P(even) = 1/2, what is P(odd)?",
+    "options": [
+      "1/6",
+      "1/3",
+      "1/2",
+      "2/3"
+    ],
+    "answer": 2
+  },
+  {
+    "q": "P(defective) = 0.04. What is P(not defective)?",
+    "options": [
+      "0.04",
+      "0.40",
+      "0.96",
+      "0.94"
+    ],
+    "answer": 2
+  },
+  {
+    "q": "A bag has 8 red and 2 blue balls. What is P(not red)?",
+    "options": [
+      "4/5",
+      "1/5",
+      "2/8",
+      "1/4"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "P(A') = 0.55. What is P(A)?",
+    "options": [
+      "0.55",
+      "0.50",
+      "0.45",
+      "1.55"
+    ],
+    "answer": 2
+  },
+  {
+    "q": "If P(pass) = 2/3, what is P(fail)?",
+    "options": [
+      "2/3",
+      "1/3",
+      "1/2",
+      "3/2"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "From a class of 25, 10 play football. What is P(a student does NOT play football)?",
+    "options": [
+      "2/5",
+      "3/5",
+      "1/2",
+      "10/25"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "How many ways can 4 people sit in a row?",
+    "options": [
+      "4",
+      "12",
+      "24",
+      "16"
+    ],
+    "answer": 2
+  },
+  {
+    "q": "How many ways can 3 books be arranged on a shelf?",
+    "options": [
+      "3",
+      "6",
+      "9",
+      "12"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "What is 5! (5 factorial)?",
+    "options": [
+      "25",
+      "60",
+      "100",
+      "120"
+    ],
+    "answer": 3
+  },
+  {
+    "q": "What is 0!?",
+    "options": [
+      "0",
+      "1",
+      "undefined",
+      "∞"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "How many 2-letter arrangements can be made from A, B, C (no repeats)?",
+    "options": [
+      "3",
+      "6",
+      "9",
+      "12"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "How many ways can 2 people be chosen from 5 to stand first and second in a line?",
+    "options": [
+      "10",
+      "20",
+      "25",
+      "5"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "What is 4!/2!?",
+    "options": [
+      "6",
+      "12",
+      "24",
+      "2"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "How many 3-digit PIN codes use the digits 1, 2, 3 with no repetition?",
+    "options": [
+      "3",
+      "6",
+      "9",
+      "27"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "How many ways can 5 athletes finish a race (all finish, no ties)?",
+    "options": [
+      "25",
+      "60",
+      "100",
+      "120"
+    ],
+    "answer": 3
+  },
+  {
+    "q": "A restaurant offers 3 starters and 4 mains. How many different 2-course meals are possible?",
+    "options": [
+      "7",
+      "12",
+      "10",
+      "14"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "What is C(5,2)?",
+    "options": [
+      "10",
+      "20",
+      "5",
+      "15"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "What is C(4,0)?",
+    "options": [
+      "0",
+      "4",
+      "1",
+      "undefined"
+    ],
+    "answer": 2
+  },
+  {
+    "q": "What is C(6,6)?",
+    "options": [
+      "0",
+      "6",
+      "1",
+      "36"
+    ],
+    "answer": 2
+  },
+  {
+    "q": "What is C(5,3)?",
+    "options": [
+      "10",
+      "15",
+      "20",
+      "60"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "How many ways can you choose 2 toppings from 6 options?",
+    "options": [
+      "12",
+      "30",
+      "15",
+      "36"
+    ],
+    "answer": 2
+  },
+  {
+    "q": "A committee of 3 is chosen from 7 people. How many ways?",
+    "options": [
+      "21",
+      "35",
+      "42",
+      "210"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "What is C(n,1) for any positive n?",
+    "options": [
+      "0",
+      "1",
+      "n",
+      "n!"
+    ],
+    "answer": 2
+  },
+  {
+    "q": "What is C(4,2)?",
+    "options": [
+      "4",
+      "6",
+      "8",
+      "12"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "A team of 2 is chosen from 8 players. How many ways?",
+    "options": [
+      "16",
+      "28",
+      "56",
+      "16"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "What is C(10,10)?",
+    "options": [
+      "0",
+      "1",
+      "10",
+      "100"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "If A = {1,2,3} and B = {2,3,4}, what is A ∩ B?",
+    "options": [
+      "{1,2,3,4}",
+      "{2,3}",
+      "{1,4}",
+      "{1,2,3}"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "If A = {1,2,3} and B = {2,3,4}, what is A ∪ B?",
+    "options": [
+      "{1,2,3,4}",
+      "{2,3}",
+      "{1,4}",
+      "{4}"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "How many elements are in A ∪ B if |A|=5, |B|=4, and |A ∩ B|=2?",
+    "options": [
+      "7",
+      "9",
+      "11",
+      "6"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "If A and B are mutually exclusive and P(A)=0.3, P(B)=0.5, what is P(A ∪ B)?",
+    "options": [
+      "0.15",
+      "0.80",
+      "0.20",
+      "0.65"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "If A and B are mutually exclusive, what is P(A ∩ B)?",
+    "options": [
+      "P(A)·P(B)",
+      "P(A)+P(B)",
+      "0",
+      "1"
+    ],
+    "answer": 2
+  },
+  {
+    "q": "A universal set U has 10 elements. A has 6 elements. How many are NOT in A?",
+    "options": [
+      "6",
+      "4",
+      "16",
+      "60"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "If A ⊂ B, what is A ∩ B?",
+    "options": [
+      "B",
+      "A",
+      "∅",
+      "A ∪ B"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "If A = {a,b,c,d} and B = {c,d,e}, what is |A ∩ B|?",
+    "options": [
+      "1",
+      "2",
+      "3",
+      "5"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "Events A and B cannot both occur. What type of events are they?",
+    "options": [
+      "Independent",
+      "Complementary",
+      "Mutually exclusive",
+      "Exhaustive"
+    ],
+    "answer": 2
+  },
+  {
+    "q": "If P(A ∪ B) = 0.9 and P(A ∩ B) = 0.1, and P(A) = 0.5, what is P(B)?",
+    "options": [
+      "0.5",
+      "0.4",
+      "0.3",
+      "0.6"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "Two coins are flipped. What is P(both heads)?",
+    "options": [
+      "1/2",
+      "1/4",
+      "1/3",
+      "3/4"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "Two dice are rolled. What is P(sum = 12)?",
+    "options": [
+      "1/36",
+      "1/6",
+      "2/36",
+      "1/12"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "Two dice are rolled. What is P(sum = 7)?",
+    "options": [
+      "1/6",
+      "5/36",
+      "6/36",
+      "7/36"
+    ],
+    "answer": 2
+  },
+  {
+    "q": "A coin is flipped 3 times. What is P(all tails)?",
+    "options": [
+      "1/2",
+      "1/4",
+      "1/6",
+      "1/8"
+    ],
+    "answer": 3
+  },
+  {
+    "q": "From digits 1–5, one is picked at random. What is P(prime number)?",
+    "options": [
+      "2/5",
+      "3/5",
+      "1/5",
+      "4/5"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "A fair die is rolled. What is P(factor of 6)?",
+    "options": [
+      "2/3",
+      "1/3",
+      "1/2",
+      "3/4"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "Two dice are rolled. What is P(both show the same number)?",
+    "options": [
+      "1/6",
+      "1/36",
+      "6/36",
+      "5/36"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "A card is drawn from 52. What is P(red card)?",
+    "options": [
+      "1/4",
+      "1/2",
+      "1/13",
+      "1/26"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "A coin is flipped 3 times. What is P(exactly 2 heads)?",
+    "options": [
+      "1/4",
+      "3/8",
+      "1/2",
+      "1/8"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "A spinner has 5 equal parts: 2 red, 2 blue, 1 green. What is P(not green)?",
+    "options": [
+      "4/5",
+      "1/5",
+      "2/5",
+      "3/5"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "Which value CANNOT be a probability?",
+    "options": [
+      "0",
+      "0.5",
+      "1",
+      "1.5"
+    ],
+    "answer": 3
+  },
+  {
+    "q": "An event is impossible. What is its probability?",
+    "options": [
+      "0",
+      "0.5",
+      "1",
+      "−1"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "An event is certain to occur. What is its probability?",
+    "options": [
+      "0",
+      "0.5",
+      "1",
+      "undefined"
+    ],
+    "answer": 2
+  },
+  {
+    "q": "Which represents a likely but not certain event?",
+    "options": [
+      "P = 0",
+      "P = 0.9",
+      "P = 1",
+      "P = −0.1"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "If P(A) = 1/2, the event is called:",
+    "options": [
+      "Impossible",
+      "Certain",
+      "Equally likely",
+      "Unlikely"
+    ],
+    "answer": 2
+  },
+  {
+    "q": "A class has 15 boys and 10 girls. One student is chosen. What is P(girl)?",
+    "options": [
+      "1/2",
+      "2/5",
+      "3/5",
+      "2/3"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "A drawer has 5 red socks and 3 blue socks. What is P(blue)?",
+    "options": [
+      "3/8",
+      "5/8",
+      "3/5",
+      "1/3"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "A bag has 4 yellow and 6 green balls. Two balls are drawn together. What is the total number of ways to draw 2 balls?",
+    "options": [
+      "20",
+      "40",
+      "45",
+      "90"
+    ],
+    "answer": 2
+  },
+  {
+    "q": "Letters of the word MATH are arranged randomly. What is P(arrangement starts with M)?",
+    "options": [
+      "1/4",
+      "1/3",
+      "1/2",
+      "1/24"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "A student guesses on a 4-option multiple-choice question. What is P(correct)?",
+    "options": [
+      "1/2",
+      "1/3",
+      "1/4",
+      "3/4"
+    ],
+    "answer": 2
+  },
+  {
+    "q": "A bag has 2 red, 3 blue, 5 green balls. What is P(NOT green)?",
+    "options": [
+      "1/2",
+      "1/3",
+      "2/5",
+      "5/10"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "20 tickets are sold; you own 3. What is P(you win)?",
+    "options": [
+      "1/20",
+      "3/20",
+      "1/10",
+      "3/17"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "A letter is chosen from PROBABILITY. What is P(vowel)? (PROBABILITY has 11 letters: P,R,O,B,A,B,I,L,I,T,Y — vowels O,A,I,I)",
+    "options": [
+      "3/11",
+      "4/11",
+      "5/11",
+      "6/11"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "A number is chosen from 1–50. What is P(multiple of 10)?",
+    "options": [
+      "1/10",
+      "1/5",
+      "1/50",
+      "5/50"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "There are 8 flavors of ice cream; 3 are chocolate-based. What is P(choosing a chocolate flavor)?",
+    "options": [
+      "3/8",
+      "5/8",
+      "1/3",
+      "1/4"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "A die is rolled. What is P(number divisible by 3)?",
+    "options": [
+      "1/6",
+      "1/3",
+      "1/2",
+      "2/3"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "A fair coin is flipped. P(tail) = ?",
+    "options": [
+      "0",
+      "1",
+      "1/2",
+      "1/4"
+    ],
+    "answer": 2
+  },
+  {
+    "q": "A bag has 9 balls: 3 red, 3 blue, 3 green. What is P(red OR blue)?",
+    "options": [
+      "1/3",
+      "2/3",
+      "1/9",
+      "3/9"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "What is C(7,3)?",
+    "options": [
+      "21",
+      "35",
+      "42",
+      "28"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "A box has 5 white and 5 black balls. What is P(white)?",
+    "options": [
+      "1/4",
+      "1/2",
+      "3/4",
+      "2/5"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "If P(A) = 0 and P(B) = 1, what is P(A ∪ B)?",
+    "options": [
+      "0",
+      "1",
+      "0.5",
+      "undefined"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "Events A and B together cover all possibilities. They are called:",
+    "options": [
+      "Mutually exclusive",
+      "Exhaustive",
+      "Independent",
+      "Complementary"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "There are 10 questions; you randomly pick 1. P(first question chosen) = ?",
+    "options": [
+      "1/10",
+      "1/5",
+      "1/100",
+      "9/10"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "Which set notation means 'elements in A but not B'?",
+    "options": [
+      "A ∩ B",
+      "A ∪ B",
+      "A \\ B",
+      "A'"
+    ],
+    "answer": 2
+  },
+  {
+    "q": "A number from 1–10 is chosen. What is P(single-digit prime)?",
+    "options": [
+      "3/10",
+      "4/10",
+      "5/10",
+      "2/10"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "A standard deck has 4 suits of 13 cards each. What is P(picking a spade)?",
+    "options": [
+      "1/52",
+      "1/4",
+      "1/13",
+      "4/13"
+    ],
+    "answer": 1
+  },
+  {
+    "q": "A number from 1–20 is chosen. What is P(perfect square)?",
+    "options": [
+      "1/5",
+      "1/4",
+      "4/20",
+      "3/20"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "How many outcomes are in the sample space when flipping 3 coins?",
+    "options": [
+      "3",
+      "6",
+      "8",
+      "9"
+    ],
+    "answer": 2
+  },
+  {
+    "q": "Two dice are rolled. What is P(at least one shows 6)?",
+    "options": [
+      "11/36",
+      "1/6",
+      "1/12",
+      "10/36"
+    ],
+    "answer": 0
+  },
+  {
+    "q": "From letters A, E, I, O, U one is chosen. P(consonant) = ?",
+    "options": [
+      "0",
+      "1",
+      "1/5",
+      "4/5"
+    ],
+    "answer": 0
+  }
+]
