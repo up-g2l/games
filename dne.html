@@ -1073,6 +1073,7 @@ function aiPickMove(){
 ═══════════════════════════════════════════ */
 let G={};
 let confettiRAF=null;
+const FLIGHT_MS=2400;   // eagle carry flight duration (ms)
 
 /* ═══════════════════════════════════════════
    EDUCATIONAL MODE
@@ -1838,8 +1839,6 @@ async function playEagleCarry(playerIdx,pieceIdx,from,to){
   const midChordY=(sy+dy)/2;
   const peakH=Math.max(160, Math.min(420, midChordY-(br.top-70)));
 
-  const FLIGHT_MS=2400;
-
   // Clear any transition on eagle/carried so rAF drives them cleanly
   eagle.style.transition='none';
   carried.style.transition='none';
@@ -2025,7 +2024,7 @@ async function execOneStep(pi,steps,isPairMove){
   } else if(LADDERS[landed]){
     const dest=LADDERS[landed];
     log(`  ✦ Sq ${landed} ÷5/6! Piece ${name} launches to ${dest} 🚀`,'le-ladder');
-    sfx('eagleLaunch');
+    SFX.eagleLaunch(FLIGHT_MS);
     await flashCell(landed,'liftOff');
     await playEagleCarry(G.cur,pi,landed,dest);
   }
@@ -2425,14 +2424,18 @@ const SFX={
     _noise(0.5,0.09,0.05);
     [110,165,220].forEach((f,i)=>_tone(f,0.55,'square',0.09,i*0.08));
   },
-  eagleLaunch(){   // soaring eagle ~2.4 s
+  eagleLaunch(ms){  // soaring eagle — duration matches flight
+    if(!soundOn) return;
     const c=aCtx();
-    // 1. Sharp screech — high freq gliding down
+    const dur=(ms||2400)/1000;          // seconds, matches FLIGHT_MS
+    const mid=dur/2;                    // mid-flight timestamp
+    const fadeStart=Math.max(dur-0.35, dur*0.80);
+    // 1. Sharp screech at launch — high freq gliding down
     _glide(920,480,0.38,'sawtooth',0.14,0);
     _glide(760,320,0.30,'square',0.07,0.06);
-    // 2. Wind rush — sustained low-pass noise
+    // 2. Wind rush — sustained low-pass noise for full flight
     try{
-      const sr=c.sampleRate, dur=2.1;
+      const sr=c.sampleRate;
       const buf=c.createBuffer(1,Math.ceil(sr*dur),sr);
       const d=buf.getChannelData(0);
       for(let i=0;i<d.length;i++) d[i]=Math.random()*2-1;
@@ -2440,67 +2443,72 @@ const SFX={
       const lpf=c.createBiquadFilter();
       lpf.type='lowpass';
       lpf.frequency.setValueAtTime(700,c.currentTime);
-      lpf.frequency.linearRampToValueAtTime(1500,c.currentTime+1.1);
+      lpf.frequency.linearRampToValueAtTime(1500,c.currentTime+mid);
       lpf.frequency.linearRampToValueAtTime(500,c.currentTime+dur);
       const g=c.createGain();
       g.gain.setValueAtTime(0,c.currentTime);
       g.gain.linearRampToValueAtTime(0.11,c.currentTime+0.28);
-      g.gain.setValueAtTime(0.11,c.currentTime+1.75);
+      g.gain.setValueAtTime(0.11,c.currentTime+fadeStart);
       g.gain.exponentialRampToValueAtTime(0.001,c.currentTime+dur);
       src.connect(lpf); lpf.connect(g); g.connect(c.destination);
       src.start(c.currentTime); src.stop(c.currentTime+dur+0.1);
     }catch(e){}
-    // 3. Wing beats — rhythmic low thumps
-    [0.38,0.82,1.26,1.70].forEach(t=>{
+    // 3. Wing beats — spaced evenly across the flight
+    const beats=Math.max(2, Math.round(dur/0.55));
+    for(let i=0;i<beats;i++){
+      const t=0.35+i*(dur-0.35)/beats;
       _noise(0.07,0.05,t);
       _tone(110,0.10,'sine',0.04,t);
-    });
-    // 4. Second cry mid-flight
-    _glide(680,360,0.28,'sawtooth',0.09,1.15);
+    }
+    // 4. Second cry at mid-flight peak
+    _glide(680,360,0.28,'sawtooth',0.09,mid-0.1);
   },
-  dragonFire(ms){   // roaring fire, duration in ms
+  dragonFire(ms){   // fire crackling for full modal duration
     if(!soundOn) return;
     try{
-      const c=aCtx(), dur=(ms||3600)/1000;
-      // 1. Deep guttural roar with vibrato
-      const osc=c.createOscillator();
-      const vib=c.createOscillator(), vg=c.createGain(), og=c.createGain();
-      vib.frequency.value=5.5; vg.gain.value=10;
-      vib.connect(vg); vg.connect(osc.frequency);
-      osc.type='sawtooth';
-      osc.frequency.setValueAtTime(75,c.currentTime);
-      osc.frequency.linearRampToValueAtTime(105,c.currentTime+0.18);
-      og.gain.setValueAtTime(0,c.currentTime);
-      og.gain.linearRampToValueAtTime(0.20,c.currentTime+0.15);
-      og.gain.setValueAtTime(0.20,c.currentTime+dur-0.9);
-      og.gain.exponentialRampToValueAtTime(0.001,c.currentTime+dur);
-      osc.connect(og); og.connect(c.destination);
-      vib.start(c.currentTime); osc.start(c.currentTime);
-      vib.stop(c.currentTime+dur); osc.stop(c.currentTime+dur);
-      // 2. Fire hiss — bandpass noise
-      const sr=c.sampleRate;
-      const buf=c.createBuffer(1,Math.ceil(sr*dur),sr);
-      const bd=buf.getChannelData(0);
-      for(let i=0;i<bd.length;i++) bd[i]=Math.random()*2-1;
-      const hsrc=c.createBufferSource(); hsrc.buffer=buf;
-      const bpf=c.createBiquadFilter();
-      bpf.type='bandpass';
-      bpf.frequency.setValueAtTime(1400,c.currentTime);
-      bpf.frequency.linearRampToValueAtTime(2200,c.currentTime+0.5);
-      bpf.Q.value=0.7;
-      const hg=c.createGain();
-      hg.gain.setValueAtTime(0,c.currentTime);
-      hg.gain.linearRampToValueAtTime(0.13,c.currentTime+0.25);
-      hg.gain.setValueAtTime(0.13,c.currentTime+dur-0.7);
-      hg.gain.exponentialRampToValueAtTime(0.001,c.currentTime+dur);
-      hsrc.connect(bpf); bpf.connect(hg); hg.connect(c.destination);
-      hsrc.start(c.currentTime); hsrc.stop(c.currentTime+dur);
-      // 3. Initial whoosh glide
-      _glide(90,550,0.55,'sawtooth',0.22,0);
-      // 4. Random crackling bursts
-      const n=Math.max(6,Math.round(dur*3));
-      for(let i=0;i<n;i++)
-        _noise(0.04+Math.random()*0.06,0.04+Math.random()*0.07,0.08+i*(dur/n));
+      const c=aCtx(), dur=(ms||3600)/1000, sr=c.sampleRate;
+      // Layer 1: low-pass body roar — the deep whoosh of flames
+      (()=>{
+        const buf=c.createBuffer(1,Math.ceil(sr*dur),sr);
+        const d=buf.getChannelData(0);
+        for(let i=0;i<d.length;i++) d[i]=Math.random()*2-1;
+        const src=c.createBufferSource(); src.buffer=buf;
+        const lpf=c.createBiquadFilter(); lpf.type='lowpass'; lpf.frequency.value=380; lpf.Q.value=0.9;
+        const g=c.createGain();
+        g.gain.setValueAtTime(0,c.currentTime);
+        g.gain.linearRampToValueAtTime(0.22,c.currentTime+0.4);
+        g.gain.setValueAtTime(0.22,c.currentTime+dur-0.6);
+        g.gain.exponentialRampToValueAtTime(0.001,c.currentTime+dur);
+        src.connect(lpf); lpf.connect(g); g.connect(c.destination);
+        src.start(c.currentTime); src.stop(c.currentTime+dur+0.1);
+      })();
+      // Layer 2: mid-range sizzle — bandpass hiss
+      (()=>{
+        const buf=c.createBuffer(1,Math.ceil(sr*dur),sr);
+        const d=buf.getChannelData(0);
+        for(let i=0;i<d.length;i++) d[i]=Math.random()*2-1;
+        const src=c.createBufferSource(); src.buffer=buf;
+        const bpf=c.createBiquadFilter(); bpf.type='bandpass'; bpf.frequency.value=1100; bpf.Q.value=1.1;
+        const g=c.createGain();
+        g.gain.setValueAtTime(0,c.currentTime);
+        g.gain.linearRampToValueAtTime(0.10,c.currentTime+0.3);
+        g.gain.setValueAtTime(0.10,c.currentTime+dur-0.5);
+        g.gain.exponentialRampToValueAtTime(0.001,c.currentTime+dur);
+        src.connect(bpf); bpf.connect(g); g.connect(c.destination);
+        src.start(c.currentTime); src.stop(c.currentTime+dur+0.1);
+      })();
+      // Layer 3: rapid random crackles (~10 per second)
+      const nCracks=Math.round(dur*10);
+      for(let i=0;i<nCracks;i++){
+        const t=0.05+Math.random()*(dur-0.08);
+        _noise(0.012+Math.random()*0.035, 0.03+Math.random()*0.09, t);
+      }
+      // Layer 4: occasional loud snaps
+      const nSnaps=Math.round(dur*2.5);
+      for(let i=0;i<nSnaps;i++){
+        const t=0.1+Math.random()*(dur-0.2);
+        _noise(0.02+Math.random()*0.03, 0.13+Math.random()*0.12, t);
+      }
     }catch(e){}
   },
   verticalJump(){
