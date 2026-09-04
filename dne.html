@@ -2573,6 +2573,15 @@ renderPieces(); syncUI();
 openSetup();
 loadTopicsManifest(); // fetch topics.json and populate dropdown; questions loaded lazily
 
+/* ── Warn before leaving mid-game ── */
+window.addEventListener('beforeunload', e => {
+  const setupOpen = document.getElementById('setupModal').classList.contains('open');
+  if(!setupOpen && G.phase && G.phase !== 'over'){
+    e.preventDefault();
+    e.returnValue = ''; // triggers the browser's built-in "Leave site?" dialog
+  }
+});
+
 /* ═══════════════════════════════════════════
    ONLINE MULTIPLAYER — functions
 ═══════════════════════════════════════════ */
