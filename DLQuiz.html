@@ -1,0 +1,1358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quiz Center</title>
+  <style>
+    :root {
+      --primary:  #1a3c6e;
+      --accent:   #e8791d;
+      --success:  #16a34a;
+      --danger:   #dc2626;
+      --warn-bg:  #fffbeb;
+      --warn-bd:  #f59e0b;
+      --warn-tx:  #78350f;
+      --bg:       #f0f4f8;
+      --surface:  #ffffff;
+      --text:     #1a1a2e;
+      --muted:    #6b7280;
+      --border:   #e2e8f0;
+      --radius:   12px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+           background: var(--bg); color: var(--text); min-height: 100vh; }
+
+    /* ── screens ── */
+    .screen { display: none; max-width: 780px; margin: 0 auto; padding: 20px 16px 48px; }
+    .screen.active { display: block; }
+
+    /* ── home ── */
+    .home-header { text-align: center; padding: 40px 0 28px; }
+    .home-header h1 { font-size: 2rem; color: var(--primary); }
+    .home-header p  { color: var(--muted); margin-top: 6px; }
+    .quiz-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+                 padding: 20px 22px; margin-bottom: 14px;
+                 display: flex; align-items: center; gap: 18px;
+                 cursor: pointer; transition: box-shadow .15s, transform .15s; }
+    .quiz-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,.1); transform: translateY(-2px); }
+    .quiz-icon { width: 52px; height: 52px; border-radius: 10px; background: var(--primary);
+                 display: flex; align-items: center; justify-content: center;
+                 font-size: 1.5rem; flex-shrink: 0; }
+    .quiz-info { flex: 1; min-width: 0; }
+    .quiz-info h3 { font-size: 1.02rem; color: var(--primary); }
+    .quiz-info p  { font-size: 0.83rem; color: var(--muted); margin-top: 2px; }
+    .quiz-badges { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+    .badge { font-size: 0.74rem; color: var(--muted); background: var(--bg);
+             border: 1px solid var(--border); padding: 2px 9px; border-radius: 99px; }
+    .btn-go { background: var(--accent); color: #fff; border: none;
+              padding: 9px 18px; border-radius: 8px; font-size: 0.88rem;
+              font-weight: 600; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
+    .btn-go:hover { background: #cf6b18; }
+
+    /* ── quiz screen ── */
+    .quiz-topbar { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
+    .btn-back { background: none; border: none; color: var(--muted); cursor: pointer;
+                font-size: 1.1rem; padding: 4px 8px; border-radius: 6px; }
+    .btn-back:hover { background: var(--border); color: var(--text); }
+    .quiz-title-sm { font-size: 0.84rem; color: var(--muted); flex: 1;
+                     white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    .progress-row { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
+    .prog-bar { flex: 1; height: 6px; background: var(--border); border-radius: 99px; overflow: hidden; }
+    .prog-fill { height: 100%; background: var(--primary); border-radius: 99px; transition: width .3s; }
+    .prog-label { font-size: 0.8rem; color: var(--muted); white-space: nowrap; }
+
+    .q-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+              padding: 26px 26px 22px; margin-bottom: 14px; }
+    .q-eyebrow { font-size: 0.74rem; font-weight: 700; color: var(--accent);
+                 letter-spacing: .07em; text-transform: uppercase; margin-bottom: 10px; }
+    .q-text { font-size: 1.05rem; font-weight: 500; line-height: 1.6; }
+    .q-img  { text-align: center; margin: 4px 0 14px; }
+    .q-img svg { filter: drop-shadow(0 2px 6px rgba(0,0,0,.2)); }
+
+    .options { display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px; }
+    .opt { display: flex; align-items: flex-start; gap: 12px;
+           background: var(--surface); border: 2px solid var(--border); border-radius: 10px;
+           padding: 13px 16px; cursor: pointer; font-size: 0.94rem; line-height: 1.45;
+           transition: border-color .12s, background .12s; text-align: left; width: 100%; }
+    .opt:hover:not(:disabled) { border-color: #2a5298; background: #eef2ff; }
+    .opt-lbl { font-weight: 700; color: var(--primary); min-width: 20px; flex-shrink: 0; }
+    .opt.selected  { border-color: var(--primary); background: #eef2ff; }
+    .opt.correct   { border-color: var(--success); background: #f0fdf4; }
+    .opt.wrong     { border-color: var(--danger);  background: #fff5f5; }
+    .opt.show-correct { border-color: var(--success); background: #f0fdf4; }
+    .opt:disabled  { cursor: default; }
+    /* result icons inside options */
+    .opt-result { margin-left: auto; font-size: 1rem; flex-shrink: 0; }
+
+    /* explanation toggle */
+    .expl-toggle-row { margin-bottom: 10px; }
+    .btn-expl { background: none; border: 1px solid var(--warn-bd); color: var(--warn-tx);
+                border-radius: 7px; padding: 6px 14px; font-size: 0.83rem; font-weight: 600;
+                cursor: pointer; transition: background .12s; }
+    .btn-expl:hover { background: var(--warn-bg); }
+
+    .expl-box { background: var(--warn-bg); border: 1px solid var(--warn-bd);
+                border-radius: 8px; padding: 12px 16px; font-size: 0.86rem;
+                line-height: 1.55; color: var(--warn-tx); margin-bottom: 14px; }
+    .expl-box b { display: block; margin-bottom: 3px; }
+
+    .quiz-nav { display: flex; justify-content: space-between; align-items: center; }
+    .btn-nav { padding: 10px 22px; border-radius: 8px; font-size: 0.93rem;
+               font-weight: 600; cursor: pointer; border: none; transition: background .12s; }
+    .btn-nav:disabled { opacity: .38; cursor: default; }
+    .btn-prev  { background: var(--bg); color: var(--text); border: 1px solid var(--border); }
+    .btn-prev:hover:not(:disabled)  { background: #dde4ed; }
+    .btn-next  { background: var(--primary); color: #fff; }
+    .btn-next:hover:not(:disabled)  { background: #2a5298; }
+
+    /* ── results ── */
+    .results-hero { background: var(--surface); border: 1px solid var(--border);
+                    border-radius: var(--radius); padding: 32px 24px 24px;
+                    text-align: center; margin-bottom: 18px; }
+    .score-ring { width: 116px; height: 116px; border-radius: 50%;
+                  display: flex; flex-direction: column; align-items: center;
+                  justify-content: center; margin: 0 auto 16px; font-weight: 700; }
+    .score-ring.pass { background: #dcfce7; border: 4px solid var(--success); }
+    .score-ring.fail { background: #fee2e2; border: 4px solid var(--danger); }
+    .score-pct  { font-size: 2rem; line-height: 1; }
+    .score-tag  { font-size: 0.68rem; letter-spacing: .08em; text-transform: uppercase; margin-top: 2px; }
+    .score-stats { display: flex; justify-content: center; gap: 36px; margin: 14px 0 0; }
+    .stat-val  { font-size: 1.4rem; font-weight: 700; }
+    .stat-val.g { color: var(--success); }
+    .stat-val.r { color: var(--danger);  }
+    .stat-name { font-size: 0.73rem; color: var(--muted); }
+    .results-title { font-size: 1.1rem; font-weight: 600; margin-top: 4px; }
+
+    .results-actions { display: flex; gap: 10px; justify-content: center;
+                       flex-wrap: wrap; margin-top: 18px; }
+    .btn-action { padding: 10px 20px; border-radius: 8px; font-size: 0.9rem;
+                  font-weight: 600; cursor: pointer; border: none; }
+    .btn-home-a  { background: var(--bg); color: var(--text); border: 1px solid var(--border); }
+    .btn-home-a:hover  { background: #dde4ed; }
+    .btn-retake-a  { background: var(--primary); color: #fff; }
+    .btn-retake-a:hover  { background: #2a5298; }
+    .btn-wrong-a   { background: var(--accent); color: #fff; }
+    .btn-wrong-a:hover   { background: #cf6b18; }
+
+    .review-panel { background: var(--surface); border: 1px solid var(--border);
+                    border-radius: var(--radius); overflow: hidden; }
+    .review-hdr { padding: 13px 20px; font-weight: 600; font-size: 0.88rem;
+                  background: var(--bg); border-bottom: 1px solid var(--border); }
+    .review-item { display: flex; gap: 14px; padding: 14px 20px;
+                   border-bottom: 1px solid var(--border); align-items: flex-start; }
+    .review-item:last-child { border-bottom: none; }
+    .rev-icon { font-size: 1rem; margin-top: 1px; flex-shrink: 0; }
+    .rev-body { flex: 1; min-width: 0; }
+    .rev-q    { font-size: 0.88rem; font-weight: 500; margin-bottom: 4px; }
+    .rev-ans  { font-size: 0.81rem; }
+    .ans-ok   { color: var(--success); font-weight: 600; }
+    .ans-bad  { color: var(--danger);  text-decoration: line-through; }
+
+    @media (max-width: 500px) {
+      .quiz-card { flex-direction: column; align-items: flex-start; }
+      .q-card    { padding: 18px 14px 16px; }
+      .results-actions { flex-direction: column; align-items: stretch; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════ HOME ══════════ -->
+<div class="screen active" id="homeScreen">
+  <div class="home-header">
+    <h1>📚 Quiz Center</h1>
+    <p>Select a quiz topic to begin</p>
+  </div>
+  <div id="quizList"></div>
+</div>
+
+<!-- ══════════ QUIZ ══════════ -->
+<div class="screen" id="quizScreen">
+  <div class="quiz-topbar">
+    <button class="btn-back" onclick="goHome()">←</button>
+    <span class="quiz-title-sm" id="quizTitleSm"></span>
+  </div>
+  <div class="progress-row">
+    <div class="prog-bar"><div class="prog-fill" id="progFill"></div></div>
+    <span class="prog-label" id="progLabel"></span>
+  </div>
+  <div class="q-card">
+    <div class="q-eyebrow" id="qEyebrow"></div>
+    <div class="q-img"     id="qImg"    style="display:none;"></div>
+    <div class="q-text"    id="qText"></div>
+  </div>
+  <div class="options" id="optContainer"></div>
+  <div class="expl-toggle-row" id="explToggleRow" style="display:none;">
+    <button class="btn-expl" id="btnExpl" onclick="toggleExpl()">💡 Show Explanation</button>
+  </div>
+  <div class="expl-box" id="explBox" style="display:none;"></div>
+  <div class="quiz-nav">
+    <button class="btn-nav btn-prev" id="btnPrev" onclick="prevQ()">← Prev</button>
+    <button class="btn-nav btn-next" id="btnNext" onclick="nextQ()">Next →</button>
+  </div>
+</div>
+
+<!-- ══════════ RESULTS ══════════ -->
+<div class="screen" id="resultsScreen">
+  <div class="results-hero">
+    <div class="score-ring" id="scoreRing">
+      <span class="score-pct" id="scorePct"></span>
+      <span class="score-tag" id="scoreTag"></span>
+    </div>
+    <div class="results-title" id="resultsTitle"></div>
+    <div class="score-stats">
+      <div><div class="stat-val g" id="statOk"></div><div class="stat-name">Correct</div></div>
+      <div><div class="stat-val r" id="statBad"></div><div class="stat-name">Incorrect</div></div>
+      <div><div class="stat-val"   id="statTot"></div><div class="stat-name">Total</div></div>
+    </div>
+    <div class="results-actions">
+      <button class="btn-action btn-home-a"  onclick="goHome()">🏠 All Quizzes</button>
+      <button class="btn-action btn-retake-a" onclick="retakeAll()">🔄 Retake Quiz</button>
+      <button class="btn-action btn-wrong-a"  id="btnRetakeWrong" onclick="retakeWrong()">⚡ Retake Incorrect</button>
+    </div>
+  </div>
+  <div class="review-panel">
+    <div class="review-hdr">Question Review</div>
+    <div id="reviewList"></div>
+  </div>
+</div>
+
+<!-- ══════════ QUIZ DATA ══════════ -->
+<!-- To add more quizzes: push another object into QUIZZES below,
+     with the same schema. Keep the JSON file in quizzes/ in sync. -->
+<script>
+// ══ Inline SVG road signs for image questions ══
+const SIGNS = {
+  stop: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120"><polygon points="30,2 90,2 118,30 118,90 90,118 30,118 2,90 2,30" fill="#CC0000"/><polygon points="34,7 86,7 113,34 113,86 86,113 34,113 7,86 7,34" fill="none" stroke="white" stroke-width="2.5"/><text x="60" y="60" text-anchor="middle" dominant-baseline="middle" fill="white" font-size="24" font-weight="bold" font-family="Arial,sans-serif" letter-spacing="2">STOP</text></svg>`,
+  yield: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 110 100" width="110" height="100"><polygon points="55,96 4,5 106,5" fill="white" stroke="#CC0000" stroke-width="10"/><polygon points="55,80 16,16 94,16" fill="none" stroke="#CC0000" stroke-width="2"/><text x="55" y="58" text-anchor="middle" dominant-baseline="middle" fill="#CC0000" font-size="14" font-weight="bold" font-family="Arial,sans-serif">YIELD</text></svg>`,
+  speedLimit55: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 88 112" width="88" height="112"><rect x="3" y="3" width="82" height="106" rx="5" fill="white" stroke="black" stroke-width="4"/><text x="44" y="35" text-anchor="middle" fill="black" font-size="13" font-family="Arial,sans-serif">SPEED</text><text x="44" y="54" text-anchor="middle" fill="black" font-size="13" font-family="Arial,sans-serif">LIMIT</text><text x="44" y="98" text-anchor="middle" fill="black" font-size="46" font-weight="bold" font-family="Arial,sans-serif">55</text></svg>`,
+  doNotEnter: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120"><circle cx="60" cy="60" r="57" fill="#CC0000"/><circle cx="60" cy="60" r="50" fill="none" stroke="white" stroke-width="3"/><rect x="14" y="44" width="92" height="32" rx="3" fill="white"/><text x="60" y="57" text-anchor="middle" fill="#CC0000" font-size="10" font-weight="bold" font-family="Arial,sans-serif">DO NOT</text><text x="60" y="70" text-anchor="middle" fill="#CC0000" font-size="10" font-weight="bold" font-family="Arial,sans-serif">ENTER</text></svg>`,
+  wrongWay: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 68" width="140" height="68"><rect x="2" y="2" width="136" height="64" rx="4" fill="#CC0000"/><text x="70" y="28" text-anchor="middle" fill="white" font-size="16" font-weight="bold" font-family="Arial,sans-serif">WRONG</text><text x="70" y="52" text-anchor="middle" fill="white" font-size="16" font-weight="bold" font-family="Arial,sans-serif">WAY</text></svg>`,
+  curveAhead: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120"><polygon points="60,4 116,60 60,116 4,60" fill="#FFCD00" stroke="black" stroke-width="3"/><path d="M44,85 C44,55 62,42 76,35" fill="none" stroke="black" stroke-width="6" stroke-linecap="round"/><polygon points="69,24 83,37 67,42" fill="black"/></svg>`,
+  railroadCrossing: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120"><circle cx="60" cy="60" r="56" fill="#FFCD00" stroke="black" stroke-width="3"/><line x1="60" y1="8" x2="60" y2="112" stroke="black" stroke-width="5"/><line x1="8" y1="60" x2="112" y2="60" stroke="black" stroke-width="5"/><text x="32" y="47" fill="black" font-size="22" font-weight="bold" font-family="Arial,sans-serif">R</text><text x="74" y="47" fill="black" font-size="22" font-weight="bold" font-family="Arial,sans-serif">R</text></svg>`,
+  schoolZone: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 110 118" width="110" height="118"><polygon points="55,4 106,40 106,114 4,114 4,40" fill="#FFCD00" stroke="black" stroke-width="3"/><circle cx="40" cy="48" r="7" fill="black"/><line x1="40" y1="55" x2="37" y2="76" stroke="black" stroke-width="4" stroke-linecap="round"/><line x1="37" y1="64" x2="27" y2="59" stroke="black" stroke-width="3" stroke-linecap="round"/><line x1="37" y1="76" x2="30" y2="90" stroke="black" stroke-width="3" stroke-linecap="round"/><line x1="37" y1="76" x2="46" y2="88" stroke="black" stroke-width="3" stroke-linecap="round"/><circle cx="66" cy="46" r="7" fill="black"/><line x1="66" y1="53" x2="69" y2="74" stroke="black" stroke-width="4" stroke-linecap="round"/><line x1="69" y1="62" x2="79" y2="57" stroke="black" stroke-width="3" stroke-linecap="round"/><line x1="69" y1="74" x2="62" y2="88" stroke="black" stroke-width="3" stroke-linecap="round"/><line x1="69" y1="74" x2="78" y2="87" stroke="black" stroke-width="3" stroke-linecap="round"/><text x="55" y="106" text-anchor="middle" fill="black" font-size="10" font-weight="bold" font-family="Arial,sans-serif">SCHOOL</text></svg>`,
+  noUTurn: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 120" width="100" height="120"><rect x="2" y="2" width="96" height="116" rx="8" fill="white" stroke="#CC0000" stroke-width="3"/><path d="M30,90 L30,52 Q30,24 60,24 Q90,24 90,52 L90,68" fill="none" stroke="black" stroke-width="5" stroke-linecap="round"/><polygon points="82,80 96,64 100,80" fill="black"/><line x1="8" y1="18" x2="92" y2="108" stroke="#CC0000" stroke-width="7" stroke-linecap="round"/></svg>`,
+  oneWay: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 58" width="160" height="58"><rect x="1" y="1" width="158" height="56" rx="4" fill="black"/><polygon points="18,29 36,18 36,26 142,26 142,32 36,32 36,40" fill="white"/><text x="100" y="29" text-anchor="middle" dominant-baseline="middle" fill="white" font-size="16" font-weight="bold" font-family="Arial,sans-serif">ONE WAY</text></svg>`,
+  noPassingZone: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 130 88" width="130" height="88"><polygon points="4,44 126,4 126,84" fill="#FFCD00" stroke="black" stroke-width="2.5"/><text x="74" y="36" text-anchor="middle" fill="black" font-size="10" font-weight="bold" font-family="Arial,sans-serif">NO</text><text x="74" y="51" text-anchor="middle" fill="black" font-size="10" font-weight="bold" font-family="Arial,sans-serif">PASSING</text><text x="74" y="66" text-anchor="middle" fill="black" font-size="10" font-weight="bold" font-family="Arial,sans-serif">ZONE</text></svg>`,
+  pedestrianXing: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120"><polygon points="60,4 116,60 60,116 4,60" fill="#FFCD00" stroke="black" stroke-width="3"/><circle cx="60" cy="38" r="8" fill="black"/><line x1="60" y1="46" x2="55" y2="68" stroke="black" stroke-width="5" stroke-linecap="round"/><line x1="55" y1="56" x2="44" y2="50" stroke="black" stroke-width="3.5" stroke-linecap="round"/><line x1="55" y1="68" x2="47" y2="84" stroke="black" stroke-width="3.5" stroke-linecap="round"/><line x1="55" y1="68" x2="65" y2="83" stroke="black" stroke-width="3.5" stroke-linecap="round"/></svg>`,
+  slipperyWet: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120"><polygon points="60,4 116,60 60,116 4,60" fill="#FFCD00" stroke="black" stroke-width="3"/><rect x="30" y="52" width="54" height="20" rx="4" fill="black"/><rect x="38" y="40" width="34" height="18" rx="3" fill="black"/><circle cx="42" cy="74" r="7" fill="none" stroke="black" stroke-width="4"/><circle cx="72" cy="74" r="7" fill="none" stroke="black" stroke-width="4"/><path d="M34,84 Q40,80 46,84 Q52,88 58,84" stroke="black" stroke-width="2.5" fill="none"/><path d="M60,84 Q66,80 72,84 Q78,88 84,84" stroke="black" stroke-width="2.5" fill="none"/></svg>`,
+  construction: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120"><polygon points="60,4 116,60 60,116 4,60" fill="#FF6600" stroke="black" stroke-width="3"/><text x="60" y="50" text-anchor="middle" fill="black" font-size="10" font-weight="bold" font-family="Arial,sans-serif">ROAD</text><text x="60" y="64" text-anchor="middle" fill="black" font-size="10" font-weight="bold" font-family="Arial,sans-serif">WORK</text><text x="60" y="78" text-anchor="middle" fill="black" font-size="10" font-weight="bold" font-family="Arial,sans-serif">AHEAD</text></svg>`,
+  lightRed: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 140" width="60" height="140"><rect x="8" y="4" width="44" height="132" rx="8" fill="#222"/><circle cx="30" cy="30" r="14" fill="#CC0000"/><circle cx="30" cy="75" r="14" fill="#444"/><circle cx="30" cy="118" r="14" fill="#444"/></svg>`,
+  lightYellow: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 140" width="60" height="140"><rect x="8" y="4" width="44" height="132" rx="8" fill="#222"/><circle cx="30" cy="30" r="14" fill="#444"/><circle cx="30" cy="75" r="14" fill="#FFCD00"/><circle cx="30" cy="118" r="14" fill="#444"/></svg>`,
+  lightGreen: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 140" width="60" height="140"><rect x="8" y="4" width="44" height="132" rx="8" fill="#222"/><circle cx="30" cy="30" r="14" fill="#444"/><circle cx="30" cy="75" r="14" fill="#444"/><circle cx="30" cy="118" r="14" fill="#22c55e"/></svg>`,
+  flashingRed: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 165" width="60" height="165"><rect x="8" y="4" width="44" height="132" rx="8" fill="#222"/><circle cx="30" cy="30" r="14" fill="#CC0000"/><circle cx="30" cy="75" r="14" fill="#444"/><circle cx="30" cy="118" r="14" fill="#444"/><text x="30" y="155" text-anchor="middle" fill="#CC0000" font-size="10" font-weight="bold" font-family="Arial,sans-serif">FLASHING</text></svg>`,
+  flashingYellow: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 165" width="60" height="165"><rect x="8" y="4" width="44" height="132" rx="8" fill="#222"/><circle cx="30" cy="30" r="14" fill="#444"/><circle cx="30" cy="75" r="14" fill="#FFCD00"/><circle cx="30" cy="118" r="14" fill="#444"/><text x="30" y="155" text-anchor="middle" fill="#FFCD00" font-size="10" font-weight="bold" font-family="Arial,sans-serif">FLASHING</text></svg>`,
+};
+
+const QUIZZES = [
+  {
+    id: "nj-drivers-ch1",
+    title: "NJ Driver's Manual – Chapter 1",
+    subtitle: "Driver Licensing & Requirements",
+    icon: "🚗",
+    passPct: 80,
+    questions: [
+      {
+        q: "What is the minimum age to apply for a New Jersey examination permit (learner's permit)?",
+        opts: ["15 years old","16 years old","17 years old","18 years old"],
+        ans: 1,
+        exp: "In New Jersey, applicants must be at least 16 years old to apply for an examination permit."
+      },
+      {
+        q: "Under NJ's Graduated Driver License (GDL) program, what is the minimum time a driver who receives their permit before age 17 must hold it before applying for a probationary license?",
+        opts: ["3 months","6 months","1 year","2 years"],
+        ans: 2,
+        exp: "Drivers who obtain their permit before turning 17 must hold it until age 17 — a minimum of 1 year."
+      },
+      {
+        q: "How many total hours of supervised driving must a GDL permit holder complete before taking the road skills test?",
+        opts: ["25 hours","30 hours","40 hours","50 hours"],
+        ans: 3,
+        exp: "GDL permit holders must log at least 50 hours of supervised driving practice before applying for a probationary license."
+      },
+      {
+        q: "Of the required supervised driving hours, how many must be completed during nighttime hours?",
+        opts: ["5 hours","10 hours","15 hours","20 hours"],
+        ans: 1,
+        exp: "At least 10 of the 50 required supervised hours must be driven after dark."
+      },
+      {
+        q: "During what hours are GDL probationary license holders prohibited from driving unsupervised?",
+        opts: ["10:00 PM – 5:00 AM","11:01 PM – 5:00 AM","Midnight – 6:00 AM","9:00 PM – 6:00 AM"],
+        ans: 1,
+        exp: "GDL probationary drivers may not drive between 11:01 PM and 5:00 AM unless a licensed driver aged 21+ is in the front seat or it is a documented emergency."
+      },
+      {
+        q: "During the FIRST YEAR of holding a GDL probationary license, how many non-immediate-family passengers under age 21 may the driver carry?",
+        opts: ["None","No more than 1","No more than 2","No limit"],
+        ans: 1,
+        exp: "For the first year of the probationary period, the driver may carry no more than 1 passenger under 21 who is not an immediate family member."
+      },
+      {
+        q: "Which statement about cell phone use is TRUE for GDL permit and probationary license holders in NJ?",
+        opts: [
+          "Hands-free devices are permitted",
+          "Only texting while driving is prohibited",
+          "All cell phone use — handheld AND hands-free — is prohibited",
+          "Cell phones may be used when stopped at a red light"
+        ],
+        ans: 2,
+        exp: "GDL permit and probationary holders are prohibited from using any wireless communication device while driving, including hands-free devices."
+      },
+      {
+        q: "What is the minimum age of the licensed driver who must supervise a GDL examination permit holder?",
+        opts: ["18 years old","19 years old","21 years old","25 years old"],
+        ans: 2,
+        exp: "The supervising licensed driver must be at least 21 years old and seated in the front passenger seat."
+      },
+      {
+        q: "Under what condition may a GDL probationary driver legally drive during the nighttime curfew hours?",
+        opts: [
+          "A parent has provided written permission",
+          "The driver has held the probationary license for over 6 months",
+          "A licensed driver aged 21 or older is in the front seat, or it is a documented emergency",
+          "The driver is traveling directly to or from work"
+        ],
+        ans: 2,
+        exp: "The curfew restriction is lifted when a licensed driver 21 or older is seated in the front seat, or when a documented emergency exists."
+      },
+      {
+        q: "What license class is required to operate a standard non-commercial passenger vehicle in New Jersey?",
+        opts: ["Class A","Class B","Class C","Class D"],
+        ans: 3,
+        exp: "Class D is the standard passenger vehicle license in New Jersey, used for everyday driving of cars and light trucks."
+      },
+      {
+        q: "Which CDL class authorizes the operation of combination vehicles with a GCWR of 26,001 lbs or more when the towed unit exceeds 10,000 lbs?",
+        opts: ["Class A CDL","Class B CDL","Class C CDL","Class D (enhanced)"],
+        ans: 0,
+        exp: "A Class A CDL is required for combination vehicles where the GCWR is 26,001 lbs or more and the towed unit exceeds 10,000 lbs."
+      },
+      {
+        q: "Which CDL class covers heavy straight vehicles with a GVWR of 26,001 lbs or more (not towing over 10,000 lbs)?",
+        opts: ["Class A CDL","Class B CDL","Class C CDL","Class D CDL"],
+        ans: 1,
+        exp: "A Class B CDL authorizes operation of heavy straight vehicles with a GVWR of 26,001 lbs or more, plus towing a unit not exceeding 10,000 lbs."
+      },
+      {
+        q: "A REAL ID-compliant New Jersey driver's license or ID card is identified by which marking?",
+        opts: ["A blue star in the upper right","A gold star in the upper right","An American flag","An eagle emblem"],
+        ans: 1,
+        exp: "A gold star in the upper right corner of an NJ license or ID indicates it meets federal REAL ID Act standards."
+      },
+      {
+        q: "For which activities is a REAL ID-compliant license (or another acceptable federal document) now required?",
+        opts: [
+          "Registering a vehicle or renewing insurance",
+          "Accessing state government buildings",
+          "Boarding domestic commercial flights and entering certain federal facilities",
+          "Applying for a New Jersey driver's license"
+        ],
+        ans: 2,
+        exp: "As of May 7, 2025, a REAL ID-compliant document is required to board domestic commercial flights and access certain federal facilities."
+      },
+      {
+        q: "What is the minimum visual acuity (in the better eye, with correction if used) required for a standard NJ driver's license?",
+        opts: ["20/20","20/30","20/40","20/50"],
+        ans: 2,
+        exp: "Applicants must achieve at least 20/40 vision in the better eye — with or without corrective lenses — to qualify for a standard license."
+      },
+      {
+        q: "If a driver requires corrective lenses to meet the 20/40 vision standard, what restriction appears on their NJ license?",
+        opts: [
+          "Daytime driving only",
+          "No highway driving permitted",
+          "Must wear corrective lenses while driving",
+          "Speed limited to 45 mph"
+        ],
+        ans: 2,
+        exp: "A 'corrective lenses required' restriction is printed on the license of any driver who needs glasses or contacts to meet the minimum vision standard."
+      },
+      {
+        q: "Which statement about color blindness and obtaining a NJ driver's license is CORRECT?",
+        opts: [
+          "Color blindness automatically disqualifies an applicant",
+          "Color blind drivers are restricted to daytime driving only",
+          "Color blindness alone does not disqualify a person from obtaining a license",
+          "Color blind applicants must pass a special color-perception road test"
+        ],
+        ans: 2,
+        exp: "Color blindness alone does not disqualify an applicant. The key vision requirement is acuity (sharpness), not color perception."
+      },
+      {
+        q: "How long is a standard New Jersey driver's license valid before renewal is required?",
+        opts: ["2 years","4 years","6 years","8 years"],
+        ans: 1,
+        exp: "A standard NJ driver's license is valid for 4 years from the date of issuance."
+      },
+      {
+        q: "How long is a New Jersey examination permit (learner's permit) valid once issued?",
+        opts: ["6 months","1 year","2 years","4 years"],
+        ans: 2,
+        exp: "A NJ examination permit is valid for 2 years from the date it is issued."
+      },
+      {
+        q: "What is the minimum age at which a GDL driver may obtain a probationary license?",
+        opts: ["16 years old","17 years old","18 years old","21 years old"],
+        ans: 1,
+        exp: "Drivers who obtained their permit before age 17 must wait until they turn 17 before they can apply for a probationary license."
+      },
+      {
+        q: "What is the name of the New Jersey agency responsible for issuing driver's licenses?",
+        opts: [
+          "Department of Transportation (NJ DOT)",
+          "Division of Motor Vehicles (DMV)",
+          "Motor Vehicle Commission (MVC)",
+          "Bureau of Motor Vehicles (BMV)"
+        ],
+        ans: 2,
+        exp: "New Jersey uses the Motor Vehicle Commission (MVC) — not a DMV — to issue driver's licenses, IDs, and vehicle registrations."
+      },
+      {
+        q: "How many points of identification must an applicant earn under NJ's Six-Point ID Verification System?",
+        opts: ["4 points","5 points","6 points","8 points"],
+        ans: 2,
+        exp: "Applicants must accumulate at least 6 points of identification from approved documents to verify identity and lawful presence."
+      },
+      {
+        q: "Which of the following is TRUE about NJ's Six-Point ID Verification System?",
+        opts: [
+          "The same document may be used twice to earn double points",
+          "Only documents issued in the U.S. are accepted",
+          "No single document may be counted more than once",
+          "A Social Security card alone satisfies the full 6 points"
+        ],
+        ans: 2,
+        exp: "Each document can only be counted once in the six-point system — the same document cannot be used to satisfy multiple point categories."
+      },
+      {
+        q: "In NJ's Six-Point ID system, how many points is a valid U.S. Passport worth?",
+        opts: ["2 points","3 points","4 points","6 points"],
+        ans: 2,
+        exp: "A valid U.S. Passport earns 4 points as a primary proof of identity in NJ's Six-Point ID Verification System."
+      },
+      {
+        q: "In NJ's Six-Point ID system, how many points is a U.S. Birth Certificate worth?",
+        opts: ["1 point","2 points","3 points","4 points"],
+        ans: 3,
+        exp: "A U.S. Birth Certificate is worth 4 points, serving as primary proof of identity in the six-point system."
+      },
+      {
+        q: "In NJ's Six-Point ID Verification System, which of the following is typically worth 2 points (secondary proof)?",
+        opts: ["U.S. Passport","U.S. Birth Certificate","NJ Vehicle Registration","Social Security card"],
+        ans: 2,
+        exp: "A NJ Vehicle Registration is a secondary document worth 2 points in the six-point system."
+      },
+      {
+        q: "What does the organ donor designation on a NJ driver's license indicate?",
+        opts: [
+          "The holder receives priority on transplant waiting lists",
+          "Medical personnel may access health records in an emergency",
+          "The holder has decided to donate organs, tissues, and eyes upon death",
+          "The license fee was reduced through a donation program"
+        ],
+        ans: 2,
+        exp: "The organ donor designation signals the holder's decision to donate organs, tissues, and eyes in the event of their death."
+      },
+      {
+        q: "Where must the supervising licensed driver be seated when a GDL examination permit holder is operating a vehicle?",
+        opts: [
+          "Anywhere in the vehicle with a clear view",
+          "In the back seat directly behind the driver",
+          "In the front passenger seat",
+          "Either front seat position is acceptable"
+        ],
+        ans: 2,
+        exp: "The supervising licensed driver (21 or older) must be seated in the front passenger seat at all times."
+      },
+      {
+        q: "What is the key difference between a NJ examination permit and a probationary license?",
+        opts: [
+          "A permit is valid only in NJ; a probationary license is valid in all 50 states",
+          "A permit requires a licensed driver in the front seat at all times; a probationary license allows solo driving (with GDL restrictions)",
+          "A probationary license allows highway driving; a permit does not",
+          "A permit is free; a probationary license requires a fee"
+        ],
+        ans: 1,
+        exp: "The major distinction is that a probationary license allows the holder to drive solo — without a supervising driver — though GDL curfew and passenger restrictions still apply."
+      },
+      {
+        q: "To which age group does New Jersey's Graduated Driver License (GDL) program apply?",
+        opts: [
+          "All new drivers, regardless of age",
+          "Drivers under 17 only",
+          "Drivers under 18 years of age",
+          "Drivers under 21 years of age"
+        ],
+        ans: 2,
+        exp: "The GDL program applies to drivers under 18. Those who first obtain a license at age 18 or older follow a non-GDL path."
+      },
+      {
+        q: "If a GDL probationary license holder is convicted of a moving violation, what happens to their probationary period?",
+        opts: [
+          "The license is immediately revoked",
+          "They must retake the written knowledge test",
+          "The probationary period is extended",
+          "They must complete a court-ordered driving course"
+        ],
+        ans: 2,
+        exp: "A moving violation conviction during the GDL probationary period results in an extension of that probationary period."
+      },
+      {
+        q: "What must a GDL permit holder complete BEFORE taking the NJ road skills test?",
+        opts: [
+          "Pass a defensive-driving simulator course",
+          "Hold the permit for the required period AND complete 50 supervised driving hours (including 10 at night)",
+          "Complete a mandatory classroom driver-education course",
+          "Obtain a letter of approval from a licensed driving instructor"
+        ],
+        ans: 1,
+        exp: "Before taking the road skills test, an applicant must hold the permit for the required period and log at least 50 supervised hours (10 of which must be at night)."
+      },
+      {
+        q: "For a first-time NJ license applicant, which test is required to obtain an examination permit?",
+        opts: [
+          "A road skills (behind-the-wheel) test only",
+          "A written knowledge test only",
+          "Both a written test and a road skills test",
+          "A medical physical examination"
+        ],
+        ans: 1,
+        exp: "Only the written knowledge test is required to obtain an examination permit. The road skills test is required later, for the probationary license."
+      },
+      {
+        q: "How many questions appear on the standard NJ written knowledge test for a Class D license?",
+        opts: ["25 questions","30 questions","40 questions","50 questions"],
+        ans: 2,
+        exp: "The standard NJ knowledge test for a Class D license contains 40 multiple-choice questions."
+      },
+      {
+        q: "What is the minimum passing score (percentage) on the NJ driver's written knowledge test?",
+        opts: ["70%","75%","80%","85%"],
+        ans: 2,
+        exp: "Applicants must answer at least 80% of questions correctly (32 out of 40) to pass the NJ knowledge test."
+      },
+      {
+        q: "If an applicant fails the NJ knowledge test, how long must they wait before retaking it?",
+        opts: ["24 hours","1 week","2 weeks","30 days"],
+        ans: 2,
+        exp: "Applicants who fail the NJ written knowledge test must wait at least 2 weeks before retaking the test."
+      },
+      {
+        q: "Is obtaining a REAL ID-compliant NJ driver's license mandatory for all NJ residents?",
+        opts: [
+          "Yes, all residents must upgrade by the federal deadline",
+          "No — it is voluntary; residents may choose a standard (non-REAL ID) license",
+          "Only required for residents who fly domestically more than twice per year",
+          "Only required for residents born outside the United States"
+        ],
+        ans: 1,
+        exp: "A REAL ID-compliant license is voluntary. Residents may choose a standard license, though it cannot be used for domestic air travel or to enter certain federal facilities."
+      },
+      {
+        q: "In New Jersey, within how many days must a driver notify the MVC after changing their address?",
+        opts: ["24 hours","3 days","1 week (7 days)","30 days"],
+        ans: 2,
+        exp: "New Jersey law requires drivers to notify the MVC within 1 week (7 days) of a change of address."
+      },
+      {
+        q: "Which additional license or endorsement is required to operate a motorcycle in New Jersey?",
+        opts: [
+          "A Class B CDL endorsement",
+          "A motorcycle (MC) license or a motorcycle endorsement on a Class D license",
+          "A Class A commercial permit",
+          "No additional endorsement; any license permits motorcycle operation"
+        ],
+        ans: 1,
+        exp: "To operate a motorcycle in NJ, you must hold either a standalone motorcycle license or a motorcycle (MC) endorsement added to your Class D license."
+      },
+      {
+        q: "A Class C CDL in New Jersey is required for which type of vehicle?",
+        opts: [
+          "Any vehicle over 10,000 lbs GVWR",
+          "Combination vehicles over 26,001 lbs GCWR",
+          "Vehicles designed to carry 16 or more passengers (including driver), or those placarded for hazardous materials",
+          "Tow trucks and recovery vehicles only"
+        ],
+        ans: 2,
+        exp: "A Class C CDL is required for vehicles designed to transport 16 or more persons (including the driver), or vehicles that carry placarded quantities of hazardous materials."
+      },
+      {
+        q: "Which of the following statements about a New Jersey examination permit is TRUE?",
+        opts: [
+          "It allows solo driving between sunrise and sunset",
+          "It permits driving only on local streets, not highways",
+          "A licensed driver 21 or older must be in the front passenger seat whenever the permit holder drives",
+          "It is valid for 5 years from the date of issue"
+        ],
+        ans: 2,
+        exp: "Whenever a GDL examination permit holder is behind the wheel, a licensed driver who is at least 21 years old must be seated in the front passenger seat."
+      }
+    ]
+  },
+
+  // ════════════════════════════════════════════════
+  //  CHAPTER 2 — Before You Drive
+  // ════════════════════════════════════════════════
+  {
+    id: "nj-drivers-ch2",
+    title: "NJ Driver's Manual – Chapter 2",
+    subtitle: "Before You Drive",
+    icon: "🪑",
+    passPct: 80,
+    questions: [
+      {
+        q: "Under New Jersey law, who is required to wear a seat belt in a passenger vehicle?",
+        opts: ["Only the driver","Driver and front-seat passengers only","All occupants of the vehicle","Only adults 18 and older"],
+        ans: 2,
+        exp: "NJ law requires every occupant of a passenger vehicle — front and back seats — to be buckled up."
+      },
+      {
+        q: "How should the shoulder portion of a seat belt be properly positioned?",
+        opts: ["Behind your back for extra comfort","Under your arm to reduce chest pressure","Across your chest and over your shoulder, away from the neck","Across the abdomen"],
+        ans: 2,
+        exp: "The shoulder belt should cross the chest diagonally. Routing it behind your back or under your arm severely reduces its effectiveness."
+      },
+      {
+        q: "Until what minimum age must a child ride in a rear-facing car seat in New Jersey?",
+        opts: ["6 months","1 year","2 years","4 years"],
+        ans: 2,
+        exp: "NJ law requires children to remain rear-facing until at least 2 years old, or until they exceed the seat's height/weight limit."
+      },
+      {
+        q: "In NJ, children under age 8 who are also shorter than 57 inches must be secured in:",
+        opts: ["An adult seat belt only","A rear-facing infant seat only","An appropriate child safety seat or booster seat","A forward-facing seat only"],
+        ans: 2,
+        exp: "Children under 8 AND under 57 inches tall require a child restraint system (rear-facing, forward-facing, or booster, as appropriate for size)."
+      },
+      {
+        q: "A child should NOT ride in the front passenger seat when:",
+        opts: ["The driver is a new licensee","The vehicle is traveling above 40 mph","The front airbag is active and the child is in a rear-facing seat","The child is over 40 lbs"],
+        ans: 2,
+        exp: "A rear-facing seat in front of an active airbag is extremely dangerous. Airbag deployment can fatally injure an infant. Children should always be in the back seat."
+      },
+      {
+        q: "What is the primary purpose of a head restraint?",
+        opts: ["To keep the driver alert on long trips","To reduce whiplash injuries in rear-end collisions","To improve the driver's visibility to the rear","To support the neck during extended highway driving"],
+        ans: 1,
+        exp: "Head restraints (headrests) are safety devices designed to limit rearward head movement and reduce whiplash injuries in rear-end crashes."
+      },
+      {
+        q: "For maximum protection, the top of the head restraint should be positioned:",
+        opts: ["At chin level","At ear level","At or above the top of your head","As far back as possible"],
+        ans: 2,
+        exp: "The top of the head restraint should be level with or above the top of your head to properly limit rearward head motion."
+      },
+      {
+        q: "For safety with a steering-wheel-mounted airbag, you should hold the wheel at:",
+        opts: ["10 and 2 o'clock","12 and 6 o'clock","9 and 3 o'clock (or 8 and 4)","One hand at 12 o'clock"],
+        ans: 2,
+        exp: "Current safety guidance recommends 9 and 3 (or 8 and 4) to keep hands below the airbag deployment zone, reducing wrist and arm injury risk."
+      },
+      {
+        q: "Before starting your vehicle, you should first:",
+        opts: ["Tune the radio to a traffic station","Check your mirrors, adjust your seat, and fasten your seat belt","Rev the engine briefly to warm it up","Turn on the hazard lights"],
+        ans: 1,
+        exp: "Adjust your seat so controls are comfortably reachable, position all mirrors, and buckle your seat belt before starting the engine."
+      },
+      {
+        q: "How should the rearview mirror be adjusted?",
+        opts: ["So you can see the rear bumper of your own vehicle","So the entire rear window is centered in the mirror","Angled to reduce headlight glare from vehicles behind","Pointed slightly downward for night driving"],
+        ans: 1,
+        exp: "Center the rear window in the rearview mirror so you have the widest possible view of the road behind you."
+      },
+      {
+        q: "Side mirrors should be adjusted so that you can see:",
+        opts: ["Mostly the side of your own vehicle","A small sliver of your own vehicle and the lane beside you","Only vehicles directly behind your rear bumper","The road immediately below your rear tires"],
+        ans: 1,
+        exp: "A small strip of your own car at the inner edge of each side mirror confirms proper alignment; the rest shows the adjacent lane to minimize blind spots."
+      },
+      {
+        q: "You should NOT use cruise control when:",
+        opts: ["Traveling on a straight interstate highway","Speed is steady and traffic is very light","In heavy traffic, rain, snow, or when you feel drowsy","Your vehicle is less than 5 years old"],
+        ans: 2,
+        exp: "Cruise control is for open, steady-speed driving only. Wet or icy roads, heavy traffic, and fatigue all require your full manual control."
+      },
+      {
+        q: "A pregnant driver should wear a seat belt with the lap portion:",
+        opts: ["Across the abdomen for fetal protection","As high on the stomach as possible","Snugly across the hips and upper thighs, below the abdomen","Omitted, to avoid abdominal pressure"],
+        ans: 2,
+        exp: "The lap belt should fit low across the hip bones and upper thighs — never across the abdomen. The shoulder belt goes between the breasts and over the shoulder."
+      },
+      {
+        q: "What is the main danger of running a vehicle engine inside a closed garage?",
+        opts: ["Battery drain","Carbon monoxide poisoning","Engine overheating","Fuel evaporation"],
+        ans: 1,
+        exp: "Vehicle exhaust contains carbon monoxide (CO), an odorless, colorless gas that is rapidly fatal in enclosed spaces."
+      },
+      {
+        q: "NJ's child passenger safety law applies to children traveling in:",
+        opts: ["Only the child's family-owned vehicle","Only vehicles with a rear seat","All passenger automobiles, vans, SUVs, and light trucks","Only school buses and day-care vans"],
+        ans: 2,
+        exp: "The law covers all passenger vehicles — it does not matter who owns the vehicle or who is driving."
+      },
+      {
+        q: "What does the LATCH system provide for child safety seats?",
+        opts: ["A temperature alarm if a child is left in a hot car","Lower Anchors and Tethers for Children — a built-in attachment system that secures seats without using seat belts","A federal registry for recalled car seats","An electronic lock that prevents the seat from sliding"],
+        ans: 1,
+        exp: "LATCH (Lower Anchors and Tethers for Children) allows child safety seats to be installed securely using dedicated vehicle anchor points instead of — or in addition to — seat belts."
+      },
+      {
+        q: "When loading cargo into a vehicle, the heaviest items should be placed:",
+        opts: ["On a roof rack for highest center of gravity","Behind the rear axle to improve traction","Low in the cargo area, centered and close to the floor","In the rear passenger footwells"],
+        ans: 2,
+        exp: "Heavy cargo should ride low and centered. High or rear-heavy loads raise the center of gravity and can affect handling and braking."
+      },
+      {
+        q: "The primary risk of driving with an unsecured load is:",
+        opts: ["Reduced fuel economy","Voiding the vehicle warranty","Cargo shifting or falling, creating road hazards for other drivers","Excessive tire wear"],
+        ans: 2,
+        exp: "Unsecured loads can slide, tip, or fall from the vehicle, striking other motorists, pedestrians, or cyclists — causing serious injuries and potential criminal liability."
+      },
+      {
+        q: "If you feel drowsy behind the wheel, the safest action is to:",
+        opts: ["Open the windows for fresh air and continue","Turn the music up loud","Drink a caffeinated beverage and drive on","Pull over in a safe location and sleep or rest"],
+        ans: 3,
+        exp: "No short-term stimulant reliably overcomes drowsiness. Only rest restores alertness. Drowsy driving is a leading cause of serious crashes."
+      },
+      {
+        q: "In New Jersey, the legal blood alcohol content (BAC) limit for drivers 21 and older is:",
+        opts: ["0.05%","0.06%","0.08%","0.10%"],
+        ans: 2,
+        exp: "A BAC of 0.08% or higher constitutes driving while intoxicated (DWI) in NJ for drivers 21 and older. For drivers under 21 the limit is 0.01%."
+      },
+      {
+        q: "Which statement about prescription medications and driving is correct?",
+        opts: ["All prescription drugs are safe because a doctor authorized them","Only over-the-counter drugs impair driving","You should check with your doctor or pharmacist about any driving-related side effects before driving","Pain relievers sharpen reaction time and are always safe to drive on"],
+        ans: 2,
+        exp: "Many prescription drugs — including pain relievers, antihistamines, and sedatives — can impair driving. Always consult your prescriber or pharmacist."
+      },
+      {
+        q: "Allowing a pet to ride loose inside the vehicle is dangerous because:",
+        opts: ["It is illegal in all 50 states","It can distract the driver and become a projectile in a crash","Only large dogs are a distraction; small pets are safe","It lowers the vehicle's fuel efficiency significantly"],
+        ans: 1,
+        exp: "An unrestrained pet can distract you while driving and, in a sudden stop or crash, become a dangerous high-speed projectile inside the cabin."
+      },
+      {
+        q: "If your accelerator pedal becomes stuck while driving, you should:",
+        opts: ["Immediately yank up on the parking/emergency brake","Shift to reverse to slow the wheels","Keep both hands on the wheel, shift to neutral, slow down, and pull safely off the road","Turn the ignition off while the vehicle is moving"],
+        ans: 2,
+        exp: "Shifting to neutral disconnects engine power without disabling steering. Brake gently to a stop. Turning off the ignition removes power steering and may lock the steering column."
+      },
+      {
+        q: "If a tire blows out while driving, the first correct action is to:",
+        opts: ["Immediately brake hard to stop quickly","Grip the steering wheel firmly and gradually ease off the accelerator","Swerve immediately onto the shoulder","Shift to a lower gear first"],
+        ans: 1,
+        exp: "Grip the wheel firmly to maintain directional control and allow the vehicle to slow naturally. Hard braking can cause a spin. Ease off the gas, then steer smoothly to the shoulder."
+      },
+      {
+        q: "A medical condition that may affect your license is one that:",
+        opts: ["Requires you to take any daily medication","Is seasonal, such as allergies","Could cause a sudden loss of consciousness or significantly impair your ability to operate a vehicle","Makes you legally blind in only one eye"],
+        ans: 2,
+        exp: "Conditions such as uncontrolled epilepsy or certain heart arrhythmias must be reported and may result in license suspension until medical clearance is obtained."
+      },
+      {
+        q: "Which of the following is NOT typically part of a pre-trip vehicle inspection?",
+        opts: ["Checking tire tread and inflation","Verifying all lights and signals work","Testing the radio and navigation system","Inspecting windshield wipers and washer fluid"],
+        ans: 2,
+        exp: "A safety inspection covers mechanical and safety systems. The entertainment/navigation system is not a safety-critical item."
+      },
+      {
+        q: "The lap belt portion of a seat belt should fit:",
+        opts: ["Across the soft tissue of the abdomen","As high on the waist as possible","Snugly across the hip bones and upper thighs","Loosely, so you can slide forward in your seat"],
+        ans: 2,
+        exp: "Lap belts resting on soft abdominal tissue can cause serious internal injuries in a crash. Position the belt low across the hard bone of the hips."
+      },
+      {
+        q: "What does an Anti-lock Braking System (ABS) do during hard braking?",
+        opts: ["Stops the vehicle faster on all surfaces","Prevents the wheels from locking so you can steer during emergency braking","Automatically steers the vehicle away from hazards","Reduces fuel consumption during braking"],
+        ans: 1,
+        exp: "ABS rapidly pulses the brakes to prevent wheel lockup, allowing you to maintain steering control while braking hard — which can help you avoid a collision."
+      },
+      {
+        q: "When backing out of a driveway, you should:",
+        opts: ["Check the rearview mirror only","Sound the horn twice, then reverse quickly","Turn to look over your shoulder and check all mirrors; back slowly and smoothly","Rely entirely on the backup camera if equipped"],
+        ans: 2,
+        exp: "Back cameras and mirrors have blind zones. Physically turning to look behind you, combined with mirror checks, gives the best view and minimizes risk to pedestrians, especially small children."
+      },
+      {
+        q: "A forward-facing child seat should be installed:",
+        opts: ["In the front seat with the passenger airbag disabled","In the back seat, secured tightly with LATCH or seat belt, with the top tether attached to the anchor","In the back seat facing sideways for easy access","On the passenger-side front seat only when the airbag is turned off"],
+        ans: 1,
+        exp: "Forward-facing seats belong in the back seat, secured as tightly as possible. The top tether significantly reduces forward head movement in a crash."
+      },
+      {
+        q: "NJ recommends (though does not legally mandate by age alone) that children ride in the back seat until at least:",
+        opts: ["4 years old","8 years old","12–13 years old","16 years old"],
+        ans: 2,
+        exp: "All major safety organizations and the NJ MVC recommend that children under 13 ride in the back seat because front airbags are designed for adult bodies and can injure smaller children."
+      },
+      {
+        q: "The primary purpose of wearing a seat belt is to:",
+        opts: ["Comply with the law and avoid a fine","Keep you in proper driving posture","Prevent you from being thrown from the vehicle or striking the interior during a crash","Ensure the airbag system activates correctly"],
+        ans: 2,
+        exp: "Seat belts restrain occupants in their seats during a crash, preventing ejection from the vehicle and reducing impact forces on the body."
+      },
+      {
+        q: "If a vehicle's headlights fail, the driver should:",
+        opts: ["Drive only at low speeds with hazard lights on","Use daytime running lights as a substitute","Not drive until the headlights are repaired","Drive only in well-lit urban areas"],
+        ans: 2,
+        exp: "Driving without working headlights is both illegal and extremely dangerous. The vehicle must not be driven until repaired."
+      },
+      {
+        q: "Tire pressure should ideally be checked:",
+        opts: ["Only when a tire visibly looks flat","Once a year at annual inspection","Monthly and before any long trip, when tires are cold","After every 10,000 miles of driving"],
+        ans: 2,
+        exp: "Check tire pressure at least monthly and before long trips. Always check when tires are cold (not driven for 3+ hours) for the most accurate reading."
+      },
+      {
+        q: "\"Cold tire pressure\" means the pressure measured when:",
+        opts: ["The outside air temperature is below freezing","Tires have not been driven on for at least 3 hours (or less than 1 mile from their storage location)","Using a digital rather than analog gauge","Tires were inflated in a cold-storage facility"],
+        ans: 1,
+        exp: "Driving heats up tires and increases their internal pressure. The manufacturer's recommended pressure is for cold tires — tires that haven't been driven on recently."
+      },
+      {
+        q: "What does a booster seat do that makes it safer than a seat belt alone for a young child?",
+        opts: ["Cushions the child against side impacts","Positions the child so the vehicle's seat belt fits properly across the chest and hips rather than the abdomen and neck","Prevents the front airbag from deploying","Anchors the child directly to the vehicle frame"],
+        ans: 1,
+        exp: "Children have shorter torsos than adults. A booster seat elevates them so the shoulder belt crosses the chest (not the neck) and the lap belt rests on the hip bones (not the abdomen)."
+      },
+      {
+        q: "An airbag is described as a \"supplemental\" restraint system because:",
+        opts: ["It only supplements the driver, not passengers","It supplements the seat belt — it is NOT a replacement and offers little protection without a seat belt","It is standard only on newer vehicles","It supplements the ABS system"],
+        ans: 1,
+        exp: "Airbags (SRS — Supplemental Restraint System) work in conjunction with seat belts. Unbelted occupants can be seriously injured by airbag deployment itself."
+      },
+      {
+        q: "Which of the following statements about carbon monoxide (CO) is TRUE?",
+        opts: ["CO has a distinct rotten-egg smell that warns you to evacuate","CO is heavier than air and pools at floor level only","CO is colorless and odorless, making it undetectable without a detector","CO is only dangerous outdoors in high concentrations"],
+        ans: 2,
+        exp: "Carbon monoxide is colorless, odorless, and tasteless — you cannot detect it by smell. Even brief exposure to high concentrations can be fatal."
+      },
+      {
+        q: "Under NJ law, a driver who is involved in an accident causing injury or death while impaired by drugs or alcohol may face:",
+        opts: ["Only a fine and points on their license","License suspension for up to 30 days","Criminal charges including vehicular homicide, with potential imprisonment","A mandatory driving course and no other penalties"],
+        ans: 2,
+        exp: "Driving while intoxicated that causes serious injury or death can result in criminal charges, including vehicular manslaughter, with significant prison sentences and permanent license revocation."
+      },
+      {
+        q: "Which safety feature allows child safety seats to be secured to dedicated anchor points in the vehicle without using the seat belt?",
+        opts: ["SRS (Supplemental Restraint System)","EBD (Electronic Brake Distribution)","LATCH (Lower Anchors and Tethers for Children)","TPMS (Tire Pressure Monitoring System)"],
+        ans: 2,
+        exp: "LATCH provides dedicated lower anchors (in the seat bight) and upper tether anchors to secure child safety seats independently of the vehicle's seat belt system."
+      },
+      {
+        q: "You have just loaded grocery bags into your back seat. Before driving, you should ensure:",
+        opts: ["The radio is tuned to minimize distractions","Items are secured so they cannot slide off the seat or floor","The rear windows are closed so items don't blow out","All items are placed in the trunk regardless of size"],
+        ans: 1,
+        exp: "Loose items in the passenger compartment can slide under the brake pedal, roll around to distract you, or become projectiles. Secure them or place them in the trunk."
+      },
+      {
+        q: "Which of the following is most likely to help a drowsy driver become safe to drive again?",
+        opts: ["Drinking two cups of coffee","Turning on the air conditioning to full blast","Splashing cold water on the face","Pulling over and sleeping for at least 20 minutes"],
+        ans: 3,
+        exp: "Only sleep restores alertness. Caffeine, cold air, and music provide temporary, unreliable stimulation but do not eliminate the impairment caused by sleep deprivation."
+      }
+    ]
+  },
+
+  // ════════════════════════════════════════════════
+  //  CHAPTER 3 — Traffic Signs, Signals & Markings
+  // ════════════════════════════════════════════════
+  {
+    id: "nj-drivers-ch3",
+    title: "NJ Driver's Manual – Chapter 3",
+    subtitle: "Signs, Signals & Pavement Markings",
+    icon: "🚦",
+    passPct: 80,
+    questions: [
+      {
+        q: "What does this sign mean?",
+        img: SIGNS.stop,
+        opts: ["Slow down and proceed with caution","Come to a complete stop; yield to all traffic and pedestrians before proceeding","Yield to cross traffic only","Stop only if other vehicles are present"],
+        ans: 1,
+        exp: "A stop sign requires a complete stop at the stop line (or crosswalk/intersection edge if no line). You must yield to all cross traffic and pedestrians before proceeding."
+      },
+      {
+        q: "What does this sign mean?",
+        img: SIGNS.yield,
+        opts: ["Come to a complete stop, then go","Slow down, check for traffic, and yield the right of way — stop only if necessary","Merge into the nearest lane immediately","Speed up to match the speed of cross traffic"],
+        ans: 1,
+        exp: "A yield sign means slow down and be prepared to stop. You must give the right of way to vehicles and pedestrians in or approaching the intersection, but you need not stop unless necessary."
+      },
+      {
+        q: "What does this sign indicate?",
+        img: SIGNS.speedLimit55,
+        opts: ["The recommended speed for curves ahead","The minimum speed required on this roadway","The maximum lawful speed on this section of road under ideal conditions","The average speed of traffic measured at this location"],
+        ans: 2,
+        exp: "A speed limit sign sets the maximum legal speed under ideal conditions. You may need to drive slower when conditions (weather, traffic, road surface) are less than ideal."
+      },
+      {
+        q: "What does this sign mean?",
+        img: SIGNS.doNotEnter,
+        opts: ["Keep right — do not enter the left lane","You are about to exit a one-way road","You must not enter this road in the direction you are traveling","Road closed ahead for construction"],
+        ans: 2,
+        exp: "A Do Not Enter sign means you are attempting to enter a one-way road in the wrong direction. Do not enter. This sign is often paired with a Wrong Way sign."
+      },
+      {
+        q: "A driver sees this sign. What does it mean?",
+        img: SIGNS.wrongWay,
+        opts: ["You have turned into the wrong lane and must move right","You are driving against the flow of traffic on a one-way road — turn around immediately","Road ends ahead; U-turn permitted","Wrong route chosen; take the next exit"],
+        ans: 1,
+        exp: "A Wrong Way sign confirms that you are traveling against traffic on a one-way road. Pull over safely and turn around."
+      },
+      {
+        q: "What does this sign warn you about?",
+        img: SIGNS.curveAhead,
+        opts: ["A sharp intersection ahead","A curve in the road ahead — slow down before entering","A detour route around construction","Lane ends ahead; merge left"],
+        ans: 1,
+        exp: "A curve-ahead warning sign alerts you to an upcoming curve. Reduce speed before the curve and follow the safe advisory speed if posted."
+      },
+      {
+        q: "What does this sign indicate?",
+        img: SIGNS.railroadCrossing,
+        opts: ["A four-way stop intersection ahead","A traffic circle ahead","A railroad crossing ahead — be prepared to stop","A rest area and fuel station ahead"],
+        ans: 2,
+        exp: "The round yellow RR crossing sign warns that railroad tracks cross the road ahead. Slow down, look and listen in both directions, and stop if a train is approaching."
+      },
+      {
+        q: "What does this sign's shape and color tell you?",
+        img: SIGNS.schoolZone,
+        opts: ["It is a guide sign indicating a school building nearby","Its pentagonal (five-sided) yellow shape identifies a school zone — expect children and slow down","It is a regulatory sign requiring a complete stop during school hours","It is an orange construction sign near a school building"],
+        ans: 1,
+        exp: "The pentagon (five-sided) shape is used exclusively for school zone and school crossing signs. Yellow color means warning. Slow to the posted school zone speed when children are present."
+      },
+      {
+        q: "What does this sign prohibit?",
+        img: SIGNS.noUTurn,
+        opts: ["Left turns","Right turns","U-turns","Passing other vehicles"],
+        ans: 2,
+        exp: "A No U-Turn sign (white rectangle with a red circle/slash over a U-turn arrow) means U-turns are prohibited at this location."
+      },
+      {
+        q: "What does this sign tell you about the road ahead?",
+        img: SIGNS.oneWay,
+        opts: ["Traffic may travel in both directions in this lane","The road is a one-way street — travel only in the direction the arrow points","Merge ahead — all traffic must move in this direction","Priority road — you have the right of way"],
+        ans: 1,
+        exp: "A One Way sign with an arrow means all traffic on that roadway must travel in the direction shown. Entering from the other end would mean driving the wrong way."
+      },
+      {
+        q: "What does this pennant-shaped sign indicate?",
+        img: SIGNS.noPassingZone,
+        opts: ["A no-parking zone on this side of the road","The beginning of a no-passing zone — you may not pass other vehicles here","A yield zone where you must let faster traffic pass","An advisory speed zone for the curve ahead"],
+        ans: 1,
+        exp: "The yellow pennant (triangle pointing right, on the left side of the road) marks the beginning of a no-passing zone. Passing is prohibited from this point until a Passing Permitted sign or broken centerline is reached."
+      },
+      {
+        q: "What does this warning sign mean?",
+        img: SIGNS.pedestrianXing,
+        opts: ["Playground area — no vehicles permitted beyond this point","School zone — reduce speed to 15 mph","Pedestrian crossing ahead — watch for people on foot","Bicycle lane crossing — yield to cyclists"],
+        ans: 2,
+        exp: "A pedestrian crossing warning sign (yellow diamond, walking person) alerts drivers to a marked crosswalk or area where pedestrians frequently cross. Slow down and be prepared to yield."
+      },
+      {
+        q: "What does this warning sign indicate?",
+        img: SIGNS.slipperyWet,
+        opts: ["Loose gravel on the road — slow down","The road surface is prone to becoming slippery when wet — reduce speed and avoid sudden maneuvers in wet weather","A car wash is ahead","Road paint markings may be wet — drive carefully"],
+        ans: 1,
+        exp: "The slippery-when-wet sign (yellow diamond, skidding car) warns of road surfaces — such as metal bridge grates, wood planks, or certain pavement coatings — that become especially slick in rain."
+      },
+      {
+        q: "Orange diamond-shaped signs like this one are used to indicate:",
+        img: SIGNS.construction,
+        opts: ["Detour routes only","General warning conditions on rural roads","Work zones — construction, maintenance, or utility work ahead","Speed advisories on highway ramps"],
+        ans: 2,
+        exp: "Orange is the standard color for work-zone (construction/maintenance) signs. Traffic fines are often doubled in work zones. Slow down and follow all posted instructions."
+      },
+      {
+        q: "What must you do at a traffic light showing this signal?",
+        img: SIGNS.lightRed,
+        opts: ["Slow down and prepare to stop","Proceed through the intersection immediately","Come to a complete stop; remain stopped until the light turns green (or you may turn right on red if permitted)","Flash your headlights and proceed if the intersection is clear"],
+        ans: 2,
+        exp: "A steady red light requires a full stop. You must remain stopped until the signal turns green. A right turn on red is allowed in NJ after stopping, unless a sign prohibits it."
+      },
+      {
+        q: "What does a steady yellow traffic light mean?",
+        img: SIGNS.lightYellow,
+        opts: ["Speed up to clear the intersection before it turns red","The light is about to turn green — prepare to go","The signal is malfunctioning — treat as a four-way stop","The light is about to turn red — slow down and prepare to stop if you can do so safely"],
+        ans: 3,
+        exp: "A yellow light warns that the signal is changing to red. You should slow down and stop if it is safe to do so. Do not accelerate to beat the light."
+      },
+      {
+        q: "What does a steady green traffic light mean?",
+        img: SIGNS.lightGreen,
+        opts: ["You may proceed through the intersection — but first yield to vehicles and pedestrians already in it","You have absolute priority — proceed immediately","Cross traffic must stop — no need to check","It is safe to proceed at twice the posted speed limit"],
+        ans: 0,
+        exp: "Green means you may go, but you must still yield to pedestrians in the crosswalk and vehicles already in the intersection. Green does not guarantee it is safe."
+      },
+      {
+        q: "This traffic signal is flashing red. How should you treat it?",
+        img: SIGNS.flashingRed,
+        opts: ["Proceed without stopping — flashing signals are advisory only","Slow down significantly and proceed with caution","Stop completely; yield to all traffic and pedestrians, then proceed when safe (treat it as a stop sign)","Yield only to vehicles coming from the left"],
+        ans: 2,
+        exp: "A flashing red light must be treated as a stop sign: come to a full stop, yield, and proceed only when it is safe."
+      },
+      {
+        q: "This traffic signal is flashing yellow. What should you do?",
+        img: SIGNS.flashingYellow,
+        opts: ["Come to a complete stop and wait for a steady green","Slow down, be alert, and proceed with caution","Proceed at normal speed — you have priority","Come to a full stop and treat as a four-way stop"],
+        ans: 1,
+        exp: "A flashing yellow light means slow down, use caution, and be prepared to yield. It warns of a potentially hazardous condition but does not require a full stop."
+      },
+      {
+        q: "What does a green arrow signal allow you to do?",
+        opts: ["Proceed through the intersection in any direction","Turn only in the direction the arrow points — you have a protected turn and oncoming traffic is stopped","Proceed straight only; turning is prohibited","Yield to oncoming traffic and turn when safe"],
+        ans: 1,
+        exp: "A green arrow provides a protected movement — conflicting traffic is stopped by a red signal. You may turn in the arrow's direction without yielding to oncoming vehicles."
+      },
+      {
+        q: "When can you legally make a right turn at a steady red light in New Jersey?",
+        opts: ["Anytime the intersection is clear","Only between 6 PM and 6 AM","After coming to a full stop, yielding to pedestrians and cross traffic, and only if a sign does not prohibit it","Only when a green arrow is also displayed"],
+        ans: 2,
+        exp: "NJ allows right turns on red after a complete stop, provided you yield to all pedestrians and vehicles with the right of way and no posted sign prohibits it."
+      },
+      {
+        q: "If a traffic signal is completely dark (power outage), how should you treat the intersection?",
+        opts: ["The vehicle on the wider road always has priority","Proceed slowly without stopping","Treat it as a four-way stop — all vehicles must stop and yield in turn","The first vehicle to arrive automatically has right of way and may proceed without stopping"],
+        ans: 2,
+        exp: "An inoperative traffic signal is treated as an all-way stop. Each vehicle must stop, then proceed in turn based on arrival order and right-of-way rules."
+      },
+      {
+        q: "A pedestrian signal showing a walking person (WALK) means:",
+        opts: ["Pedestrians may begin crossing; vehicles must stop","Pedestrians should wait — don't start crossing","Only cyclists may cross here","Pedestrians must yield to turning vehicles"],
+        ans: 0,
+        exp: "A WALK (walking person) signal indicates pedestrians may cross. Drivers must yield to pedestrians who are lawfully in the crosswalk."
+      },
+      {
+        q: "A flashing orange hand (DON'T WALK) pedestrian signal means:",
+        opts: ["Pedestrians must stop immediately and wait","Pedestrians who have not started crossing should wait; those already crossing should finish quickly","All pedestrians must return to the curb","Vehicles may now proceed through the intersection"],
+        ans: 1,
+        exp: "A flashing DON'T WALK signal means don't start crossing. Pedestrians already in the crosswalk should complete their crossing as quickly as possible."
+      },
+      {
+        q: "Double solid yellow center lines on a road mean:",
+        opts: ["Passing is permitted when the way is clear","The road is divided — drive to the right of both lines","Neither direction of traffic may pass","Only vehicles going in the direction of travel may pass"],
+        ans: 2,
+        exp: "Double solid yellow lines prohibit passing in either direction. They mark roads where passing is considered too dangerous — such as on curves, hills, or narrow two-lane roads."
+      },
+      {
+        q: "A broken (dashed) yellow centerline means:",
+        opts: ["You may pass if the way is clear and it is safe to do so","Passing is prohibited in both directions","The road ends ahead","It is a HOV (high-occupancy vehicle) lane"],
+        ans: 0,
+        exp: "A broken yellow centerline indicates that passing is permitted when it is safe. Check for oncoming traffic and sufficient sight distance before passing."
+      },
+      {
+        q: "A solid yellow line on YOUR side of the center means:",
+        opts: ["You may pass with caution","You may NOT pass — passing is prohibited from your side of the road","The road is one-way","Oncoming traffic must yield to you"],
+        ans: 1,
+        exp: "A solid yellow line on your side prohibits you from passing. The line on the other side determines whether drivers coming from the opposite direction may pass."
+      },
+      {
+        q: "White lane markings on a roadway are used to:",
+        opts: ["Separate traffic moving in opposite directions","Mark the edge of the road on the right side only","Separate lanes of traffic traveling in the same direction","Indicate no-passing zones"],
+        ans: 2,
+        exp: "White markings divide traffic traveling in the same direction. Yellow markings divide traffic traveling in opposite directions."
+      },
+      {
+        q: "A solid white line between lanes means:",
+        opts: ["You must not change lanes at all on this road","You should avoid changing lanes here — lane changes are discouraged though not absolutely prohibited","You must increase your speed to match surrounding traffic before changing lanes","Passing is permitted on this side only"],
+        ans: 1,
+        exp: "A solid white line discourages lane changes at that location (e.g., near an intersection or where merging would be dangerous). A broken white line indicates lane changes are permitted."
+      },
+      {
+        q: "What does a white stop bar painted across a traffic lane indicate?",
+        opts: ["The end of a bicycle lane","Where you must stop your vehicle at a stop sign or red light","A crosswalk for pedestrians only","A no-parking zone at an intersection"],
+        ans: 1,
+        exp: "A white stop bar marks the exact point where a vehicle must stop at a sign or signal. If there is no stop bar, stop at the crosswalk line or the edge of the intersecting roadway."
+      },
+      {
+        q: "At an uncontrolled intersection (no signs or signals), who has the right of way?",
+        opts: ["The vehicle traveling at the highest speed","The larger vehicle","The vehicle on the left","The vehicle on the right"],
+        ans: 3,
+        exp: "At an uncontrolled intersection, you must yield to any vehicle already in or arriving from your right. If you arrive at the same time as a vehicle to your right, that driver has the right of way."
+      },
+      {
+        q: "When making a left turn at a green light, you must yield to:",
+        opts: ["Only pedestrians in the crosswalk","Only vehicles behind you","Oncoming vehicles proceeding straight through or turning right, and pedestrians","No one — you have the green light"],
+        ans: 2,
+        exp: "A driver turning left must always yield to oncoming traffic and pedestrians, even on a green light. A green light grants permission to proceed — it does not override right-of-way rules."
+      },
+      {
+        q: "When an emergency vehicle with its lights and siren activated approaches, you must:",
+        opts: ["Speed up to clear the intersection quickly","Maintain your speed and allow it to pass when possible","Immediately pull to the right curb (or as far right as possible), stop, and remain stopped until the emergency vehicle passes","Stop only if you are in the vehicle's lane of travel"],
+        ans: 2,
+        exp: "NJ law requires drivers to immediately pull to the right and stop when an emergency vehicle (police, fire, EMS) with lights and siren approaches. Remain stopped until it passes."
+      },
+      {
+        q: "NJ's Move Over Law requires drivers to do what when approaching a stationary emergency or service vehicle with lights flashing on the side of the road?",
+        opts: ["Stop completely and wait until the vehicle moves","Speed up to pass the scene quickly","Move over one lane away from the vehicle if safe; if not, slow down significantly below the posted speed limit","Activate your hazard lights and maintain your current speed"],
+        ans: 2,
+        exp: "NJ's Move Over Law requires drivers approaching a stationary authorized emergency vehicle, law enforcement vehicle, tow truck, or highway maintenance vehicle with lights flashing to move over one lane (if safe) or slow to a safe speed."
+      },
+      {
+        q: "Pedestrians crossing in a marked or unmarked crosswalk:",
+        opts: ["Must yield to all turning vehicles","Have the right of way only when the pedestrian signal shows WALK","Have the right of way and drivers must yield to them","May only cross when no vehicles are within 200 feet"],
+        ans: 2,
+        exp: "NJ law gives pedestrians the right of way in all crosswalks — marked or unmarked. Drivers must yield when pedestrians are lawfully crossing."
+      },
+      {
+        q: "When must you stop for a stopped school bus with red lights flashing and the stop arm extended?",
+        opts: ["Only if you are directly behind the bus","Only on undivided roads in both directions; on divided highways only vehicles behind the bus must stop","On all roads in both directions, with no exception","Only during school hours (7 AM – 4 PM)"],
+        ans: 1,
+        exp: "On undivided roads, all traffic in both directions must stop for a school bus with lights flashing. On a divided highway (with a physical barrier), only traffic behind the bus must stop; oncoming traffic on the other side of the barrier may proceed."
+      },
+      {
+        q: "Yellow pavement markings are used to:",
+        opts: ["Mark the right edge of the roadway","Separate lanes of traffic moving in the same direction","Indicate no-passing zones only","Separate lanes of traffic moving in opposite directions"],
+        ans: 3,
+        exp: "Yellow pavement markings always separate traffic traveling in opposite directions. White markings separate traffic traveling in the same direction."
+      },
+      {
+        q: "A regulatory sign is typically:",
+        opts: ["Yellow or orange with a diamond shape","Green with white text showing route information","White (or red) with black or red text/symbols conveying a legal requirement","Blue with white symbols indicating services"],
+        ans: 2,
+        exp: "Regulatory signs (such as speed limits, stop, yield, and no-turn signs) are typically white with black or red markings and have the force of law. Disobeying them can result in a traffic violation."
+      },
+      {
+        q: "When entering a roundabout (traffic circle), you must yield to:",
+        opts: ["Vehicles entering from the right","All vehicles already traveling inside the roundabout","The largest vehicle, regardless of position","Vehicles entering from the left"],
+        ans: 1,
+        exp: "In a roundabout, traffic already circulating inside has the right of way. You must yield upon entry until there is a safe gap. Travel counterclockwise inside the circle."
+      },
+      {
+        q: "What color and shape are most warning signs?",
+        opts: ["Red octagons","White rectangles with red borders","Yellow diamonds (or pennants and pentagons for special cases)","Green rectangles"],
+        ans: 2,
+        exp: "Warning signs are yellow with black symbols and are usually diamond-shaped. Exceptions include the school zone pentagon and the no-passing pennant, which are also yellow."
+      },
+      {
+        q: "Blue signs on highways are used to indicate:",
+        opts: ["Speed advisories and construction zones","State and US route numbers","Services available at the next exit — such as gas, food, lodging, and hospitals","Tourist attractions and historical sites"],
+        ans: 2,
+        exp: "Blue highway signs identify available services such as fuel, food, lodging, and medical facilities at upcoming exits. Brown signs are used for recreational and cultural attractions."
+      }
+    ]
+  }
+  // ── Add more quiz objects here to expand the Quiz Center ──
+];
+
+// ════════════════════════════════════════════════
+//  STATE
+// ════════════════════════════════════════════════
+let S = {
+  quizId:   null,
+  qs:       [],       // active question array (may be subset for retake)
+  answers:  [],       // selected option index per question (null = unanswered)
+  revealed: [],       // true immediately after picking an option
+  explOpen: [],       // whether explanation panel is open for each question
+  idx:      0,
+  wrongIdx: [],       // original indices of wrong questions (for retake)
+  mode:     'full'    // 'full' | 'retake'
+};
+
+// ════════════════════════════════════════════════
+//  NAVIGATION
+// ════════════════════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function goHome() {
+  showScreen('homeScreen');
+  renderHome();
+}
+
+// ════════════════════════════════════════════════
+//  HOME
+// ════════════════════════════════════════════════
+function renderHome() {
+  document.getElementById('quizList').innerHTML = QUIZZES.map(qz => `
+    <div class="quiz-card" onclick="startQuiz('${qz.id}')">
+      <div class="quiz-icon">${qz.icon}</div>
+      <div class="quiz-info">
+        <h3>${qz.title}</h3>
+        <p>${qz.subtitle}</p>
+        <div class="quiz-badges">
+          <span class="badge">📝 ${qz.questions.length} questions</span>
+          <span class="badge">✅ Pass: ${qz.passPct}%</span>
+        </div>
+      </div>
+      <button class="btn-go">Start →</button>
+    </div>`).join('');
+}
+
+// ════════════════════════════════════════════════
+//  START / RETAKE
+// ════════════════════════════════════════════════
+function startQuiz(id, subsetIndices) {
+  const qz = QUIZZES.find(q => q.id === id);
+  if (!qz) return;
+  S.quizId   = id;
+  S.mode     = subsetIndices ? 'retake' : 'full';
+  S.qs       = subsetIndices
+    ? subsetIndices.map(i => ({ ...qz.questions[i], _orig: i }))
+    : qz.questions.map((q, i) => ({ ...q, _orig: i }));
+  S.answers  = new Array(S.qs.length).fill(null);
+  S.revealed = new Array(S.qs.length).fill(false);
+  S.explOpen = new Array(S.qs.length).fill(false);
+  S.idx      = 0;
+  S.wrongIdx = [];
+
+  document.getElementById('quizTitleSm').textContent =
+    (S.mode === 'retake' ? '⚡ Retake — ' : '') + qz.title;
+  showScreen('quizScreen');
+  renderQ();
+}
+
+function retakeAll()   { startQuiz(S.quizId); }
+function retakeWrong() { startQuiz(S.quizId, S.wrongIdx); }
+
+// ════════════════════════════════════════════════
+//  QUIZ RENDER
+// ════════════════════════════════════════════════
+const LABELS = ['A','B','C','D'];
+
+function renderQ() {
+  const q      = S.qs[S.idx];
+  const total  = S.qs.length;
+  const sel    = S.answers[S.idx];
+  const rev    = S.revealed[S.idx];
+  const isLast = S.idx === total - 1;
+
+  // Progress
+  document.getElementById('progFill').style.width = (S.idx / total * 100) + '%';
+  document.getElementById('progLabel').textContent = `${S.idx + 1} / ${total}`;
+
+  // Question header
+  document.getElementById('qEyebrow').textContent =
+    `Question ${S.idx + 1} of ${total}` + (S.mode === 'retake' ? '  ·  Retake' : '');
+  document.getElementById('qText').textContent = q.q;
+  const qi = document.getElementById('qImg');
+  if (q.img) { qi.innerHTML = q.img; qi.style.display = ''; }
+  else        { qi.innerHTML = '';    qi.style.display = 'none'; }
+
+  // Options — locked after answering, show correct/wrong colours
+  document.getElementById('optContainer').innerHTML = q.opts.map((opt, i) => {
+    let cls = 'opt';
+    let icon = '';
+    if (rev) {
+      if (i === q.ans)                   { cls += ' correct'; icon = '<span class="opt-result">✅</span>'; }
+      else if (i === sel && i !== q.ans) { cls += ' wrong';   icon = '<span class="opt-result">❌</span>'; }
+    } else if (i === sel) {
+      cls += ' selected';
+    }
+    return `<button class="${cls}" onclick="pickOpt(${i})" ${rev ? 'disabled' : ''}>
+              <span class="opt-lbl">${LABELS[i]}</span><span style="flex:1">${opt}</span>${icon}
+            </button>`;
+  }).join('');
+
+  // Explanation toggle button (appears only after answering)
+  const toggleRow = document.getElementById('explToggleRow');
+  const btnExpl   = document.getElementById('btnExpl');
+  const eb        = document.getElementById('explBox');
+  if (rev && q.exp) {
+    toggleRow.style.display = '';
+    const open = S.explOpen[S.idx];
+    btnExpl.textContent = open ? '💡 Hide Explanation' : '💡 Show Explanation';
+    if (open) {
+      eb.innerHTML     = `<b>💡 Explanation:</b> ${q.exp}`;
+      eb.style.display = '';
+    } else {
+      eb.style.display = 'none';
+    }
+  } else {
+    toggleRow.style.display = 'none';
+    eb.style.display        = 'none';
+  }
+
+  // Prev button
+  document.getElementById('btnPrev').disabled = S.idx === 0;
+
+  // Next button — always active, label changes on last question
+  const nb = document.getElementById('btnNext');
+  nb.disabled    = false;
+  nb.className   = 'btn-nav btn-next';
+  nb.textContent = isLast ? 'View Results →' : 'Next →';
+}
+
+function pickOpt(i) {
+  if (S.revealed[S.idx]) return;   // already answered
+  S.answers[S.idx]  = i;
+  S.revealed[S.idx] = true;        // immediately reveal result
+  S.explOpen[S.idx] = false;       // explanation starts closed
+  renderQ();
+}
+
+function toggleExpl() {
+  S.explOpen[S.idx] = !S.explOpen[S.idx];
+  renderQ();
+}
+
+function nextQ() {
+  if (S.idx === S.qs.length - 1) { showResults(); return; }
+  S.idx++;
+  renderQ();
+}
+
+function prevQ() {
+  if (S.idx > 0) { S.idx--; renderQ(); }
+}
+
+// ════════════════════════════════════════════════
+//  RESULTS
+// ════════════════════════════════════════════════
+function showResults() {
+  const qz      = QUIZZES.find(q => q.id === S.quizId);
+  const total   = S.qs.length;
+  const correct = S.qs.filter((q, i) => S.answers[i] === q.ans).length;
+  const wrong   = total - correct;
+  const pct     = Math.round(correct / total * 100);
+  const passed  = pct >= qz.passPct;
+
+  document.getElementById('scorePct').textContent  = pct + '%';
+  document.getElementById('scoreTag').textContent  = passed ? 'PASSED' : 'FAILED';
+  document.getElementById('scoreRing').className   = 'score-ring ' + (passed ? 'pass' : 'fail');
+  document.getElementById('resultsTitle').textContent =
+    qz.title + (S.mode === 'retake' ? ' — Retake' : '');
+  document.getElementById('statOk').textContent   = correct;
+  document.getElementById('statBad').textContent  = wrong;
+  document.getElementById('statTot').textContent  = total;
+
+  // Collect original indices of wrong answers for retake
+  S.wrongIdx = S.qs
+    .map((q, i) => S.answers[i] !== q.ans ? q._orig : -1)
+    .filter(i => i >= 0);
+  document.getElementById('btnRetakeWrong').style.display = S.wrongIdx.length ? '' : 'none';
+
+  // Review list
+  document.getElementById('reviewList').innerHTML = S.qs.map((q, i) => {
+    const ua = S.answers[i];
+    const ok = ua === q.ans;
+    return `<div class="review-item">
+      <div class="rev-icon">${ok ? '✅' : '❌'}</div>
+      <div class="rev-body">
+        <div class="rev-q">${q.q}</div>
+        <div class="rev-ans">${ok
+          ? `<span class="ans-ok">✓ ${LABELS[q.ans]}. ${q.opts[q.ans]}</span>`
+          : `<span class="ans-bad">${ua !== null ? LABELS[ua] + '. ' + q.opts[ua] : 'Not answered'}</span>
+             &nbsp;→&nbsp;<span class="ans-ok">${LABELS[q.ans]}. ${q.opts[q.ans]}</span>`
+        }</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  showScreen('resultsScreen');
+}
+
+// ════════════════════════════════════════════════
+//  INIT
+// ════════════════════════════════════════════════
+renderHome();
+</script>
+</body>
+</html>

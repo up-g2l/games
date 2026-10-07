@@ -1,0 +1,346 @@
+{
+  "id": "nj-drivers-ch1",
+  "title": "NJ Driver's Manual – Chapter 1",
+  "subtitle": "Driver Licensing & Requirements",
+  "icon": "🚗",
+  "passPct": 80,
+  "note": "Based on the 2025 NJ Driver's Manual, Chapter 1. Verify all answers against the current manual before your exam.",
+  "questions": [
+    {
+      "q": "What is the minimum age to apply for a New Jersey examination permit (learner's permit)?",
+      "opts": ["15 years old","16 years old","17 years old","18 years old"],
+      "ans": 1,
+      "exp": "In New Jersey, applicants must be at least 16 years old to apply for an examination permit."
+    },
+    {
+      "q": "Under NJ's Graduated Driver License (GDL) program, what is the minimum time a driver who receives their permit before age 17 must hold it before applying for a probationary license?",
+      "opts": ["3 months","6 months","1 year","2 years"],
+      "ans": 2,
+      "exp": "Drivers who obtain their permit before turning 17 must hold it until age 17 — a minimum of 1 year."
+    },
+    {
+      "q": "How many total hours of supervised driving must a GDL permit holder complete before taking the road skills test?",
+      "opts": ["25 hours","30 hours","40 hours","50 hours"],
+      "ans": 3,
+      "exp": "GDL permit holders must log at least 50 hours of supervised driving practice before applying for a probationary license."
+    },
+    {
+      "q": "Of the required supervised driving hours, how many must be completed during nighttime hours?",
+      "opts": ["5 hours","10 hours","15 hours","20 hours"],
+      "ans": 1,
+      "exp": "At least 10 of the 50 required supervised hours must be driven after dark."
+    },
+    {
+      "q": "During what hours are GDL probationary license holders prohibited from driving unsupervised?",
+      "opts": ["10:00 PM – 5:00 AM","11:01 PM – 5:00 AM","Midnight – 6:00 AM","9:00 PM – 6:00 AM"],
+      "ans": 1,
+      "exp": "GDL probationary drivers may not drive between 11:01 PM and 5:00 AM unless a licensed driver aged 21+ is in the front seat or it is a documented emergency."
+    },
+    {
+      "q": "During the FIRST YEAR of holding a GDL probationary license, how many non-immediate-family passengers under age 21 may the driver carry?",
+      "opts": ["None","No more than 1","No more than 2","No limit"],
+      "ans": 1,
+      "exp": "For the first year of the probationary period, the driver may carry no more than 1 passenger under 21 who is not an immediate family member."
+    },
+    {
+      "q": "Which statement about cell phone use is TRUE for GDL permit and probationary license holders in NJ?",
+      "opts": [
+        "Hands-free devices are permitted",
+        "Only texting while driving is prohibited",
+        "All cell phone use — handheld AND hands-free — is prohibited",
+        "Cell phones may be used when stopped at a red light"
+      ],
+      "ans": 2,
+      "exp": "GDL permit and probationary holders are prohibited from using any wireless communication device while driving, including hands-free devices."
+    },
+    {
+      "q": "What is the minimum age of the licensed driver who must supervise a GDL examination permit holder?",
+      "opts": ["18 years old","19 years old","21 years old","25 years old"],
+      "ans": 2,
+      "exp": "The supervising licensed driver must be at least 21 years old and seated in the front passenger seat."
+    },
+    {
+      "q": "Under what condition may a GDL probationary driver legally drive during the nighttime curfew hours?",
+      "opts": [
+        "A parent has provided written permission",
+        "The driver has held the probationary license for over 6 months",
+        "A licensed driver aged 21 or older is in the front seat, or it is a documented emergency",
+        "The driver is traveling directly to or from work"
+      ],
+      "ans": 2,
+      "exp": "The curfew restriction is lifted when a licensed driver 21 or older is seated in the front seat, or when a documented emergency exists."
+    },
+    {
+      "q": "What license class is required to operate a standard non-commercial passenger vehicle in New Jersey?",
+      "opts": ["Class A","Class B","Class C","Class D"],
+      "ans": 3,
+      "exp": "Class D is the standard passenger vehicle license in New Jersey, used for everyday driving of cars and light trucks."
+    },
+    {
+      "q": "Which CDL class authorizes the operation of combination vehicles with a GCWR of 26,001 lbs or more when the towed unit exceeds 10,000 lbs?",
+      "opts": ["Class A CDL","Class B CDL","Class C CDL","Class D (enhanced)"],
+      "ans": 0,
+      "exp": "A Class A CDL is required for combination vehicles where the GCWR is 26,001 lbs or more and the towed unit exceeds 10,000 lbs."
+    },
+    {
+      "q": "Which CDL class covers heavy straight vehicles with a GVWR of 26,001 lbs or more (not towing over 10,000 lbs)?",
+      "opts": ["Class A CDL","Class B CDL","Class C CDL","Class D CDL"],
+      "ans": 1,
+      "exp": "A Class B CDL authorizes operation of heavy straight vehicles with a GVWR of 26,001 lbs or more, plus towing a unit not exceeding 10,000 lbs."
+    },
+    {
+      "q": "A REAL ID-compliant New Jersey driver's license or ID card is identified by which marking?",
+      "opts": ["A blue star in the upper right","A gold star in the upper right","An American flag","An eagle emblem"],
+      "ans": 1,
+      "exp": "A gold star in the upper right corner of an NJ license or ID indicates it meets federal REAL ID Act standards."
+    },
+    {
+      "q": "For which activities is a REAL ID-compliant license (or another acceptable federal document) now required?",
+      "opts": [
+        "Registering a vehicle or renewing insurance",
+        "Accessing state government buildings",
+        "Boarding domestic commercial flights and entering certain federal facilities",
+        "Applying for a New Jersey driver's license"
+      ],
+      "ans": 2,
+      "exp": "As of May 7, 2025, a REAL ID-compliant document is required to board domestic commercial flights and access certain federal facilities."
+    },
+    {
+      "q": "What is the minimum visual acuity (in the better eye, with correction if used) required for a standard NJ driver's license?",
+      "opts": ["20/20","20/30","20/40","20/50"],
+      "ans": 2,
+      "exp": "Applicants must achieve at least 20/40 vision in the better eye — with or without corrective lenses — to qualify for a standard license."
+    },
+    {
+      "q": "If a driver requires corrective lenses to meet the 20/40 vision standard, what restriction appears on their NJ license?",
+      "opts": [
+        "Daytime driving only",
+        "No highway driving permitted",
+        "Must wear corrective lenses while driving",
+        "Speed limited to 45 mph"
+      ],
+      "ans": 2,
+      "exp": "A 'corrective lenses required' restriction is printed on the license of any driver who needs glasses or contacts to meet the minimum vision standard."
+    },
+    {
+      "q": "Which statement about color blindness and obtaining a NJ driver's license is CORRECT?",
+      "opts": [
+        "Color blindness automatically disqualifies an applicant",
+        "Color blind drivers are restricted to daytime driving only",
+        "Color blindness alone does not disqualify a person from obtaining a license",
+        "Color blind applicants must pass a special color-perception road test"
+      ],
+      "ans": 2,
+      "exp": "Color blindness alone does not disqualify an applicant. The key vision requirement is acuity (sharpness), not color perception."
+    },
+    {
+      "q": "How long is a standard New Jersey driver's license valid before renewal is required?",
+      "opts": ["2 years","4 years","6 years","8 years"],
+      "ans": 1,
+      "exp": "A standard NJ driver's license is valid for 4 years from the date of issuance."
+    },
+    {
+      "q": "How long is a New Jersey examination permit (learner's permit) valid once issued?",
+      "opts": ["6 months","1 year","2 years","4 years"],
+      "ans": 2,
+      "exp": "A NJ examination permit is valid for 2 years from the date it is issued."
+    },
+    {
+      "q": "What is the minimum age at which a GDL driver may obtain a probationary license?",
+      "opts": ["16 years old","17 years old","18 years old","21 years old"],
+      "ans": 1,
+      "exp": "Drivers who obtained their permit before age 17 must wait until they turn 17 before they can apply for a probationary license."
+    },
+    {
+      "q": "What is the name of the New Jersey agency responsible for issuing driver's licenses?",
+      "opts": [
+        "Department of Transportation (NJ DOT)",
+        "Division of Motor Vehicles (DMV)",
+        "Motor Vehicle Commission (MVC)",
+        "Bureau of Motor Vehicles (BMV)"
+      ],
+      "ans": 2,
+      "exp": "New Jersey uses the Motor Vehicle Commission (MVC) — not a DMV — to issue driver's licenses, IDs, and vehicle registrations."
+    },
+    {
+      "q": "How many points of identification must an applicant earn under NJ's Six-Point ID Verification System?",
+      "opts": ["4 points","5 points","6 points","8 points"],
+      "ans": 2,
+      "exp": "Applicants must accumulate at least 6 points of identification from approved documents to verify identity and lawful presence."
+    },
+    {
+      "q": "Which of the following is TRUE about NJ's Six-Point ID Verification System?",
+      "opts": [
+        "The same document may be used twice to earn double points",
+        "Only documents issued in the U.S. are accepted",
+        "No single document may be counted more than once",
+        "A Social Security card alone satisfies the full 6 points"
+      ],
+      "ans": 2,
+      "exp": "Each document can only be counted once — the same document cannot be used to satisfy multiple point categories."
+    },
+    {
+      "q": "In NJ's Six-Point ID system, how many points is a valid U.S. Passport worth?",
+      "opts": ["2 points","3 points","4 points","6 points"],
+      "ans": 2,
+      "exp": "A valid U.S. Passport earns 4 points as primary proof of identity in NJ's Six-Point ID Verification System."
+    },
+    {
+      "q": "In NJ's Six-Point ID system, how many points is a U.S. Birth Certificate worth?",
+      "opts": ["1 point","2 points","3 points","4 points"],
+      "ans": 3,
+      "exp": "A U.S. Birth Certificate is worth 4 points, serving as primary proof of identity."
+    },
+    {
+      "q": "In NJ's Six-Point ID Verification System, which of the following is typically worth 2 points (secondary proof)?",
+      "opts": ["U.S. Passport","U.S. Birth Certificate","NJ Vehicle Registration","Social Security card"],
+      "ans": 2,
+      "exp": "A NJ Vehicle Registration is a secondary document worth 2 points in the six-point system."
+    },
+    {
+      "q": "What does the organ donor designation on a NJ driver's license indicate?",
+      "opts": [
+        "The holder receives priority on transplant waiting lists",
+        "Medical personnel may access health records in an emergency",
+        "The holder has decided to donate organs, tissues, and eyes upon death",
+        "The license fee was reduced through a donation program"
+      ],
+      "ans": 2,
+      "exp": "The organ donor designation signals the holder's decision to donate organs, tissues, and eyes in the event of their death."
+    },
+    {
+      "q": "Where must the supervising licensed driver be seated when a GDL examination permit holder is operating a vehicle?",
+      "opts": [
+        "Anywhere in the vehicle with a clear view",
+        "In the back seat directly behind the driver",
+        "In the front passenger seat",
+        "Either front seat position is acceptable"
+      ],
+      "ans": 2,
+      "exp": "The supervising licensed driver (21 or older) must be seated in the front passenger seat at all times."
+    },
+    {
+      "q": "What is the key difference between a NJ examination permit and a probationary license?",
+      "opts": [
+        "A permit is valid only in NJ; a probationary license is valid in all 50 states",
+        "A permit requires a licensed driver in the front seat at all times; a probationary license allows solo driving (with GDL restrictions)",
+        "A probationary license allows highway driving; a permit does not",
+        "A permit is free; a probationary license requires a fee"
+      ],
+      "ans": 1,
+      "exp": "The major distinction is that a probationary license allows the holder to drive solo — without a supervising driver — though GDL curfew and passenger restrictions still apply."
+    },
+    {
+      "q": "To which age group does New Jersey's Graduated Driver License (GDL) program apply?",
+      "opts": [
+        "All new drivers, regardless of age",
+        "Drivers under 17 only",
+        "Drivers under 18 years of age",
+        "Drivers under 21 years of age"
+      ],
+      "ans": 2,
+      "exp": "The GDL program applies to drivers under 18. Those who first obtain a license at age 18 or older follow a non-GDL path."
+    },
+    {
+      "q": "If a GDL probationary license holder is convicted of a moving violation, what happens to their probationary period?",
+      "opts": [
+        "The license is immediately revoked",
+        "They must retake the written knowledge test",
+        "The probationary period is extended",
+        "They must complete a court-ordered driving course"
+      ],
+      "ans": 2,
+      "exp": "A moving violation conviction during the GDL probationary period results in an extension of that probationary period."
+    },
+    {
+      "q": "What must a GDL permit holder complete BEFORE taking the NJ road skills test?",
+      "opts": [
+        "Pass a defensive-driving simulator course",
+        "Hold the permit for the required period AND complete 50 supervised driving hours (including 10 at night)",
+        "Complete a mandatory classroom driver-education course",
+        "Obtain a letter of approval from a licensed driving instructor"
+      ],
+      "ans": 1,
+      "exp": "Before taking the road skills test, an applicant must hold the permit for the required period and log at least 50 supervised hours (10 at night)."
+    },
+    {
+      "q": "For a first-time NJ license applicant, which test is required to obtain an examination permit?",
+      "opts": [
+        "A road skills (behind-the-wheel) test only",
+        "A written knowledge test only",
+        "Both a written test and a road skills test",
+        "A medical physical examination"
+      ],
+      "ans": 1,
+      "exp": "Only the written knowledge test is required to obtain an examination permit. The road skills test comes later, for the probationary license."
+    },
+    {
+      "q": "How many questions appear on the standard NJ written knowledge test for a Class D license?",
+      "opts": ["25 questions","30 questions","40 questions","50 questions"],
+      "ans": 2,
+      "exp": "The standard NJ knowledge test for a Class D license contains 40 multiple-choice questions."
+    },
+    {
+      "q": "What is the minimum passing score (percentage) on the NJ driver's written knowledge test?",
+      "opts": ["70%","75%","80%","85%"],
+      "ans": 2,
+      "exp": "Applicants must answer at least 80% of questions correctly (32 out of 40) to pass the NJ knowledge test."
+    },
+    {
+      "q": "If an applicant fails the NJ knowledge test, how long must they wait before retaking it?",
+      "opts": ["24 hours","1 week","2 weeks","30 days"],
+      "ans": 2,
+      "exp": "Applicants who fail the NJ written knowledge test must wait at least 2 weeks before retaking the test."
+    },
+    {
+      "q": "Is obtaining a REAL ID-compliant NJ driver's license mandatory for all NJ residents?",
+      "opts": [
+        "Yes, all residents must upgrade by the federal deadline",
+        "No — it is voluntary; residents may choose a standard (non-REAL ID) license",
+        "Only required for residents who fly domestically more than twice per year",
+        "Only required for residents born outside the United States"
+      ],
+      "ans": 1,
+      "exp": "A REAL ID-compliant license is voluntary. Residents may choose a standard license, though it cannot be used for domestic air travel or to enter certain federal facilities."
+    },
+    {
+      "q": "In New Jersey, within how many days must a driver notify the MVC after changing their address?",
+      "opts": ["24 hours","3 days","1 week (7 days)","30 days"],
+      "ans": 2,
+      "exp": "New Jersey law requires drivers to notify the MVC within 1 week (7 days) of a change of address."
+    },
+    {
+      "q": "Which additional license or endorsement is required to operate a motorcycle in New Jersey?",
+      "opts": [
+        "A Class B CDL endorsement",
+        "A motorcycle (MC) license or a motorcycle endorsement on a Class D license",
+        "A Class A commercial permit",
+        "No additional endorsement — any license permits motorcycle operation"
+      ],
+      "ans": 1,
+      "exp": "To operate a motorcycle in NJ you must hold either a standalone motorcycle license or an MC endorsement added to your Class D license."
+    },
+    {
+      "q": "A Class C CDL in New Jersey is required for which type of vehicle?",
+      "opts": [
+        "Any vehicle over 10,000 lbs GVWR",
+        "Combination vehicles over 26,001 lbs GCWR",
+        "Vehicles designed to carry 16 or more persons (including driver), or those placarded for hazardous materials",
+        "Tow trucks and recovery vehicles only"
+      ],
+      "ans": 2,
+      "exp": "A Class C CDL is required for vehicles designed to transport 16 or more persons (including the driver), or vehicles carrying placarded quantities of hazardous materials."
+    },
+    {
+      "q": "Which of the following statements about a New Jersey examination permit is TRUE?",
+      "opts": [
+        "It allows solo driving between sunrise and sunset",
+        "It permits driving only on local streets, not highways",
+        "A licensed driver 21 or older must be in the front passenger seat whenever the permit holder drives",
+        "It is valid for 5 years from the date of issue"
+      ],
+      "ans": 2,
+      "exp": "Whenever a GDL examination permit holder is behind the wheel, a licensed driver who is at least 21 years old must be seated in the front passenger seat."
+    }
+  ]
+}
