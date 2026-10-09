@@ -1136,6 +1136,1080 @@ const QUIZZES = [
       }
     ]
   }
+  ,
+
+  // ════════════════════════════════════════════════
+  //  Physical Quantities & Their Units
+  // ════════════════════════════════════════════════
+  {
+    id: "physical-quantities-units",
+    title: "Physical Quantities & Their Units",
+    subtitle: "SI units, derived units, and unit equivalences",
+    icon: "⚛️",
+    passPct: 75,
+    questions: [
+      {
+        q: "What is the SI unit of force?",
+        opts: ["Joule","Newton","Pascal","Watt"],
+        ans: 1,
+        exp: "The newton (N) is the SI derived unit of force. By Newton's second law, 1 N = 1 kg·m/s². It is named after Sir Isaac Newton."
+      },
+      {
+        q: "What is the SI unit of energy or work?",
+        opts: ["Newton","Pascal","Joule","Watt"],
+        ans: 2,
+        exp: "The joule (J) is the SI unit of energy, work, and heat. 1 J = 1 N·m = 1 kg·m²/s²."
+      },
+      {
+        q: "What is the SI unit of power?",
+        opts: ["Joule","Newton","Volt","Watt"],
+        ans: 3,
+        exp: "The watt (W) is the SI unit of power (rate of energy transfer). 1 W = 1 J/s."
+      },
+      {
+        q: "What is the SI unit of pressure?",
+        opts: ["Newton","Joule","Pascal","Bar"],
+        ans: 2,
+        exp: "The pascal (Pa) is the SI unit of pressure and mechanical stress. 1 Pa = 1 N/m²."
+      },
+      {
+        q: "What is the SI unit of frequency?",
+        opts: ["Radian","Hertz","Becquerel","Decibel"],
+        ans: 1,
+        exp: "The hertz (Hz) is the SI unit of frequency, equal to one cycle (or event) per second. It is named after physicist Heinrich Hertz."
+      },
+      {
+        q: "What is the SI unit of electric charge?",
+        opts: ["Ampere","Volt","Farad","Coulomb"],
+        ans: 3,
+        exp: "The coulomb (C) is the SI unit of electric charge. 1 C = 1 A·s — the charge transferred by a current of one ampere in one second."
+      },
+      {
+        q: "What is the SI unit of electric potential difference (voltage)?",
+        opts: ["Ampere","Ohm","Volt","Coulomb"],
+        ans: 2,
+        exp: "The volt (V) is the SI unit of electric potential difference. 1 V = 1 J/C = 1 W/A."
+      },
+      {
+        q: "What is the SI unit of electrical resistance?",
+        opts: ["Siemens","Henry","Farad","Ohm"],
+        ans: 3,
+        exp: "The ohm (Ω) is the SI unit of electrical resistance, named after Georg Simon Ohm. 1 Ω = 1 V/A."
+      },
+      {
+        q: "What is the SI unit of electrical capacitance?",
+        opts: ["Henry","Farad","Weber","Tesla"],
+        ans: 1,
+        exp: "The farad (F) is the SI unit of electrical capacitance. 1 F = 1 C/V. It is named after Michael Faraday."
+      },
+      {
+        q: "What is the SI unit of electrical inductance?",
+        opts: ["Farad","Tesla","Henry","Weber"],
+        ans: 2,
+        exp: "The henry (H) is the SI unit of electrical inductance. 1 H = 1 V·s/A = 1 Wb/A. It is named after Joseph Henry."
+      },
+      {
+        q: "What is the SI unit of magnetic flux?",
+        opts: ["Tesla","Weber","Henry","Gauss"],
+        ans: 1,
+        exp: "The weber (Wb) is the SI unit of magnetic flux. 1 Wb = 1 V·s. A change of 1 Wb per second induces 1 V in a loop."
+      },
+      {
+        q: "What is the SI unit of magnetic flux density (the B field)?",
+        opts: ["Weber","Gauss","Henry","Tesla"],
+        ans: 3,
+        exp: "The tesla (T) is the SI unit of magnetic flux density. 1 T = 1 Wb/m². It is named after Nikola Tesla."
+      },
+      {
+        q: "What is the SI base unit of luminous intensity?",
+        opts: ["Lumen","Lux","Candela","Nit"],
+        ans: 2,
+        exp: "The candela (cd) is the SI base unit of luminous intensity. It describes the power of light emitted in a specific direction."
+      },
+      {
+        q: "What is the SI unit of luminous flux?",
+        opts: ["Candela","Lux","Nit","Lumen"],
+        ans: 3,
+        exp: "The lumen (lm) is the SI unit of luminous flux — the total quantity of visible light emitted. 1 lm = 1 cd·sr."
+      },
+      {
+        q: "What is the SI unit of illuminance?",
+        opts: ["Lumen","Lux","Candela","Lumen/watt"],
+        ans: 1,
+        exp: "The lux (lx) is the SI unit of illuminance (light falling on a surface). 1 lx = 1 lm/m²."
+      },
+      {
+        q: "What is the SI base unit of amount of substance?",
+        opts: ["Dalton","Mole","Gram","Avogadro"],
+        ans: 1,
+        exp: "The mole (mol) is the SI base unit for amount of substance. One mole contains approximately 6.022 × 10²³ elementary entities (Avogadro's number)."
+      },
+      {
+        q: "What is the SI base unit of thermodynamic temperature?",
+        opts: ["Celsius","Fahrenheit","Kelvin","Rankine"],
+        ans: 2,
+        exp: "The kelvin (K) is the SI base unit of thermodynamic temperature. Absolute zero is 0 K (equal to −273.15 °C). Note: we say 'kelvin', not 'degrees kelvin'."
+      },
+      {
+        q: "What is the SI unit of radioactivity (rate of nuclear decay)?",
+        opts: ["Gray","Sievert","Becquerel","Curie"],
+        ans: 2,
+        exp: "The becquerel (Bq) is the SI unit of radioactivity. 1 Bq = 1 nuclear disintegration per second. It replaced the older unit, the curie (Ci)."
+      },
+      {
+        q: "What is the SI unit of absorbed radiation dose?",
+        opts: ["Sievert","Rem","Gray","Becquerel"],
+        ans: 2,
+        exp: "The gray (Gy) is the SI unit of absorbed radiation dose. 1 Gy = 1 J/kg of energy deposited in matter by ionizing radiation."
+      },
+      {
+        q: "What is the SI unit of equivalent (effective) radiation dose, which accounts for biological harm?",
+        opts: ["Gray","Rem","Becquerel","Sievert"],
+        ans: 3,
+        exp: "The sievert (Sv) is the SI unit of equivalent radiation dose. It weights absorbed dose by a radiation weighting factor to reflect biological effectiveness."
+      },
+      {
+        q: "One newton is equal to:",
+        opts: ["1 kg·m/s","1 kg·m/s²","1 kg·m²/s²","1 J/m²"],
+        ans: 1,
+        exp: "From Newton's second law F = ma: 1 N = 1 kg × 1 m/s². It is the force needed to accelerate a 1 kg mass at 1 m/s²."
+      },
+      {
+        q: "One joule is equal to:",
+        opts: ["1 N/m","1 kg·m²/s","1 N·m","1 kg·m/s²"],
+        ans: 2,
+        exp: "1 J = 1 N·m (force times distance). Expanding: 1 J = 1 kg·m²/s²."
+      },
+      {
+        q: "One pascal is equal to:",
+        opts: ["1 N·m","1 N/m²","1 J/m","1 kg·m/s²"],
+        ans: 1,
+        exp: "Pressure = Force/Area, so 1 Pa = 1 N/m². Expanding further: 1 Pa = 1 kg/(m·s²)."
+      },
+      {
+        q: "One watt is equal to:",
+        opts: ["1 N·m","1 J·s","1 J/s","1 N/s"],
+        ans: 2,
+        exp: "Power = energy per unit time, so 1 W = 1 J/s. It can also be written as 1 kg·m²/s³."
+      },
+      {
+        q: "One volt is equal to:",
+        opts: ["1 J/A","1 J/C","1 C/J","1 W/C"],
+        ans: 1,
+        exp: "Voltage = energy per unit charge, so 1 V = 1 J/C. It can also be expressed as 1 W/A."
+      },
+      {
+        q: "Which physical quantity has SI base-unit dimensions of kg·m²/s²?",
+        opts: ["Force","Power","Energy (work)","Pressure"],
+        ans: 2,
+        exp: "Energy has dimensions of kg·m²/s² — the same as joules. (Force = kg·m/s², Power = kg·m²/s³, Pressure = kg/(m·s²).)"
+      },
+      {
+        q: "The SI unit of momentum is:",
+        opts: ["Newton","kg·m/s","Joule/meter","kg/s"],
+        ans: 1,
+        exp: "Momentum p = mv, so its unit is kg·m/s. This is equivalent to N·s (newton-seconds), since 1 N = 1 kg·m/s²."
+      },
+      {
+        q: "The unit of impulse (J = F·Δt) is:",
+        opts: ["N·m","N·s","kg·m²/s","J/s"],
+        ans: 1,
+        exp: "Impulse = Force × time = N·s. By the impulse-momentum theorem, 1 N·s = 1 kg·m/s — the change in momentum."
+      },
+      {
+        q: "The unit of torque (moment of force) is:",
+        opts: ["Joule","Newton-meter (N·m)","Pascal","Watt"],
+        ans: 1,
+        exp: "Torque is measured in newton-meters (N·m). Although it has the same dimensions as energy (joules), torque is expressed as N·m to distinguish it from work/energy."
+      },
+      {
+        q: "The SI unit of angular velocity (ω) is:",
+        opts: ["Hertz","Revolution per minute","Radian per second","Degree per second"],
+        ans: 2,
+        exp: "Angular velocity is measured in radians per second (rad/s) in SI. While Hz and rpm are also used in practice, rad/s is the standard SI unit."
+      },
+      {
+        q: "The unit of angular momentum (L = Iω) is:",
+        opts: ["kg·m²/s","J·s","N·m·s","All of the above"],
+        ans: 3,
+        exp: "Angular momentum has units of kg·m²/s, which is equivalent to J·s (joule-seconds) and N·m·s — all three expressions are correct."
+      },
+      {
+        q: "The unit of specific heat capacity (c) is:",
+        opts: ["J/kg","J/(kg·K)","cal/g","J/mol"],
+        ans: 1,
+        exp: "Specific heat capacity measures energy required per unit mass per unit temperature change. Its SI unit is J/(kg·K) — joules per kilogram per kelvin."
+      },
+      {
+        q: "The unit of thermal conductivity (λ) is:",
+        opts: ["W/m²","W/K","W/(m·K)","J/(m²·K)"],
+        ans: 2,
+        exp: "Thermal conductivity is measured in W/(m·K) — watts per meter per kelvin. It describes how readily a material conducts heat."
+      },
+      {
+        q: "The unit of dynamic (shear) viscosity (η) is:",
+        opts: ["m²/s","Pa·s","N/m","kg/(m·s²)"],
+        ans: 1,
+        exp: "Dynamic viscosity is measured in pascal-seconds (Pa·s), equivalent to kg/(m·s). An older CGS unit is the poise (P), where 1 Pa·s = 10 P."
+      },
+      {
+        q: "The unit of kinematic viscosity (ν = η/ρ) is:",
+        opts: ["Pa·s","kg/(m·s)","m²/s","N·s/m²"],
+        ans: 2,
+        exp: "Kinematic viscosity = dynamic viscosity ÷ density = (Pa·s)/(kg/m³) = m²/s. The CGS unit is the stokes (St), where 1 St = 10⁻⁴ m²/s."
+      },
+      {
+        q: "The unit of surface tension (γ) is:",
+        opts: ["Pa","N/m","J/m²","Both N/m and J/m²"],
+        ans: 3,
+        exp: "Surface tension can be expressed as N/m (force per unit length) or J/m² (energy per unit area). These are dimensionally identical: 1 N/m = 1 J/m²."
+      },
+      {
+        q: "The unit of electric field strength (E) is:",
+        opts: ["Tesla","V/m","C/m²","A/m"],
+        ans: 1,
+        exp: "Electric field strength is measured in volts per meter (V/m), which is equivalent to newtons per coulomb (N/C). Both forms appear in textbooks."
+      },
+      {
+        q: "The unit of magnetic field intensity (the H field) is:",
+        opts: ["Tesla","Weber/m²","Ampere/meter (A/m)","Gauss"],
+        ans: 2,
+        exp: "The H field (magnetic field intensity) is measured in A/m. This differs from the B field (magnetic flux density), which is in teslas."
+      },
+      {
+        q: "The unit of electrical conductance (the inverse of resistance) is:",
+        opts: ["Ohm","Farad","Siemens","Henry"],
+        ans: 2,
+        exp: "The siemens (S) is the SI unit of electrical conductance. 1 S = 1/Ω. It was formerly called the 'mho' (ohm spelled backwards)."
+      },
+      {
+        q: "What does the unit 'lux' measure?",
+        opts: ["Luminous intensity","Luminous flux","Illuminance (light incident on a surface)","Luminous efficacy"],
+        ans: 2,
+        exp: "Lux (lx) measures illuminance — the luminous flux received per unit area of a surface. 1 lx = 1 lm/m²."
+      },
+      {
+        q: "What physical quantity does the unit 'henry' (H) measure?",
+        opts: ["Electrical resistance","Magnetic flux density","Electrical inductance","Electrical capacitance"],
+        ans: 2,
+        exp: "The henry (H) measures electrical inductance. An inductor has 1 H of inductance if a current change of 1 A/s induces an EMF of 1 V."
+      },
+      {
+        q: "What is the SI unit for plane angle?",
+        opts: ["Degree","Grad","Radian","Arc-minute"],
+        ans: 2,
+        exp: "The radian (rad) is the SI unit of plane angle. It is defined as the angle subtended at a circle's center by an arc equal in length to the radius. 2π rad = 360°."
+      },
+      {
+        q: "What is the SI unit for solid angle?",
+        opts: ["Radian","Steradian","Square degree","Sphere"],
+        ans: 1,
+        exp: "The steradian (sr) is the SI unit of solid angle. A complete sphere subtends 4π steradians. 1 sr is the solid angle that cuts out an area r² on a sphere of radius r."
+      },
+      {
+        q: "The SI unit of molar concentration (molarity) is:",
+        opts: ["mol/L","mol/m³","g/L","kg/mol"],
+        ans: 1,
+        exp: "The strict SI unit of molar concentration is mol/m³, but in chemistry mol/L (= M, molar) is standard. 1 mol/L = 1000 mol/m³."
+      },
+      {
+        q: "The SI unit of density is:",
+        opts: ["kg/m","kg/m²","kg/m³","g/cm³"],
+        ans: 2,
+        exp: "Density = mass/volume, so the SI unit is kg/m³. The practical unit g/cm³ is also common (1 g/cm³ = 1000 kg/m³)."
+      },
+      {
+        q: "1 kilowatt-hour (kWh), the unit on electricity bills, equals:",
+        opts: ["3.6 × 10³ J","3.6 × 10⁴ J","3.6 × 10⁶ J","3.6 × 10⁹ J"],
+        ans: 2,
+        exp: "1 kWh = 1000 W × 3600 s = 3,600,000 J = 3.6 × 10⁶ J. The kilowatt-hour is a unit of energy commonly used for household electricity."
+      },
+      {
+        q: "One electron-volt (eV) is approximately equal to:",
+        opts: ["1.6 × 10⁻²² J","1.6 × 10⁻¹⁹ J","9.1 × 10⁻³¹ J","6.63 × 10⁻³⁴ J"],
+        ans: 1,
+        exp: "1 eV = 1.602 × 10⁻¹⁹ J. It is the kinetic energy gained by an electron accelerated through a potential difference of 1 volt. (9.1 × 10⁻³¹ kg is the electron's mass; 6.63 × 10⁻³⁴ J·s is Planck's constant.)"
+      },
+      {
+        q: "The unit of Planck's constant (h) is:",
+        opts: ["J/s","J·s","eV","kg·m/s"],
+        ans: 1,
+        exp: "Planck's constant h has units of J·s (joule-seconds), equivalent to kg·m²/s. It relates the energy of a photon to its frequency: E = hf."
+      },
+      {
+        q: "Which of the following is NOT an SI base unit?",
+        opts: ["Kilogram (mass)","Ampere (electric current)","Newton (force)","Kelvin (temperature)"],
+        ans: 2,
+        exp: "The newton is a derived SI unit (kg·m/s²), not a base unit. The seven SI base units are: metre, kilogram, second, ampere, kelvin, mole, and candela."
+      },
+      {
+        q: "The unit of electric flux (ΦE) is:",
+        opts: ["T·m²","V·m (or N·m²/C)","C/m²","A/m"],
+        ans: 1,
+        exp: "Electric flux is measured in V·m (volt-meters), which is equivalent to N·m²/C. It represents the total electric field passing through a surface."
+      }
+    ]
+  }
+  ,
+
+  // ════════════════════════════════════════════════
+  //  CHAPTER 4 — Rules of the Road
+  // ════════════════════════════════════════════════
+  {
+    id: "nj-drivers-ch4",
+    title: "NJ Driver's Manual – Chapter 4",
+    subtitle: "Rules of the Road",
+    icon: "📋",
+    passPct: 80,
+    questions: [
+      {
+        q: "What is the default speed limit in a business or residential district in NJ unless otherwise posted?",
+        opts: ["15 mph","25 mph","35 mph","45 mph"],
+        ans: 1,
+        exp: "The default speed limit in a business or residential district in NJ is 25 mph. Always obey posted signs, which may set a different limit."
+      },
+      {
+        q: "What is the default speed limit on a state highway in NJ unless otherwise posted?",
+        opts: ["35 mph","45 mph","50 mph","55 mph"],
+        ans: 3,
+        exp: "The default speed limit on NJ state highways is 55 mph. Some sections of major expressways may be posted at 65 mph."
+      },
+      {
+        q: "The '3-second rule' is used to determine:",
+        opts: ["How long to signal before turning","A safe following distance behind the vehicle ahead","The time to remain stopped at a red light","The maximum time to complete a lane change"],
+        ans: 1,
+        exp: "The 3-second rule establishes a safe following distance. Pick a fixed roadside object, watch the vehicle ahead pass it, then count — you should not reach that point in fewer than 3 seconds."
+      },
+      {
+        q: "To apply the 3-second following distance rule, you should:",
+        opts: ["Count 3 seconds from when you first see a hazard","Watch the vehicle ahead pass a fixed object, then count at least 3 seconds before you reach that same point","Stay exactly 3 car lengths behind at all speeds","Allow 3 seconds of reaction time added to braking distance"],
+        ans: 1,
+        exp: "Choose any fixed roadside marker (a sign, tree, or shadow). The moment the vehicle ahead passes it, start counting. If you reach the marker in fewer than 3 seconds, you are following too closely."
+      },
+      {
+        q: "In NJ, what is the minimum distance you must park from a fire hydrant?",
+        opts: ["5 feet","10 feet","15 feet","25 feet"],
+        ans: 1,
+        exp: "You must park at least 10 feet from a fire hydrant in NJ. Blocking a hydrant can delay firefighters responding to an emergency."
+      },
+      {
+        q: "How far from a stop sign must you NOT park in NJ?",
+        opts: ["10 feet","15 feet","25 feet","50 feet"],
+        ans: 2,
+        exp: "NJ law prohibits parking within 25 feet of a stop sign, intersection, or crosswalk. Parked vehicles at those locations block visibility for both drivers and pedestrians."
+      },
+      {
+        q: "When making a right turn, you should approach from:",
+        opts: ["The left lane","The center lane","The rightmost available lane","Any lane that is clear"],
+        ans: 2,
+        exp: "Begin and end a right turn in the rightmost lane. Approaching from any other lane creates crossing conflicts with other vehicles."
+      },
+      {
+        q: "When making a left turn on a two-way road, you should approach from:",
+        opts: ["The rightmost lane","The lane nearest to the center line","The center turn lane if one exists, otherwise the lane nearest the center","Any lane, provided you signal"],
+        ans: 2,
+        exp: "For left turns, approach from the lane nearest the center line (or the center turn lane if one is marked). Complete the turn into the nearest left lane of the cross street."
+      },
+      {
+        q: "When is it legal to pass another vehicle on the right in NJ?",
+        opts: ["Never — passing on the right is always prohibited","When the vehicle ahead is turning left and there is enough room on the right","On a one-way road with two or more lanes","Both when the vehicle is turning left and on multi-lane one-way roads"],
+        ans: 3,
+        exp: "Passing on the right is permitted when (1) the vehicle ahead is making or about to make a left turn and there is room to pass safely, or (2) the road is a one-way street with two or more lanes."
+      },
+      {
+        q: "Before changing lanes, the correct sequence of actions is:",
+        opts: ["Signal, speed up, change lanes","Check mirrors, signal, check blind spot, change lanes smoothly when safe","Change quickly — the less time in the blind spot the better","Signal and change simultaneously"],
+        ans: 1,
+        exp: "Always signal your intent first, check all mirrors, physically check the blind spot (look over your shoulder), then change lanes smoothly when the gap is safe."
+      },
+      {
+        q: "In NJ, you must signal before a turn at least how far in advance?",
+        opts: ["50 feet","100 feet","200 feet","500 feet"],
+        ans: 1,
+        exp: "NJ law requires you to signal at least 100 feet before making a turn or lane change. This gives other drivers time to react to your intentions."
+      },
+      {
+        q: "A 'No Standing' zone means:",
+        opts: ["You may never stop for any reason","You may stop briefly to pick up or drop off passengers only — the driver must remain at the wheel and be ready to move","You may park if the driver stays in the vehicle","No parking during peak hours"],
+        ans: 1,
+        exp: "No Standing allows only a momentary stop to board or discharge passengers; the driver must remain ready to move immediately. No Loading/Unloading of freight is permitted."
+      },
+      {
+        q: "A 'No Stopping' zone means:",
+        opts: ["No parking, but standing and loading are allowed","You may stop only if a traffic signal requires it or in an emergency","You may stop briefly with driver in the vehicle","Stopping is prohibited at all times for all purposes except emergencies or traffic conditions"],
+        ans: 3,
+        exp: "A No Stopping zone is the most restrictive — no stopping is allowed for any reason except compliance with a traffic control device, a law enforcement officer's direction, or an emergency."
+      },
+      {
+        q: "In NJ, headlights are required:",
+        opts: ["Only when it is completely dark","From sunset to sunrise, and any time visibility is reduced to 500 feet or less","Only on highways","From 10 PM to 6 AM"],
+        ans: 1,
+        exp: "NJ law requires headlights from sunset to sunrise and whenever weather or other conditions (fog, rain, smoke) reduce visibility to 500 feet or less."
+      },
+      {
+        q: "NJ law requires headlights to be on whenever:",
+        opts: ["The radio is on","Windshield wipers are in use due to rain, snow, or other precipitation","The engine is running","You are within 500 feet of a school"],
+        ans: 1,
+        exp: "NJ's 'Wipers On — Lights On' law requires headlights to be illuminated any time the windshield wipers are being used due to precipitation. This increases visibility for all road users."
+      },
+      {
+        q: "Your vehicle's horn should be used:",
+        opts: ["To express frustration at slow traffic","To greet people you know","Only as a warning — to alert others to avoid a collision","Freely to communicate with other drivers"],
+        ans: 2,
+        exp: "The horn is a safety device, not a communication tool. Use it only to warn other drivers or pedestrians of a hazard — not to express anger or impatience."
+      },
+      {
+        q: "You must stop at a railroad crossing when:",
+        opts: ["Only when the gate is fully down","Only when a train is visibly approaching","When warning lights flash, the gate is lowering, a crossing guard signals you, or a train is approaching or audible","Only when a flagman is present"],
+        ans: 2,
+        exp: "Stop at railroad crossings whenever warning lights flash, a gate is lowering, a crossing guard signals you to stop, or you can see or hear an approaching train."
+      },
+      {
+        q: "How close to the nearest rail may you stop at a railroad crossing?",
+        opts: ["Right at the rail","At least 10 feet","At least 15 feet","At least 25 feet"],
+        ans: 2,
+        exp: "NJ law requires stopping at least 15 feet from the nearest rail at a railroad crossing. Never stop on the tracks — if traffic ahead is backed up, wait behind the crossing."
+      },
+      {
+        q: "On a multi-lane highway, slower traffic should:",
+        opts: ["Drive in the left (passing) lane","Alternate lanes frequently","Stay in the right lane and allow faster traffic to pass on the left","Use the center lane"],
+        ans: 2,
+        exp: "Keep right except to pass. Slower vehicles should remain in the right lane(s). Impeding traffic by driving slowly in the left lane is illegal in NJ."
+      },
+      {
+        q: "When parking facing downhill with a curb, you should turn your front wheels:",
+        opts: ["Away from the curb","Toward (into) the curb","Straight ahead","To the left regardless of direction"],
+        ans: 1,
+        exp: "Facing downhill: turn wheels toward (into) the curb. If the vehicle rolls, the tire will contact the curb and stop it. Engage the parking brake and leave in Park (or reverse for manual)."
+      },
+      {
+        q: "When parking facing uphill with a curb, you should turn your front wheels:",
+        opts: ["Toward (into) the curb","Away from the curb","Straight ahead","To the right regardless of direction"],
+        ans: 1,
+        exp: "Facing uphill with a curb: turn wheels away from the curb (toward the road). If the vehicle rolls back, the tire will catch the curb. Engage the parking brake."
+      },
+      {
+        q: "The hand signal for a left turn is:",
+        opts: ["Left arm bent upward at the elbow","Left arm extended straight out to the left","Right arm out the window pointing left","Left hand out window pointing down"],
+        ans: 1,
+        exp: "Left turn: extend the left arm straight out horizontally through the window. This is the standard hand signal recognized in NJ."
+      },
+      {
+        q: "The hand signal for a right turn is:",
+        opts: ["Right arm extended out","Left arm extended straight to the left","Left arm bent upward at the elbow (90°)","Left arm pointing downward"],
+        ans: 2,
+        exp: "Right turn: extend the left arm out the window and bend it upward at a 90° angle at the elbow (hand pointing up). This is the standard hand signal."
+      },
+      {
+        q: "The hand signal for slowing down or stopping is:",
+        opts: ["Both hands raised","Left arm pointing straight up","Left arm bent downward at the elbow (hand pointing down)","Right arm out the window"],
+        ans: 2,
+        exp: "Slowing/stopping: extend the left arm out the window and bend it downward at a 90° angle (hand pointing toward the ground)."
+      },
+      {
+        q: "In NJ, what is the legal BAC limit for drivers under the age of 21?",
+        opts: ["0.01%","0.02%","0.04%","0.08%"],
+        ans: 0,
+        exp: "NJ enforces a zero-tolerance policy for underage drivers: a BAC of 0.01% or higher (essentially any detectable alcohol) results in a DWI charge for drivers under 21."
+      },
+      {
+        q: "The legal BAC limit for commercial vehicle (CDL) drivers in NJ is:",
+        opts: ["0.01%","0.04%","0.06%","0.08%"],
+        ans: 1,
+        exp: "Commercial drivers are held to a stricter standard: a BAC of 0.04% or higher while operating a commercial vehicle constitutes DWI in NJ, half the limit for regular drivers."
+      },
+      {
+        q: "NJ law prohibits which of the following while driving?",
+        opts: ["Using a hands-free Bluetooth device","Using a handheld mobile phone or device for any purpose","Listening to music through a car stereo","Using a built-in GPS navigation screen"],
+        ans: 1,
+        exp: "NJ bans all use of handheld electronic devices while driving (calling, texting, browsing). Hands-free devices are permitted. Violations carry significant fines and points."
+      },
+      {
+        q: "Traffic fines in a designated work (construction) zone in NJ are:",
+        opts: ["Reduced because the road is under construction","The same as in any other zone","Doubled","Tripled for commercial vehicles"],
+        ans: 2,
+        exp: "In NJ work zones, all motor vehicle fines are doubled. Workers are at risk, and higher fines deter dangerous driving through these zones."
+      },
+      {
+        q: "When an emergency vehicle with lights and siren is approaching from behind while you are stopped at a red light, you should:",
+        opts: ["Run the red light immediately to clear the way","Stay stopped until the light turns green, then pull to the right and stop","Remain in place — do not move until you can safely pull to the right","Back up to create space"],
+        ans: 2,
+        exp: "Never run a red light for an emergency vehicle. Remain stopped, and as soon as it is safe, pull to the right of the intersection and stop to let the emergency vehicle pass."
+      },
+      {
+        q: "After an emergency vehicle with lights and siren passes you, you should:",
+        opts: ["Follow closely behind it for guidance","Wait at least 30 seconds before moving","Not follow within 300–500 feet of the emergency vehicle; wait until it is safely clear","Resume normal speed immediately"],
+        ans: 2,
+        exp: "Do not follow an emergency vehicle within 300–500 feet while its lights and siren are active. Other emergency vehicles may be following, and the scene ahead may be dangerous."
+      },
+      {
+        q: "In NJ, you may make a U-turn:",
+        opts: ["At any intersection if traffic allows","Only on one-way streets","Where it can be made safely and is not prohibited by posted signs or law","Only if no vehicles are within 200 feet"],
+        ans: 2,
+        exp: "U-turns are permitted where they can be completed safely and where signs don't prohibit them. They are forbidden in business districts, near hills, curves, bridges, tunnels, and near railroad crossings."
+      },
+      {
+        q: "If your wheels drop off the edge of the pavement onto the shoulder, you should:",
+        opts: ["Immediately jerk the steering wheel back onto the road","Brake hard to stop on the shoulder","Ease off the gas, hold the wheel straight, slow down gradually, then steer gently back onto the pavement","Accelerate to regain traction"],
+        ans: 2,
+        exp: "Never jerk back onto the road at speed — your vehicle can roll over. Instead, ease off the gas, keep the vehicle straight and controlled on the shoulder, slow down, and then gently steer back onto the pavement."
+      },
+      {
+        q: "You must dim your high beams to low beams:",
+        opts: ["Only in fog","Whenever another vehicle is within 500 feet approaching from the front, or within 200–300 feet of a vehicle you are following","Only when directed by road signs","Only after midnight"],
+        ans: 1,
+        exp: "NJ law requires switching to low beams when within 500 feet of an oncoming vehicle or within 200–300 feet when following another vehicle. High beams blind other drivers."
+      },
+      {
+        q: "When parallel parking, your vehicle should be no more than how far from the curb?",
+        opts: ["6 inches","12 inches","18 inches","24 inches"],
+        ans: 1,
+        exp: "When parallel parked, your vehicle must be within 6 inches of the curb (NJ standard). Parking too far out creates a hazard for passing traffic."
+      },
+      {
+        q: "When entering a highway from an on-ramp, you should:",
+        opts: ["Stop at the end of the ramp and wait for a large gap","Enter at a slow speed to show caution","Accelerate in the merge lane (acceleration lane) to match highway speed before merging","Use your horn to alert highway traffic"],
+        ans: 2,
+        exp: "The acceleration lane is designed for you to reach highway speed before merging. Entering too slowly disrupts traffic flow and increases the risk of rear-end collisions."
+      },
+      {
+        q: "When exiting a highway, you should:",
+        opts: ["Brake hard as soon as you see the exit sign","Move into the exit lane in advance and begin slowing on the exit ramp, not on the main roadway","Signal and brake simultaneously on the main roadway","Exit at full highway speed to match the ramp's curve"],
+        ans: 1,
+        exp: "Move to the exit lane well in advance. Braking on the highway's main lanes (instead of the exit ramp) is dangerous because drivers behind you expect normal highway speeds."
+      },
+      {
+        q: "In NJ, 'Driving While Intoxicated' (DWI) for drivers 21 and older is defined as a BAC of:",
+        opts: ["0.05% or higher","0.06% or higher","0.08% or higher","0.10% or higher"],
+        ans: 2,
+        exp: "A BAC of 0.08% or higher is the legal threshold for DWI for drivers aged 21 and over. First-offense DWI in NJ carries significant fines, license suspension, and possible jail time."
+      },
+      {
+        q: "Which of the following actions is permitted while driving in NJ?",
+        opts: ["Holding a cell phone to your ear to make a call","Sending a text message at a red light","Using a hands-free (Bluetooth) device to talk","Browsing social media at a stop sign"],
+        ans: 2,
+        exp: "Hands-free phone use is permitted while driving in NJ. Any handheld use — including at traffic lights or stop signs — is prohibited and subject to fines."
+      },
+      {
+        q: "When may you legally cross a double solid yellow center line on a two-lane road?",
+        opts: ["Never — not for any reason","To pass a slow-moving farm vehicle if no traffic is oncoming","To turn left into a driveway or side road","To avoid a pothole or debris in your lane"],
+        ans: 2,
+        exp: "Double solid yellow lines prohibit passing, but you may still cross them to turn left into a driveway, side road, or alley. The restriction applies to passing, not to left turns."
+      },
+      {
+        q: "A green traffic light gives you permission to proceed, but you must still:",
+        opts: ["Immediately accelerate through the intersection","Yield to any vehicles or pedestrians already in the intersection or crosswalk","Check for cross traffic only if the light just turned green","Flash your headlights to warn cross traffic"],
+        ans: 1,
+        exp: "Green means you may proceed — not that you must proceed. Always yield to vehicles and pedestrians already lawfully in the intersection, and to emergency vehicles."
+      },
+      {
+        q: "The speed limit near a school in NJ when children are present is:",
+        opts: ["10 mph","15 mph","25 mph","As posted by the school zone signs"],
+        ans: 3,
+        exp: "School zone speed limits are posted and vary by location. Drivers must obey the posted school zone speed when warning lights are active or children are present."
+      }
+    ]
+  },
+
+  // ════════════════════════════════════════════════
+  //  CHAPTER 5 — Defensive Driving & Special Conditions
+  // ════════════════════════════════════════════════
+  {
+    id: "nj-drivers-ch5",
+    title: "NJ Driver's Manual – Chapter 5",
+    subtitle: "Defensive Driving & Special Conditions",
+    icon: "🛡️",
+    passPct: 80,
+    questions: [
+      {
+        q: "Defensive driving is best defined as:",
+        opts: ["Driving aggressively to avoid slow drivers","Adjusting your driving to obey every traffic law","Anticipating hazards and responding safely before problems develop","Always driving at or below the speed limit"],
+        ans: 2,
+        exp: "Defensive driving means actively scanning the road, predicting the actions of others, and taking precautionary action to avoid crashes — not merely reacting to them."
+      },
+      {
+        q: "In adverse conditions such as rain, fog, or ice, your following distance should be:",
+        opts: ["The same as in dry, clear conditions","Reduced so you can react to the vehicle ahead","At least doubled — 6 or more seconds instead of 3","One car length per 10 mph of speed"],
+        ans: 2,
+        exp: "Double your following distance (6+ seconds) in wet, icy, or foggy conditions. Stopping distances increase dramatically, and visibility is reduced."
+      },
+      {
+        q: "Hydroplaning occurs when:",
+        opts: ["Your engine overheats on a wet road","Your tires ride on a film of water and lose contact with the road surface","Your windshield wipers cannot clear rain fast enough","Water enters through a window seal"],
+        ans: 1,
+        exp: "Hydroplaning happens when a layer of water builds up between the tires and the road, causing the tires to lose traction. It can occur at speeds as low as 35 mph on wet roads."
+      },
+      {
+        q: "To recover from hydroplaning, you should:",
+        opts: ["Apply the brakes firmly and steer to the shoulder","Swerve quickly to the side to find dry pavement","Ease off the gas gradually; do NOT brake or steer sharply until tires regain contact","Accelerate to spin the tires back into contact"],
+        ans: 2,
+        exp: "Ease off the accelerator gently. Sudden braking or steering while hydroplaning can cause a spin. Allow the tires to slow naturally and regain road contact before steering."
+      },
+      {
+        q: "'Black ice' is dangerous primarily because:",
+        opts: ["It forms only on bridges and overpasses","It melts quickly and makes the road slippery","It is a thin, transparent layer of ice nearly invisible on the pavement surface","It is blacker than normal ice and harder to remove"],
+        ans: 2,
+        exp: "Black ice appears as a wet-looking sheen on the pavement. Because it is nearly invisible, drivers often fail to slow down in time. It commonly forms in shaded areas, bridges, and overpasses."
+      },
+      {
+        q: "During a rear-wheel skid (fishtail), you should steer:",
+        opts: ["Sharply away from the direction the rear is sliding","Straight ahead and brake hard","Into the direction the rear of the car is sliding (in the direction you want the front to go)","To the left regardless of which way the car is sliding"],
+        ans: 2,
+        exp: "For a rear-wheel skid, steer gently toward the direction the rear is sliding (often called 'steering into the skid') while easing off the gas. This straightens the vehicle."
+      },
+      {
+        q: "In fog, you should use:",
+        opts: ["High beams to illuminate the road further ahead","Hazard flashers to alert other drivers","Low beams (or fog lights if equipped)","No lights — they create dangerous glare in fog"],
+        ans: 2,
+        exp: "Use low beams in fog. High beams reflect off water droplets in the fog and create a 'white wall' of glare that actually reduces your ability to see."
+      },
+      {
+        q: "When driving in heavy fog, you should:",
+        opts: ["Speed up to get out of the fog faster","Follow another vehicle closely to use their lights as a guide","Reduce your speed significantly, use low beams, and increase your following distance","Turn on your high beams and keep your speed"],
+        ans: 2,
+        exp: "In heavy fog, slow down well below the posted limit, use low beams (not high beams), increase following distance, and be prepared to stop for hazards you cannot see until the last moment."
+      },
+      {
+        q: "High beams must be dimmed to low beams when:",
+        opts: ["You are within 500 feet of an oncoming vehicle, or within 200–300 feet of a vehicle ahead","Only when the oncoming driver flashes their lights","Only in residential areas","Only between 10 PM and 6 AM"],
+        ans: 0,
+        exp: "Dim your high beams when within 500 feet of oncoming traffic (approaching from the front) or within 200–300 feet when following another vehicle. High beams temporarily blind other drivers."
+      },
+      {
+        q: "'Overdriving your headlights' means driving at a speed where:",
+        opts: ["You are using high beams when low beams would suffice","You cannot stop within the distance illuminated by your headlights","Your headlights are too bright for the road","You are faster than your headlights can track"],
+        ans: 1,
+        exp: "Overdriving your headlights means you are going so fast that your stopping distance exceeds how far your headlights let you see. If a hazard appears at the edge of your visibility, you cannot stop in time."
+      },
+      {
+        q: "If your brakes suddenly fail while driving, the recommended sequence of actions is:",
+        opts: ["Immediately turn the ignition off","Shift into reverse to slow the vehicle","Pump the brake pedal rapidly (this may restore hydraulic pressure), downshift to a lower gear, and use the parking brake gradually","Swerve off the road at the first opportunity"],
+        ans: 2,
+        exp: "Pump the brakes rapidly to try to restore hydraulic pressure. Downshift to slow the engine. Apply the parking/emergency brake gradually (not suddenly). Look for a safe escape route — a runaway-truck ramp, uphill slope, or soft shoulder."
+      },
+      {
+        q: "What is the biggest danger of 'highway hypnosis' (monotony)?",
+        opts: ["High speed in curves","The driver becomes drowsy or inattentive due to the monotonous straight road and may stop scanning actively","Sun glare on straight highways","Wind buffeting on open roads"],
+        ans: 1,
+        exp: "Long, featureless highways can lull drivers into a trance-like state where they lose awareness of their surroundings. To avoid it: keep eyes moving, take breaks every 2 hours, and make sure you are well rested."
+      },
+      {
+        q: "The most effective prevention for driver fatigue is:",
+        opts: ["Drinking a caffeinated beverage every hour","Opening windows for fresh air","Getting adequate sleep before driving and taking a real rest break every 2 hours","Playing loud music to stay alert"],
+        ans: 2,
+        exp: "Only genuine rest and sleep restores alertness. Caffeine, fresh air, and loud music provide only temporary, unreliable stimulation and should never be substituted for real rest."
+      },
+      {
+        q: "Stopping distances on ice or snow compared to dry pavement can be:",
+        opts: ["About the same if you have good tires","Twice as long","3 to 12 times longer","Only slightly longer at low speeds"],
+        ans: 2,
+        exp: "Ice and snow dramatically reduce tire-road friction. Stopping distances can be 3 to 12 times greater than on dry pavement, which is why much greater following distances are required."
+      },
+      {
+        q: "When your vehicle begins to skid, the very first action you should take is:",
+        opts: ["Apply the brakes immediately","Ease off the gas (accelerator) gradually","Steer sharply in the opposite direction","Shift to neutral"],
+        ans: 1,
+        exp: "Ease off the gas first. Sudden braking or sharp steering during a skid often makes it worse. Decelerating gradually allows you to regain some control before correcting your steering."
+      },
+      {
+        q: "The 'space cushion' in defensive driving means:",
+        opts: ["The time delay before reacting to a hazard","Maintaining adequate open space around your vehicle in all directions at all times","The recommended gap between your vehicle and a truck","The distance needed to complete an emergency stop"],
+        ans: 1,
+        exp: "A space cushion — open space maintained on all sides of your vehicle — gives you time and room to react and maneuver if another driver makes a mistake."
+      },
+      {
+        q: "When driving at night, you should drive at a speed where you can:",
+        opts: ["Stop within twice the distance your headlights illuminate","Stop within the distance you can see with your headlights","Always stop within 300 feet","Keep pace with other traffic regardless of headlight range"],
+        ans: 1,
+        exp: "Drive at a speed where you can stop within the distance your headlights illuminate. Driving faster means if a hazard appears at the edge of your headlight range, you cannot stop in time."
+      },
+      {
+        q: "After driving through a deep puddle or flooded section of road, you should:",
+        opts: ["Accelerate to dry the brakes quickly with friction","Come to a complete stop on the road to inspect for damage","Gently tap and apply your brakes several times to dry them and restore normal braking","Do nothing — modern disc brakes are self-cleaning"],
+        ans: 2,
+        exp: "Water can reduce braking effectiveness. After driving through deep water, gently tap the brakes a few times to build heat and dry the brake surfaces. Test your stopping ability before returning to normal speeds."
+      },
+      {
+        q: "Distracted driving includes all of the following EXCEPT:",
+        opts: ["Eating or drinking while driving","Adjusting the car stereo or navigation while moving","Daydreaming or being lost in thought","Checking mirrors every 5–8 seconds"],
+        ans: 3,
+        exp: "Regularly checking mirrors is a safe, recommended practice — not a distraction. Distracted driving involves any activity that diverts attention from the primary task of driving: visual, manual, or cognitive."
+      },
+      {
+        q: "Road rage can most effectively be avoided by:",
+        opts: ["Responding firmly to show other drivers you will not be intimidated","Slowing down or blocking an aggressive driver","Not engaging — allowing space, avoiding eye contact, and not responding to provocations","Honking back to establish your position"],
+        ans: 2,
+        exp: "The safest response to an aggressive driver is to not engage. Give them space, avoid eye contact, and do not retaliate. If threatened, do not stop — drive to a police station or busy public area."
+      },
+      {
+        q: "In a work zone, drivers should:",
+        opts: ["Maintain highway speed to reduce time in the zone","Follow the vehicle ahead closely to limit the number of vehicles in the zone","Slow down significantly, stay alert, and obey all signs and flagger instructions","Sound their horn to alert workers"],
+        ans: 2,
+        exp: "Work zones are among the most dangerous places on the road. Reduce speed, increase following distance, eliminate distractions, and always obey flaggers and signs."
+      },
+      {
+        q: "To avoid 'target fixation' (driving toward what you're looking at), you should:",
+        opts: ["Focus intently on the center of the lane ahead","Stare at the hazard to judge how to react","Look where you WANT to go, not at the hazard","Close your eyes briefly to reset your focus"],
+        ans: 2,
+        exp: "Target fixation causes drivers to steer toward whatever they are staring at. Look beyond and around hazards — toward where you want to go — and your hands will naturally follow your eyes."
+      },
+      {
+        q: "When a tire blows out at highway speed, the correct first response is to:",
+        opts: ["Apply the brakes hard immediately","Grip the wheel firmly, ease off the gas (do NOT brake suddenly), and steer straight","Swerve immediately to the shoulder","Shift into neutral and coast to a stop"],
+        ans: 1,
+        exp: "A blowout often causes a strong pull to one side. Grip the wheel firmly, resist the pull, ease off the gas, and let the vehicle slow naturally before gently steering to the shoulder."
+      },
+      {
+        q: "Sun glare while driving can best be managed by:",
+        opts: ["Wearing regular sunglasses and maintaining speed","Closing your eyes briefly to protect your vision","Using the sun visor, wearing polarized sunglasses, and slowing down; if blinded, look to the right edge of the road","Using high beams to illuminate the road ahead despite the glare"],
+        ans: 2,
+        exp: "Use the visor and sunglasses to reduce glare. If momentarily blinded, slow down and look toward the right edge of the road (painted fog line) to maintain your lane position."
+      },
+      {
+        q: "On a curve, the safest technique is to:",
+        opts: ["Accelerate through the curve to reduce time in it","Brake firmly in the middle of the curve if needed","Slow down before entering the curve, then gently accelerate through it","Maintain exactly the posted speed limit"],
+        ans: 2,
+        exp: "Enter curves at a safe, reduced speed. Braking mid-curve can cause a skid. Gently accelerating through a curve improves stability by transferring weight toward the rear wheels."
+      },
+      {
+        q: "Which of the following is the safest response to an approaching aggressive driver who is tailgating you?",
+        opts: ["Brake-check the tailgater to force them to back off","Speed up so they cannot keep up","Gradually slow down to create more space ahead, making it easier for the tailgater to pass","Pull over immediately and stop"],
+        ans: 2,
+        exp: "Create more space ahead of you so you can brake gradually if needed. Signal and move right when safe, allowing the aggressive driver to pass. Brake-checking can cause a rear-end crash."
+      },
+      {
+        q: "When your engine stalls while driving at speed, you should:",
+        opts: ["Immediately apply the parking brake","Steer calmly toward a safe area while you still have momentum and power-assisted steering, signal, and coast to a stop","Shift to reverse to restart the engine","Turn the ignition off and on rapidly to restart while rolling"],
+        ans: 1,
+        exp: "Power steering and power brakes still work for a short time after stall. Steer safely to the shoulder while the vehicle still moves. Use the ignition switch to restart — but don't try this at high speed."
+      },
+      {
+        q: "When following a large truck, the greatest danger is:",
+        opts: ["The truck's exhaust affecting your engine","Being in the truck's blind spot — the driver cannot see you and may change lanes or brake unexpectedly","Losing control in the truck's wind wake","Road debris from the truck's tires"],
+        ans: 1,
+        exp: "Large trucks have extensive blind spots. If you cannot see the truck driver in their mirrors, they cannot see you. Increase following distance so you can see their mirrors and they can see your vehicle."
+      },
+      {
+        q: "What is the 'No Zone' around large trucks?",
+        opts: ["The distance where a truck must stop by law","The areas directly in front, behind, and on both sides where the truck driver has little or no visibility","The speed zone near a truck weigh station","A highway lane restricted to trucks"],
+        ans: 1,
+        exp: "The No Zone describes the four areas around a large truck where the driver's visibility is severely limited: directly in front (~20 feet), behind (~200 feet), and on both sides. Avoid staying in any No Zone."
+      },
+      {
+        q: "Which of the following best reduces the chance of a crash at night?",
+        opts: ["Driving faster to spend less time on the road","Using high beams at all times for maximum visibility","Slowing down, maximizing alertness, and keeping headlights clean and properly aimed","Following other vehicles closely to use their lights"],
+        ans: 2,
+        exp: "Night driving requires greater caution. Reduce speed so you can stop within your headlight range. Keep headlights clean and aimed correctly. Avoid looking directly at oncoming headlights."
+      },
+      {
+        q: "If you experience a sudden steering loss (tire failure or loss of power steering), you should:",
+        opts: ["Brake hard and steer sharply to the shoulder","Keep both hands on the wheel, maintain your direction, ease off the gas, and allow the vehicle to slow before carefully steering to safety","Immediately stop in your lane and turn on hazard lights","Shift to a lower gear and apply the parking brake"],
+        ans: 1,
+        exp: "Maintain a two-hand grip and keep the vehicle pointed forward. Sudden steering or braking can cause loss of control. Allow the vehicle to slow naturally, then ease toward the shoulder."
+      },
+      {
+        q: "When approaching an intersection where a traffic light has just turned green, you should:",
+        opts: ["Accelerate immediately through the intersection","Check that cross traffic has actually stopped before proceeding","Blast your horn to warn any red-light runners","Wait for the vehicle behind you to urge you forward"],
+        ans: 1,
+        exp: "A 'fresh green' is one of the most dangerous traffic light situations. Red-light runners may still be in the intersection. Pause briefly and verify cross traffic has stopped before you enter."
+      },
+      {
+        q: "The most common contributing factor in highway crashes is:",
+        opts: ["Poor road design","Mechanical failure","Driver inattention, distraction, or fatigue","Bad weather"],
+        ans: 2,
+        exp: "Studies consistently show that driver error — primarily inattention, distraction, and fatigue — is the most frequent factor in crashes. Conditions like weather are contributing factors, not primary causes."
+      },
+      {
+        q: "When driving in very heavy rain, what is the greatest tire-related hazard?",
+        opts: ["Tire blowouts from wet road debris","Hydroplaning — tires riding on a film of water and losing traction","Increased tire pressure from heat and rain","Sidewall damage from puddles"],
+        ans: 1,
+        exp: "Hydroplaning is the primary tire hazard in heavy rain. It can occur at speeds as low as 35 mph on wet roads. Properly inflated tires with adequate tread significantly reduce the risk."
+      },
+      {
+        q: "When merging onto a highway, if there is not a safe gap in traffic, you should:",
+        opts: ["Force your way in — highway traffic must yield to merging vehicles","Stop at the end of the ramp and wait","Slow or stop in the merge lane and wait for a safe gap before entering","Sound your horn to alert traffic to make room"],
+        ans: 2,
+        exp: "Merging vehicles must yield to highway traffic. If no safe gap exists, slow at the end of the merge lane (or briefly stop) and wait for one. Never stop on the highway itself if you can avoid it."
+      },
+      {
+        q: "One early warning sign that you may be becoming drowsy while driving is:",
+        opts: ["Driving slightly faster than usual","Missing exits or turn-offs, lane drifting, or frequent blinking","Feeling hungry","The radio seems louder than normal"],
+        ans: 1,
+        exp: "Missing exits, drifting from your lane, heavy eyelids, and difficulty remembering the last few miles are all signs of drowsiness. Pull over immediately and rest."
+      },
+      {
+        q: "The purpose of rumble strips on the highway shoulder is to:",
+        opts: ["Mark the lane boundaries for bicycles","Alert drowsy or distracted drivers who drift off the road through sound and vibration","Provide traction for vehicles on the edge of the road","Mark no-parking zones along the shoulder"],
+        ans: 1,
+        exp: "Rumble strips are grooved patterns pressed into the road surface at the lane edge or shoulder. The vibration and noise they create serve as a sensory alarm for drivers who have drifted from their lane."
+      },
+      {
+        q: "ABS (Anti-lock Braking System) is designed to:",
+        opts: ["Stop the vehicle in the shortest possible distance on all surfaces","Automatically steer the vehicle around obstacles","Prevent wheel lockup during hard braking so the driver can maintain steering control","Reduce fuel consumption during deceleration"],
+        ans: 2,
+        exp: "ABS rapidly pulses braking pressure many times per second to prevent wheel lockup. This keeps the tires rolling and allows you to steer while applying maximum braking force."
+      },
+      {
+        q: "If you must drive through a flooded road (and the water depth is shallow), the safest approach is to:",
+        opts: ["Speed through to minimize the time in water","Drive through slowly and steadily in low gear; test brakes immediately after","Shift to neutral and coast through","Drive through at normal speed and pump the brakes continuously"],
+        ans: 1,
+        exp: "If you must cross a shallow flooded section, go slowly in a low gear to maintain momentum without causing engine damage. Immediately afterward, gently tap the brakes several times to dry them."
+      },
+      {
+        q: "The best overall strategy for avoiding crashes on any road in any condition is:",
+        opts: ["Driving at the exact speed limit","Keeping your vehicle well maintained","Maintaining a space cushion, eliminating distractions, staying alert, and actively scanning far ahead","Never driving faster than 45 mph"],
+        ans: 2,
+        exp: "There is no single strategy — safe driving requires combining good habits: active scanning, space cushion, zero distractions, appropriate speed, and consistent alertness. These habits prevent the vast majority of crashes."
+      }
+    ]
+  },
+
+  // ════════════════════════════════════════════════
+  //  CHAPTER 6 — Sharing the Road
+  // ════════════════════════════════════════════════
+  {
+    id: "nj-drivers-ch6",
+    title: "NJ Driver's Manual – Chapter 6",
+    subtitle: "Sharing the Road",
+    icon: "🤝",
+    passPct: 80,
+    questions: [
+      {
+        q: "NJ law requires a minimum clearance of how many feet when passing a bicyclist?",
+        opts: ["1 foot","2 feet","3 feet","5 feet"],
+        ans: 2,
+        exp: "NJ's '3-Foot Passing Law' requires drivers to give cyclists at least 3 feet of lateral clearance when passing. If the road is too narrow, wait until it is safe to pass with that clearance."
+      },
+      {
+        q: "When a bicyclist is riding in the travel lane, they:",
+        opts: ["Must move onto the sidewalk when one is available","Are entitled to the full width of the travel lane and must be given the same rights as other vehicles","Must stay within 3 feet of the curb at all times","Are required to dismount at intersections"],
+        ans: 1,
+        exp: "Cyclists have the same rights and duties as motor vehicle drivers. They may use the full lane and do not have to move to the right edge just because a car is behind them."
+      },
+      {
+        q: "Before making a right turn across a bicycle lane, you must:",
+        opts: ["Sound your horn to alert any cyclist","Use your high beams to increase visibility","Yield to any cyclist already in or approaching the bicycle lane","Park in the bike lane briefly to check for cyclists"],
+        ans: 2,
+        exp: "When turning right across a bike lane, yield to cyclists in the lane. Signal early, check mirrors and blind spots, then merge into the bike lane (where permitted) and complete the turn."
+      },
+      {
+        q: "A driver must yield to pedestrians:",
+        opts: ["Only at marked crosswalks with traffic signals","Only if the pedestrian has already stepped off the curb","At all crosswalks — marked or unmarked — when pedestrians are crossing or about to cross","Only during school hours in school zones"],
+        ans: 2,
+        exp: "NJ law requires drivers to yield at all crosswalks — marked or unmarked. An unmarked crosswalk exists at every intersection where a sidewalk meets the road."
+      },
+      {
+        q: "Motorcycles are entitled to:",
+        opts: ["Share a lane side-by-side with a car","The full width of a traffic lane, just as a car would be","Ride only on the right one-third of the lane","Use the shoulder to pass slow traffic"],
+        ans: 1,
+        exp: "A motorcyclist is entitled to the full width of their lane. Do not attempt to share a lane with a motorcycle or crowd them to the side."
+      },
+      {
+        q: "When following a motorcycle, you should:",
+        opts: ["Follow at the same distance you would a car","Follow more closely so you can see their brake lights clearly","Maintain a larger following distance than with a car — motorcycles can stop quickly and their brake lights may be harder to see","Flash your high beams to signal your presence"],
+        ans: 2,
+        exp: "Motorcycles can stop much faster than cars. Maintain a following distance of at least 4 seconds behind a motorcycle. Also, their brake lights are small and easy to miss."
+      },
+      {
+        q: "When following a large truck, you should increase your following distance primarily because:",
+        opts: ["Trucks accelerate and brake faster than cars","The truck obstructs your forward view, and trucks need far more stopping distance","Trucks create heavy wind turbulence at close range","It is required by federal law"],
+        ans: 1,
+        exp: "Large trucks block your view of the road and traffic ahead. A greater following distance gives you an earlier view around the truck and allows more time to react to the truck's braking."
+      },
+      {
+        q: "A large truck's rear blind spot ('No Zone') extends approximately how far behind the trailer?",
+        opts: ["10 feet","30 feet","100–200 feet","500 feet"],
+        ans: 2,
+        exp: "The rear No Zone extends roughly 100–200 feet directly behind a large truck or trailer. If you cannot see the truck driver's face in their mirrors, you are in their blind spot."
+      },
+      {
+        q: "The danger of a truck making a 'wide right turn' is that:",
+        opts: ["The truck swings wide and may hit your windshield","The truck must swing left first before turning right, potentially crushing a vehicle on its right side","The truck blocks two lanes during the turn","The truck's rear view is obstructed"],
+        ans: 1,
+        exp: "Large trucks need extra space and often swing left before turning right. Never try to squeeze between a turning truck and the curb — the rear of the trailer can crush your vehicle."
+      },
+      {
+        q: "If you cannot see a truck driver's face in their side mirror, it means:",
+        opts: ["Their mirrors are not properly adjusted","You are traveling at an unsafe speed","You are in the truck's blind spot and the driver cannot see you","The truck's mirrors are dirty"],
+        ans: 2,
+        exp: "The rule of thumb for trucks: if you can't see the driver's face in their mirror, they can't see you. Either increase your following distance (move back) or pass completely through the blind spot quickly."
+      },
+      {
+        q: "On a road without a raised median, when must you stop for a school bus displaying flashing red lights and the stop arm extended?",
+        opts: ["Only if you are directly behind the bus","Only if you are within 100 feet of the bus","Traffic in both directions must stop","Only if children are visibly crossing the road"],
+        ans: 2,
+        exp: "On undivided roads (no physical barrier between lanes), all traffic in both directions must stop when a school bus displays flashing red lights and the stop arm is extended."
+      },
+      {
+        q: "On a divided highway with a physical barrier (median), when a school bus stops, which vehicles must stop?",
+        opts: ["All vehicles in both directions","Only vehicles in the same direction as the bus, behind it","Only vehicles directly adjacent to the bus","No vehicles are required to stop on a divided highway"],
+        ans: 1,
+        exp: "On a divided highway with a physical barrier, only vehicles traveling in the same direction as the bus and behind it must stop. Traffic on the other side of the barrier may continue."
+      },
+      {
+        q: "How far from a stopped school bus (with flashing red lights) must drivers stop?",
+        opts: ["10 feet","15 feet","25 feet","50 feet"],
+        ans: 2,
+        exp: "You must stop at least 25 feet from a school bus with flashing red lights and the stop arm extended. This gives children a safe distance to cross in front of or behind the bus."
+      },
+      {
+        q: "When may you proceed past a stopped school bus with red lights flashing?",
+        opts: ["When no children are visible crossing","After waiting 10 seconds","When the flashing lights stop and the stop arm is fully withdrawn","When the bus driver waves you on"],
+        ans: 2,
+        exp: "Proceed only after the red lights have stopped flashing and the stop arm is fully withdrawn. Even then, proceed slowly and carefully — children may still be near the road."
+      },
+      {
+        q: "A pedestrian using a white cane or guide dog must be given:",
+        opts: ["The right of way only at signalized intersections","The same rights as any other pedestrian","An absolute right of way — drivers must always yield","Priority only in school zones and hospital areas"],
+        ans: 2,
+        exp: "NJ law grants persons who are blind or visually impaired (identified by a white cane or guide dog) an absolute right of way at crosswalks and intersections. Failure to yield carries stiff penalties."
+      },
+      {
+        q: "When you see pedestrians waiting at or stepping into a crosswalk, you must:",
+        opts: ["Honk to let them know you are approaching","Flash your headlights so they know to wait","Slow down and stop — yield to all pedestrians in or entering a crosswalk","Proceed if no signal indicates they may cross"],
+        ans: 2,
+        exp: "NJ law requires drivers to stop and remain stopped for pedestrians in or entering a crosswalk. Do not proceed until all pedestrians have completely crossed your half of the roadway."
+      },
+      {
+        q: "When an emergency vehicle with lights and siren approaches from any direction, you must:",
+        opts: ["Speed up to clear the road quickly","Stop wherever you are immediately","Pull as far to the right as possible and stop until the vehicle has passed","Only yield if the emergency vehicle is in your lane"],
+        ans: 2,
+        exp: "When an emergency vehicle approaches with lights and siren, immediately pull as far right as safely possible and stop. Remain stopped until the vehicle has fully passed."
+      },
+      {
+        q: "NJ's Move Over Law requires drivers approaching a stationary emergency or service vehicle with lights flashing on the shoulder to:",
+        opts: ["Stop completely until the vehicle moves","Speed up to pass the scene quickly","Move over one lane away from the vehicle if safe to do so; if not, slow down significantly","Activate your own hazard lights and maintain speed"],
+        ans: 2,
+        exp: "The Move Over Law applies to police, fire, EMS, tow trucks, and highway maintenance vehicles. Move over a lane (if safe) or slow to a speed safe for conditions. Fines are substantial."
+      },
+      {
+        q: "A driver following a police-escorted funeral procession should:",
+        opts: ["Pass the procession if a gap appears","Merge into the procession if they are going the same way","Not join a moving funeral procession; yield to it at intersections even if the light is green","Activate hazard lights and drive between procession vehicles"],
+        ans: 2,
+        exp: "Do not join or cut through a funeral procession. At intersections, yield even if your light turns green — the procession has the right to proceed together."
+      },
+      {
+        q: "When you encounter a horse and rider on the road, you should:",
+        opts: ["Sound your horn to alert the rider","Maintain your normal speed and give a wide berth","Slow down significantly, pass wide, and avoid sudden movements, loud noises, or bright lights","Flash your headlights as a warning"],
+        ans: 2,
+        exp: "Horses can spook easily and unpredictably. Slow well down, pass at a walk-speed and as far away as safely possible, avoid horns or loud acceleration, and check behind you to ensure the rider is stable."
+      },
+      {
+        q: "When you see farm equipment or a slow-moving vehicle with an orange triangle reflector ahead, you should:",
+        opts: ["Pass immediately — the triangle means it is legal to pass","Assume it will pull over and maintain your speed","Slow down well in advance, follow at a safe distance, and pass only when the lane is clear and safe","Use your high beams to signal the operator to yield"],
+        ans: 2,
+        exp: "The orange slow-moving vehicle (SMV) triangle indicates a vehicle traveling under 25 mph. Slow down early — farm equipment moves slowly and can be very wide. Pass only when completely safe."
+      },
+      {
+        q: "Motorcyclists often shift their lane position within their lane in order to:",
+        opts: ["Intimidate or challenge other drivers","Ride two abreast legally","Maintain visibility, avoid road hazards, and be seen by other drivers","Signal that they are about to change lanes"],
+        ans: 2,
+        exp: "Motorcyclists adjust their position within the lane to maximize their visibility to other drivers (especially in mirrors and blind spots), to avoid debris, and to improve sight distances at intersections and curves."
+      },
+      {
+        q: "Why should you NOT follow a motorcycle too closely?",
+        opts: ["It is always illegal","Motorcycles can stop much faster than cars; also, their brake lights are small and easy to miss","Motorcycles are slower than cars and you would be impeding traffic","You must allow for the motorcycle's wind turbulence"],
+        ans: 1,
+        exp: "Motorcycles have excellent braking capability and can stop in a shorter distance than most cars. If you tailgate, you may rear-end a motorcyclist who brakes for a small hazard you didn't see."
+      },
+      {
+        q: "When opening your vehicle door while parked, you should:",
+        opts: ["Open it quickly to minimize time in traffic","Open it automatically — there is no legal obligation","Check your mirror and physically look behind you before opening — cyclists can be struck by a door ('dooring')","Only check if you are on a dedicated bicycle-lane road"],
+        ans: 2,
+        exp: "'Dooring' (opening a car door into an approaching cyclist) causes serious injuries. Always use the 'Dutch reach' — open the door with the hand farthest from the door, naturally turning your body to check behind you."
+      },
+      {
+        q: "If you are being tailgated by another driver, the safest response is to:",
+        opts: ["Brake suddenly to force the tailgater to back off","Speed up to create more distance in front of you","Gradually slow down, creating more space ahead so you can brake more gradually if needed","Change lanes abruptly to get away from the tailgater"],
+        ans: 2,
+        exp: "Create more buffer ahead of you. This allows you to brake more gradually (giving the tailgater time to react) and makes the lane clear for the tailgater to pass. Do not retaliate — it escalates danger."
+      },
+      {
+        q: "Children are especially vulnerable pedestrians because they:",
+        opts: ["Walk faster than adults and harder to predict","Often dart into traffic unpredictably and have limited ability to judge vehicle speed and distance","Always walk in groups that block traffic","Ignore traffic signals"],
+        ans: 1,
+        exp: "Children lack the cognitive development to reliably judge vehicle speed and gaps. They act impulsively and may dart into traffic without looking. Always slow down near schools, playgrounds, and residential areas."
+      },
+      {
+        q: "Near a school building, playground, or anywhere children are present, you should:",
+        opts: ["Sound your horn to alert them of your presence","Flash your lights so they see you","Slow down significantly and be prepared to stop for any child at any time","Maintain the posted speed limit — that was set for safety"],
+        ans: 2,
+        exp: "When children are visible anywhere near the road, reduce speed well below the posted limit and cover the brake. Children can move into the road instantly and without warning."
+      },
+      {
+        q: "The best position in which to pass a large truck is:",
+        opts: ["Slowly — lingering alongside the truck to be safe","Quickly — move through the truck's blind zones without lingering","On the right side of the truck","As close to the truck as possible to minimize lane-change time"],
+        ans: 1,
+        exp: "Pass trucks as quickly (but safely) as possible. The longer you are alongside a large truck, the longer you are in its blind spot. Signal, accelerate, and complete the pass decisively."
+      },
+      {
+        q: "A bicycle lane may be entered by a motor vehicle:",
+        opts: ["Only if no cyclist is visible","Never — motor vehicles are fully prohibited from bike lanes at all times","To prepare for a right turn (entering only for the minimum necessary distance) or to enter/exit a driveway","Only in an emergency"],
+        ans: 2,
+        exp: "You may briefly enter a bike lane to turn right (merge in just before the turn), enter/exit a driveway or alley, or in some parking situations. You must yield to cyclists in the lane before entering."
+      },
+      {
+        q: "What does a triangular orange reflector on the rear of a slow-moving vehicle indicate?",
+        opts: ["The vehicle is stopped and requires assistance","The vehicle is turning right","The vehicle travels at less than 25 mph — a slow-moving vehicle (SMV) marker","The vehicle is operating under a special permit"],
+        ans: 2,
+        exp: "The SMV (Slow Moving Vehicle) emblem — a fluorescent orange triangle with a reflective red border — is required on all vehicles that typically travel under 25 mph, including farm equipment and horse-drawn vehicles."
+      },
+      {
+        q: "The safest time to pass a large truck is when you:",
+        opts: ["Are alongside the truck and can see the driver in their mirror","Have completely passed the truck and can see it in your rearview mirror before moving back to the right","Are approaching the truck and the road ahead looks clear","Signal while positioned in the truck's left No Zone"],
+        ans: 1,
+        exp: "Return to the right lane only when you can see the entire truck (including headlights) in your rearview mirror. This ensures you are fully clear and will not cut off the truck with your return maneuver."
+      },
+      {
+        q: "Two motorcycles may legally ride side-by-side in a single lane in NJ:",
+        opts: ["Never — each motorcycle must occupy the full lane","Only on a highway with a speed limit of 55 mph or less","Only with police permission","Legally, but it is not generally recommended for safety reasons"],
+        ans: 0,
+        exp: "In NJ, motorcyclists are entitled to the full use of a lane, and no motor vehicle shall deprive a motorcycle of the full use of a lane. Two motorcycles riding side-by-side (lane sharing) is generally not permitted."
+      },
+      {
+        q: "When approaching a truck that is making a wide right turn at an intersection, the safest action is to:",
+        opts: ["Speed up and pass on the left before the truck begins its swing","Squeeze between the truck and the curb on the right","Wait — never attempt to pass a turning truck on either side","Honk to signal the truck driver you are there"],
+        ans: 2,
+        exp: "Never try to pass a turning truck. The rear of the trailer tracks inside the truck's turning path and can crush a vehicle on either side. Wait until the truck has completed the turn."
+      },
+      {
+        q: "A driver who fails to yield to a blind pedestrian using a white cane in NJ faces:",
+        opts: ["No penalty — pedestrian signals govern the right of way","A warning on first offense only","Significant fines and other penalties, as NJ law grants blind pedestrians absolute right of way","A minor fine similar to a parking ticket"],
+        ans: 2,
+        exp: "NJ law specifically protects pedestrians who are blind or visually impaired. Drivers who fail to yield when a blind person is in or about to enter a crosswalk face substantial fines."
+      },
+      {
+        q: "On a road with a bicycle lane, where should you look before turning right?",
+        opts: ["Only in the rearview mirror","Only in the right side mirror","In the mirror, over the right shoulder, and check for cyclists in the bike lane before turning","Only forward for pedestrians at the crosswalk"],
+        ans: 2,
+        exp: "Before a right turn across a bike lane, check all mirrors AND physically turn to check your blind spot for cyclists. Cyclists travel faster than pedestrians and may be hidden from your mirrors."
+      },
+      {
+        q: "After an emergency vehicle with lights and siren passes, you should wait:",
+        opts: ["3 seconds before resuming normal speed","Until the driver behind you signals you to move","Until the emergency vehicle is at least 300–500 feet ahead and no other emergency vehicles are following","Exactly 30 seconds as required by law"],
+        ans: 2,
+        exp: "Wait until the emergency vehicle is well clear (at least 300–500 feet ahead) before resuming normal driving. Multiple emergency vehicles often travel in convoy, and a second vehicle may be close behind."
+      },
+      {
+        q: "When driving near pedestrians at night, you should:",
+        opts: ["Use high beams to illuminate them better","Maintain normal speed — pedestrians can see your headlights","Reduce your speed and be prepared to stop, as pedestrians are much harder to see at night","Stay in the center lane to stay away from the sidewalk"],
+        ans: 2,
+        exp: "Pedestrians are significantly harder to see at night, even when lit by headlights. Reduce speed when in areas where pedestrians may be present. Dark clothing makes pedestrians nearly invisible."
+      },
+      {
+        q: "When sharing the road with a moped or low-speed vehicle, drivers should:",
+        opts: ["Expect the moped to move to the shoulder since it is slower","Treat it the same as a bicycle","Give it the full lane and follow at a safe distance — mopeds and low-speed vehicles are legitimate lane users","Sound the horn to encourage the operator to move over"],
+        ans: 2,
+        exp: "Mopeds and low-speed vehicles are licensed to use the road. They are entitled to the full travel lane. Pass only when it is safe to do so, giving at least 3 feet of clearance."
+      },
+      {
+        q: "What does 'sharing the road' ultimately require of drivers?",
+        opts: ["Always yielding to every other road user regardless of right of way","Driving as fast as possible to minimize your impact on other road users","Recognizing and respecting the vulnerabilities of all other road users — pedestrians, cyclists, motorcyclists, and trucks — and adjusting your behavior accordingly","Using the horn liberally to communicate your intentions"],
+        ans: 2,
+        exp: "Sharing the road means being aware that other users are more vulnerable (pedestrians, cyclists, motorcyclists) or less maneuverable (trucks, buses, farm equipment) than your vehicle, and driving accordingly."
+      }
+    ]
+  }
   // ── Add more quiz objects here to expand the Quiz Center ──
 ];
 
@@ -1197,6 +2271,16 @@ function startQuiz(id, subsetIndices) {
   S.qs       = subsetIndices
     ? subsetIndices.map(i => ({ ...qz.questions[i], _orig: i }))
     : qz.questions.map((q, i) => ({ ...q, _orig: i }));
+  // Shuffle each question's options (Fisher-Yates), keeping ans in sync
+  S.qs = S.qs.map(q => {
+    const order = [0, 1, 2, 3];
+    for (let i = order.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [order[i], order[j]] = [order[j], order[i]];
+    }
+    return { ...q, opts: order.map(i => q.opts[i]), ans: order.indexOf(q.ans) };
+  });
+
   S.answers  = new Array(S.qs.length).fill(null);
   S.revealed = new Array(S.qs.length).fill(false);
   S.explOpen = new Array(S.qs.length).fill(false);
